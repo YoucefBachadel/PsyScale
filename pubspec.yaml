@@ -26,6 +26,7 @@ dependencies:
   cached_network_image: ^3.0.0
   cloud_firestore: ^1.0.5
   cupertino_icons: ^1.0.2
+  firebase_admin: ^0.1.4
   firebase_auth: ^1.1.0
   firebase_core: ^1.2.0
   firebase_storage: ^8.0.4
@@ -69,6 +70,5 @@ flutter:
     - family: Itim
       fonts:
         - asset: fonts/Itim-Regular.ttf
-  #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
