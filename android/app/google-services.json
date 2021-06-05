@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "89418894560",
+    "project_id": "master-project-31449",
+    "storage_bucket": "master-project-31449.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:89418894560:android:aeb7676203c2e80122d485",
+        "android_client_info": {
+          "package_name": "com.masterproject.psyscale"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "89418894560-0m5bj0qdvrmucrb3upgd0m2feapa10fg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfBkpsKvFjDNX5bHEzlr_JZIDPdDNt5sk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "89418894560-0m5bj0qdvrmucrb3upgd0m2feapa10fg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
