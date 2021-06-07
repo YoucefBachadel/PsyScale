@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CurrentUser {
   final String uid;
@@ -9,20 +9,28 @@ class CurrentUser {
 
 class UserData {
   final String uid;
-  User user;
   final String name;
+  final String email;
+  final int phone;
   final String type;
   final String language;
   final String theme;
-  final List<Map<String, Object>> history;
+  final Timestamp creationDate;
+  final Timestamp lastSignIn;
+  final bool validated;
+  List<Map<String, Object>> history;
 
   UserData(
       {this.uid,
-      this.user,
       this.name,
+      this.email,
+      this.phone,
       this.type,
       this.language,
       this.theme,
+      this.creationDate,
+      this.lastSignIn,
+      this.validated,
       this.history});
 
   static List<Map<String, Object>> getList(List<dynamic> list) {

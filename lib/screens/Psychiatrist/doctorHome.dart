@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/services/auth.dart';
+import 'package:psyscale/services/userServices.dart';
 
 class DoctorHome extends StatefulWidget {
   @override
@@ -8,8 +11,14 @@ class DoctorHome extends StatefulWidget {
 
 class _DoctorHomeState extends State<DoctorHome> {
   AuthService _auth = AuthService();
+  bool updatedLastSignIn = false;
   @override
   Widget build(BuildContext context) {
+    final userData = Provider.of<UserData>(context);
+    if (userData != null && !updatedLastSignIn) {
+      UsersServices(useruid: userData.uid).updatelastSignIn();
+      updatedLastSignIn = true;
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text('Doctor'),

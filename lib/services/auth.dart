@@ -37,12 +37,18 @@ class AuthService {
       User user = result.user;
 
       // create a new document for the user with the uid
-      await UsersServices(useruid: user.uid).addUserData(UserData(
+      UserData userData = UserData(
         name: name,
+        email: email,
         type: 'user',
         language: 'English',
         theme: 'System',
-      ));
+      );
+      if (userData.type == 'user') {
+        userData.history = [];
+      }
+
+      await UsersServices(useruid: user.uid).addUserData(userData);
       return _userFromFirebaseUser(user);
     } catch (e) {
       print(e.toString());

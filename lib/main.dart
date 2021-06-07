@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:desktop_window/desktop_window.dart';
 import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/screens/Admin/adminHome.dart';
 import 'package:psyscale/screens/Auth/signin.dart';
@@ -16,13 +20,16 @@ import 'package:psyscale/shared/widgets.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-
+  if (!kIsWeb && (Platform.isMacOS || Platform.isLinux || Platform.isWindows)) {
+    await DesktopWindow.setMinWindowSize(const Size(600, 800));
+  }
   // change the color of navigation button bar
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     systemNavigationBarColor: Constants.border,
   ));
+
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -75,6 +82,7 @@ class Wrapper extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.active) {
             UserData userData = snapshot.data;
+
             return StreamProvider<UserData>.value(
               initialData: null,
               value: UsersServices(useruid: user.uid).userData,

@@ -14,6 +14,7 @@ class UsersServices {
   Future updateUserData(UserData userData) async {
     return await usersCollection.doc(useruid).update({
       'name': userData.name,
+      'email': userData.email,
       'type': userData.type,
       'language': userData.language,
       'theme': userData.theme,
@@ -23,9 +24,19 @@ class UsersServices {
   Future addUserData(UserData userData) async {
     return await usersCollection.doc(useruid).set({
       'name': userData.name,
+      'email': userData.email,
       'type': userData.type,
       'language': userData.language,
       'theme': userData.theme,
+      'creationDate': Timestamp.now(),
+      'lastSignIn': Timestamp.now(),
+    });
+  }
+
+  // update user hestory
+  Future updatelastSignIn() async {
+    return await usersCollection.doc(useruid).update({
+      'lastSignIn': Timestamp.now(),
     });
   }
 
@@ -54,9 +65,12 @@ class UsersServices {
     return UserData(
       uid: useruid,
       name: snapshot.data()['name'],
+      email: snapshot.data()['email'],
       type: snapshot.data()['type'],
       language: snapshot.data()['language'],
       theme: snapshot.data()['theme'],
+      creationDate: snapshot.data()['creationDate'],
+      lastSignIn: snapshot.data()['lastSignIn'],
       history: snapshot.data().containsKey('history')
           ? UserData.getList(snapshot.data()['history'])
           : null,

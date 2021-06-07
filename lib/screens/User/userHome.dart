@@ -37,6 +37,7 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
   List<String> tabs = ['Categories', 'All Tests'];
 
   String clickedQuestionnaire = '';
+  bool updatedLastSignIn = false;
 
   @override
   void initState() {
@@ -57,6 +58,10 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.userData != null && !updatedLastSignIn) {
+      UsersServices(useruid: widget.userData.uid).updatelastSignIn();
+      updatedLastSignIn = true;
+    }
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         body: Responsive.isMobile(context)
@@ -188,6 +193,7 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Material(
+                                color: Colors.transparent,
                                 elevation: 5.0,
                                 child: TextField(
                                   controller: _textFieldController,

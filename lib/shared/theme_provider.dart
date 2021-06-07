@@ -15,8 +15,8 @@ class ThemeProvider extends ChangeNotifier {
 
 class MyTheme {
   static final darkTheme = ThemeData(
-    scaffoldBackgroundColor: Color(0xFF000205),
-    backgroundColor: Colors.black,
+    scaffoldBackgroundColor: Color(0xFF121212),
+    backgroundColor: Color(0xFF121212),
     primaryColor: Colors.black,
     accentColor: Color(0xFFF29217),
     visualDensity: VisualDensity.adaptivePlatformDensity,
