@@ -45,7 +45,7 @@ class AuthService {
         theme: 'System',
       );
       if (userData.type == 'user') {
-        userData.history = [];
+        userData.history = null;
       }
 
       await UsersServices(useruid: user.uid).addUserData(userData);

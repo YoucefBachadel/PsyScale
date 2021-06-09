@@ -35,7 +35,6 @@ class QuestionnairesServices {
       'answers': questionnaire.answers,
       'questionsAnswers': _questionsAnswersMap,
       'evaluations': questionnaire.evaluations,
-      'visits': 0,
     });
   }
 
@@ -64,7 +63,6 @@ class QuestionnairesServices {
       'answers': questionnaire.answers,
       'questionsAnswers': _questionsAnswersMap,
       'evaluations': questionnaire.evaluations,
-      'visits': questionnaire.visits,
     });
   }
 

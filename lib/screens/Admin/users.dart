@@ -17,105 +17,86 @@ class Users extends StatefulWidget {
 }
 
 class _UsersState extends State<Users> {
-  final List<UserData> allUsers = [];
-  final List<UserData> users = [];
-  final List<UserData> psychiatrists = [];
-  final List<UserData> admins = [];
-  String _sortBy = '';
-  String _lastStor = '';
+  String _sortBy = 'User Name';
+  String _lastStore = '';
+  List<UserData> allUsers = [];
+  List<UserData> users = [];
 
-  getAllUsers([QuerySnapshot data]) {
+  getUsersList(QuerySnapshot data, String type) {
     allUsers.clear();
+    users.clear();
     if (data != null) {
       data.docs.forEach((doc) {
-        allUsers.add(UserData(
-          uid: doc.id,
-          type: doc['type'],
-          name: doc['name'],
-          email: doc['email'],
-          language: doc['language'],
-          creationDate: doc['creationDate'],
-          lastSignIn: doc['lastSignIn'],
-          // phone: doc['phone'] ?? null,
-          // validated: doc['validated'] ?? false,
-        ));
+        if (type == 'users' && doc['type'] == 'user') {
+          allUsers.add(UserData(
+            uid: doc.id,
+            type: doc['type'],
+            name: doc['name'],
+            email: doc['email'],
+            language: doc['language'],
+            creationDate: doc['creationDate'],
+            lastSignIn: doc['lastSignIn'],
+          ));
+        } else if (type == 'psychiatrists' && doc['type'] == 'doctor') {
+          allUsers.add(UserData(
+            uid: doc.id,
+            type: doc['type'],
+            name: doc['name'],
+            email: doc['email'],
+            language: doc['language'],
+            creationDate: doc['creationDate'],
+            lastSignIn: doc['lastSignIn'],
+          ));
+        } else if (type == 'admins' &&
+            (doc['type'] == 'admin' || doc['type'] == 'superAdmin')) {
+          allUsers.add(UserData(
+            uid: doc.id,
+            type: doc['type'],
+            name: doc['name'],
+            email: doc['email'],
+            language: doc['language'],
+            creationDate: doc['creationDate'],
+            lastSignIn: doc['lastSignIn'],
+          ));
+        }
       });
     }
+    allUsers.forEach((element) {
+      if (element.name
+          .toLowerCase()
+          .contains(widget.search.value.toLowerCase())) {
+        users.add(element);
+      }
+    });
     listStor();
   }
 
   listStor() {
-    _lastStor = 'Language';
     switch (_sortBy) {
       case 'User Name':
-        if (_lastStor == _sortBy) {
-          allUsers.sort((a, b) => a.name.compareTo(b.name));
-        } else {
-          allUsers.sort((a, b) => b.name.compareTo(a.name));
-        }
+        users.sort(
+            (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
         break;
       case 'Email':
-        if (_lastStor == _sortBy) {
-          allUsers.sort((a, b) => a.email.compareTo(b.email));
-        } else {
-          allUsers.sort((a, b) => b.email.compareTo(a.email));
-        }
+        users.sort(
+            (a, b) => a.email.toLowerCase().compareTo(b.email.toLowerCase()));
         break;
       case 'Creation Date':
-        if (_lastStor == _sortBy) {
-          allUsers.sort((a, b) => a.creationDate.compareTo(b.creationDate));
-        } else {
-          allUsers.sort((a, b) => b.creationDate.compareTo(a.creationDate));
-        }
+        users.sort((a, b) => a.creationDate.compareTo(b.creationDate));
         break;
       case 'Last SignIn':
-        if (_lastStor == _sortBy) {
-          allUsers.sort((a, b) => a.lastSignIn.compareTo(b.lastSignIn));
-        } else {
-          allUsers.sort((a, b) => b.lastSignIn.compareTo(a.lastSignIn));
-        }
+        users.sort((a, b) => a.lastSignIn.compareTo(b.lastSignIn));
         break;
       case 'Language':
-        if (_lastStor == _sortBy) {
-          allUsers.sort((a, b) => a.language.compareTo(b.language));
-        } else {
-          allUsers.sort((a, b) => b.language.compareTo(a.language));
-        }
+        users.sort((a, b) => a.language.compareTo(b.language));
         break;
     }
-
-    _lastStor = _lastStor;
-  }
-
-  getUsersList() {
-    users.clear();
-    allUsers.forEach((element) {
-      if (element.name.toLowerCase().contains(widget.search.value) &&
-          element.type == 'user') {
-        users.add(element);
-      }
-    });
-  }
-
-  getPsychitristsList() {
-    psychiatrists.clear();
-    allUsers.forEach((element) {
-      if (element.name.toLowerCase().contains(widget.search.value) &&
-          element.type == 'doctor') {
-        psychiatrists.add(element);
-      }
-    });
-  }
-
-  getAdminsList() {
-    admins.clear();
-    allUsers.forEach((element) {
-      if (element.name.toLowerCase().contains(widget.search.value) &&
-              (element.type == 'admin') ||
-          element.type == 'superAdmin') {
-        admins.add(element);
-      }
-    });
+    if (_lastStore == _sortBy) {
+      users.reversed.toList();
+      _lastStore = '';
+    } else {
+      _lastStore = _sortBy;
+    }
   }
 
   @override
@@ -124,118 +105,152 @@ class _UsersState extends State<Users> {
       body: StreamBuilder(
           stream: UsersServices().allUserData,
           builder: (context, snapshot) {
-            QuerySnapshot data = snapshot.data;
-
-            getAllUsers(data);
-
-            return widget.type == 'users'
-                ? usersList()
-                : widget.type == 'psychiatrists'
-                    ? psychiatristsList()
-                    : adminsList();
+            if (snapshot.hasData) {
+              QuerySnapshot data = snapshot.data;
+              getUsersList(data, widget.type);
+              return widget.type == 'users'
+                  ? usersList()
+                  : widget.type == 'psychiatrists'
+                      ? psychiatristsList()
+                      : adminsList();
+            } else {
+              return loading(context);
+            }
           }),
+      floatingActionButton: widget.type == 'admins'
+          ? FloatingActionButton(
+              heroTag: null,
+              backgroundColor: Theme.of(context).accentColor,
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+              onPressed: () {},
+            )
+          : null,
     );
   }
 
   Widget usersList() {
-    getUsersList();
     return users.isEmpty
-        ? loading(context)
-        : DataTable(
-            columns: [
-              DataColumn(label: culomnItem('#', false)),
-              DataColumn(label: culomnItem('User Name', true)),
-              DataColumn(label: culomnItem('Email', true)),
-              DataColumn(label: culomnItem('Creation Date', true)),
-              DataColumn(label: culomnItem('Last SignIn', true)),
-              DataColumn(label: culomnItem('Language', true)),
-              DataColumn(label: culomnItem('', false)),
-            ],
-            rows: users.map((e) {
-              return DataRow(cells: [
-                DataCell(
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/avatar.jpg'),
-                  ),
-                ),
-                DataCell(Text(e.name)),
-                DataCell(Text(e.email)),
-                DataCell(Text(
-                    DateFormat('yyyy-MM-dd').format(e.creationDate.toDate()))),
-                DataCell(Text(
-                    DateFormat('yyyy-MM-dd').format(e.lastSignIn.toDate()))),
-                DataCell(Text(e.language)),
-                DataCell(deleteButton(context, () {})),
-              ]);
-            }).toList(),
+        ? emptyList()
+        : Center(
+            child: Container(
+              color: Theme.of(context).backgroundColor,
+              height: double.infinity,
+              child: DataTable(
+                headingRowColor: MaterialStateColor.resolveWith(
+                    (states) => Theme.of(context).accentColor),
+                columns: [
+                  DataColumn(label: culomnItem('', false)),
+                  DataColumn(label: culomnItem('User Name', true)),
+                  DataColumn(label: culomnItem('Email', true)),
+                  DataColumn(label: culomnItem('Creation Date', true)),
+                  DataColumn(label: culomnItem('Last SignIn', true)),
+                  DataColumn(label: culomnItem('Language', true)),
+                  DataColumn(label: culomnItem('', false)),
+                ],
+                rows: users.map((e) {
+                  return DataRow(cells: [
+                    DataCell(
+                      CircleAvatar(
+                        backgroundImage: AssetImage('assets/avatar.jpg'),
+                      ),
+                    ),
+                    DataCell(Text(e.name)),
+                    DataCell(Text(e.email)),
+                    DataCell(Text(DateFormat('yyyy-MM-dd')
+                        .format(e.creationDate.toDate()))),
+                    DataCell(Text(DateFormat('yyyy-MM-dd H:mm')
+                        .format(e.lastSignIn.toDate()))),
+                    DataCell(Text(e.language)),
+                    DataCell(deleteButton(context, () {})),
+                  ]);
+                }).toList(),
+              ),
+            ),
           );
   }
 
   Widget psychiatristsList() {
-    getPsychitristsList();
-    return psychiatrists.isEmpty
-        ? loading(context)
-        : DataTable(
-            columns: [
-              DataColumn(label: culomnItem('#', false)),
-              DataColumn(label: culomnItem('User Name', true)),
-              DataColumn(label: culomnItem('Email', true)),
-              DataColumn(label: culomnItem('Creation Date', true)),
-              DataColumn(label: culomnItem('Last SignIn', true)),
-              DataColumn(label: culomnItem('Language', true)),
-              DataColumn(label: culomnItem('', false)),
-            ],
-            rows: psychiatrists.map((e) {
-              return DataRow(cells: [
-                DataCell(
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/avatar.jpg'),
-                  ),
-                ),
-                DataCell(Text(e.name)),
-                DataCell(Text(e.email)),
-                DataCell(Text(
-                    DateFormat('yyyy-MM-dd').format(e.creationDate.toDate()))),
-                DataCell(Text(
-                    DateFormat('yyyy-MM-dd').format(e.lastSignIn.toDate()))),
-                DataCell(Text(e.language)),
-                DataCell(deleteButton(context, () {})),
-              ]);
-            }).toList(),
+    return users.isEmpty
+        ? emptyList()
+        : Center(
+            child: Container(
+              color: Theme.of(context).backgroundColor,
+              height: double.infinity,
+              child: DataTable(
+                headingRowColor: MaterialStateColor.resolveWith(
+                    (states) => Theme.of(context).accentColor),
+                columns: [
+                  DataColumn(label: culomnItem('', false)),
+                  DataColumn(label: culomnItem('User Name', true)),
+                  DataColumn(label: culomnItem('Email', true)),
+                  DataColumn(label: culomnItem('Creation Date', true)),
+                  DataColumn(label: culomnItem('Last SignIn', true)),
+                  DataColumn(label: culomnItem('Language', true)),
+                  DataColumn(label: culomnItem('', false)),
+                ],
+                rows: users.map((e) {
+                  return DataRow(cells: [
+                    DataCell(
+                      CircleAvatar(
+                        backgroundImage: AssetImage('assets/avatar.jpg'),
+                      ),
+                    ),
+                    DataCell(Text(e.name)),
+                    DataCell(Text(e.email)),
+                    DataCell(Text(DateFormat('yyyy-MM-dd')
+                        .format(e.creationDate.toDate()))),
+                    DataCell(Text(DateFormat('yyyy-MM-dd H:mm')
+                        .format(e.lastSignIn.toDate()))),
+                    DataCell(Text(e.language)),
+                    DataCell(deleteButton(context, () {})),
+                  ]);
+                }).toList(),
+              ),
+            ),
           );
   }
 
   Widget adminsList() {
-    getAdminsList();
-    return admins.isEmpty
-        ? loading(context)
-        : DataTable(
-            columns: [
-              DataColumn(label: culomnItem('#', false)),
-              DataColumn(label: culomnItem('User Name', true)),
-              DataColumn(label: culomnItem('Email', true)),
-              DataColumn(label: culomnItem('Creation Date', true)),
-              DataColumn(label: culomnItem('Last SignIn', true)),
-              DataColumn(label: culomnItem('Language', true)),
-              DataColumn(label: culomnItem('', false)),
-            ],
-            rows: admins.map((e) {
-              return DataRow(cells: [
-                DataCell(
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/avatar.jpg'),
-                  ),
-                ),
-                DataCell(Text(e.name)),
-                DataCell(Text(e.email)),
-                DataCell(Text(
-                    DateFormat('yyyy-MM-dd').format(e.creationDate.toDate()))),
-                DataCell(Text(
-                    DateFormat('yyyy-MM-dd').format(e.lastSignIn.toDate()))),
-                DataCell(Text(e.language)),
-                DataCell(deleteButton(context, () {})),
-              ]);
-            }).toList(),
+    return users.isEmpty
+        ? emptyList()
+        : Center(
+            child: Container(
+              color: Theme.of(context).backgroundColor,
+              height: double.infinity,
+              child: DataTable(
+                headingRowColor: MaterialStateColor.resolveWith(
+                    (states) => Theme.of(context).accentColor),
+                columns: [
+                  DataColumn(label: culomnItem('', false)),
+                  DataColumn(label: culomnItem('User Name', true)),
+                  DataColumn(label: culomnItem('Email', true)),
+                  DataColumn(label: culomnItem('Creation Date', true)),
+                  DataColumn(label: culomnItem('Last SignIn', true)),
+                  DataColumn(label: culomnItem('Language', true)),
+                  DataColumn(label: culomnItem('', false)),
+                ],
+                rows: users.map((e) {
+                  return DataRow(cells: [
+                    DataCell(
+                      CircleAvatar(
+                        backgroundImage: AssetImage('assets/avatar.jpg'),
+                      ),
+                    ),
+                    DataCell(Text(e.name)),
+                    DataCell(Text(e.email)),
+                    DataCell(Text(DateFormat('yyyy-MM-dd')
+                        .format(e.creationDate.toDate()))),
+                    DataCell(Text(DateFormat('yyyy-MM-dd H:mm')
+                        .format(e.lastSignIn.toDate()))),
+                    DataCell(Text(e.language)),
+                    DataCell(deleteButton(context, () {})),
+                  ]);
+                }).toList(),
+              ),
+            ),
           );
   }
 
@@ -257,7 +272,7 @@ class _UsersState extends State<Users> {
                 Text(
                   text,
                   style: TextStyle(
-                    fontSize: 16.0,
+                    fontSize: 14.0,
                   ),
                   textAlign: TextAlign.start,
                 ),
@@ -274,9 +289,9 @@ class _UsersState extends State<Users> {
               Text(
                 text,
                 style: TextStyle(
-                  fontSize: 16.0,
+                  fontSize: 14.0,
                 ),
-                textAlign: TextAlign.start,
+                textAlign: TextAlign.center,
               ),
             ],
           );

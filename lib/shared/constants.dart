@@ -7,6 +7,7 @@ class Constants {
   static const int animationDuration = 1200;
 
   static navigationFunc(BuildContext context, Widget widget) {
+    // Navigator.push(context, MaterialPageRoute(builder: (context) => widget));
     Navigator.of(context).push(PageRouteBuilder(
       fullscreenDialog: true,
       transitionDuration: Duration(milliseconds: animationDuration),

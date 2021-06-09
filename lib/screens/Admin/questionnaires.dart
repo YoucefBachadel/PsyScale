@@ -20,16 +20,17 @@ class Questionnaires extends StatefulWidget {
 }
 
 class _QuestionnairesState extends State<Questionnaires> {
-  List<Trouble> troubles = [];
   List<Questionnaire> allQuestionnaires = [];
+  final List<Trouble> allTroubles = [];
   List<Questionnaire> questionnaires = [];
+
   List<bool> troubleExpanded = [];
 
-  getTroublesList(QuerySnapshot data) async {
-    troubles.clear();
+  getTroublesList(QuerySnapshot data, String language) async {
+    allTroubles.clear();
     if (data != null) {
-      data.docs.map((doc) {
-        troubles.add(Trouble(
+      data.docs.forEach((doc) {
+        allTroubles.add(Trouble(
           uid: doc.id,
           nameEn: doc['nameEn'],
           nameFr: doc['nameFr'],
@@ -41,7 +42,9 @@ class _QuestionnairesState extends State<Questionnaires> {
           imageUrl: doc['imageUrl'],
         ));
         troubleExpanded.add(false);
-      }).toList();
+      });
+      allTroubles
+          .sort((a, b) => a.getName(language).compareTo(b.getName(language)));
     }
   }
 
@@ -49,7 +52,7 @@ class _QuestionnairesState extends State<Questionnaires> {
     allQuestionnaires.clear();
     questionnaires.clear();
     if (data != null) {
-      data.docs.map((doc) {
+      data.docs.forEach((doc) {
         allQuestionnaires.add(Questionnaire(
           uid: doc.id,
           troubleUid: doc['troubleUid'],
@@ -70,15 +73,16 @@ class _QuestionnairesState extends State<Questionnaires> {
               : null,
           evaluations: Questionnaire.getList(doc['evaluations']),
         ));
-      }).toList();
+      });
       allQuestionnaires.forEach((element) {
         if (element
             .getName(language)
             .toLowerCase()
-            .contains(widget.search.value)) {
+            .contains(widget.search.value.toLowerCase())) {
           questionnaires.add(element);
         }
       });
+
       questionnaires
           .sort((a, b) => a.getName(language).compareTo(b.getName(language)));
     }
@@ -88,114 +92,106 @@ class _QuestionnairesState extends State<Questionnaires> {
   Widget build(BuildContext context) {
     final userData = Provider.of<UserData>(context);
     return Scaffold(
-      body: desktopWidget(
-        Container(),
-        Container(),
-        Container(
-          color: Theme.of(context).backgroundColor,
-          child: StreamBuilder(
-              stream: TroublesServices().troubleData,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  QuerySnapshot data = snapshot.data;
-                  getTroublesList(data);
-
-                  return CustomScrollView(
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: _buildPanel(),
-                      )
-                    ],
-                  );
-                } else {
-                  return loading(context);
-                }
-              }),
-        ),
-      ),
-      floatingActionButton: userData != null
-          ? userData.type == 'admin'
-              ? FloatingActionButton(
-                  heroTag: null,
-                  backgroundColor: Theme.of(context).accentColor,
-                  child: Icon(
-                    Icons.add,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Constants.navigationFunc(
-                      context,
-                      AddQuestionnaire(
-                        questionnaire: null,
-                        userData: userData,
-                      ),
-                    );
-                  },
-                )
-              : null
-          : null,
-    );
+        body: StreamBuilder(
+            stream: TroublesServices().troubleData,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                QuerySnapshot data = snapshot.data;
+                getTroublesList(data, userData.language);
+                return StreamBuilder(
+                    stream: QuestionnairesServices().questionnaireData,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        QuerySnapshot data = snapshot.data;
+                        getQuestionnairesList(data, userData.language);
+                        return desktopWidget(
+                          Container(),
+                          Container(),
+                          Container(
+                            alignment: questionnaires.isEmpty
+                                ? Alignment.center
+                                : Alignment.topCenter,
+                            color: Theme.of(context).backgroundColor,
+                            height: double.infinity,
+                            child: CustomScrollView(
+                              slivers: [
+                                SliverToBoxAdapter(
+                                  child: _buildPanel(),
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      } else {
+                        return loading(context);
+                      }
+                    });
+              } else {
+                return loading(context);
+              }
+            }),
+        floatingActionButton: FloatingActionButton(
+          heroTag: null,
+          backgroundColor: Theme.of(context).accentColor,
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Constants.navigationFunc(
+              context,
+              AddQuestionnaire(
+                questionnaire: null,
+                userData: userData,
+              ),
+            );
+          },
+        ));
   }
 
   Widget _buildPanel() {
     final userData = Provider.of<UserData>(context);
     int index = -1;
     return widget.search.value != ''
-        ? StreamBuilder(
-            stream: QuestionnairesServices().questionnaireData,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                QuerySnapshot data = snapshot.data;
-                getQuestionnairesList(data, userData.language);
-
-                return Container(
-                  child: questionnaires.isEmpty
-                      ? emptyList()
-                      : GridView.count(
-                          scrollDirection: Axis.vertical,
-                          shrinkWrap: true,
-                          crossAxisCount: 2,
-                          childAspectRatio: 3.0,
-                          children: questionnaires.map((questionnaire) {
-                            return Card(
-                              clipBehavior: Clip.antiAlias,
-                              shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                      color: Constants.myGrey, width: 1.0),
-                                  borderRadius: BorderRadius.circular(24.0)),
-                              elevation: 2.0,
-                              child: InkWell(
-                                onTap: () {
-                                  Constants.navigationFunc(
-                                    context,
-                                    AddQuestionnaire(
-                                      questionnaire: questionnaire,
-                                      userData: userData,
-                                    ),
-                                  );
-                                },
-                                child: ListTile(
-                                  title: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(questionnaire
-                                        .getName(userData.language)),
-                                  ),
-                                  subtitle: Text(
-                                    questionnaire
-                                        .getDescreption(userData.language),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 3,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
+        ? questionnaires.isEmpty
+            ? emptyList()
+            : GridView.count(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                crossAxisCount: 2,
+                childAspectRatio: 3.0,
+                children: questionnaires.map((questionnaire) {
+                  return Card(
+                    clipBehavior: Clip.antiAlias,
+                    shape: RoundedRectangleBorder(
+                        side: BorderSide(color: Constants.myGrey, width: 1.0),
+                        borderRadius: BorderRadius.circular(24.0)),
+                    elevation: 2.0,
+                    child: InkWell(
+                      onTap: () {
+                        Constants.navigationFunc(
+                          context,
+                          AddQuestionnaire(
+                            questionnaire: questionnaire,
+                            userData: userData,
+                          ),
+                        );
+                      },
+                      child: ListTile(
+                        title: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(questionnaire.getName(userData.language)),
                         ),
-                );
-              } else {
-                return loading(context);
-              }
-            })
+                        subtitle: Text(
+                          questionnaire.getDescreption(userData.language),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              )
         : ExpansionPanelList(
             animationDuration:
                 Duration(milliseconds: Constants.animationDuration),
@@ -204,8 +200,14 @@ class _QuestionnairesState extends State<Questionnaires> {
                 troubleExpanded[panelIndex] = !isExpanded;
               });
             },
-            children: troubles.map((Trouble trouble) {
+            children: allTroubles.map((Trouble trouble) {
               index++;
+              List<Questionnaire> _localQuestionnaires = [];
+              questionnaires.forEach((questionnaire) {
+                if (questionnaire.troubleUid == trouble.uid) {
+                  _localQuestionnaires.add(questionnaire);
+                }
+              });
               return ExpansionPanel(
                 headerBuilder: (BuildContext context, bool isExpanded) {
                   return ListTile(
@@ -218,71 +220,50 @@ class _QuestionnairesState extends State<Questionnaires> {
                 isExpanded: troubleExpanded[index],
                 body: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: StreamBuilder(
-                      stream: QuestionnairesServices().questionnaireData,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          QuerySnapshot data = snapshot.data;
-                          getQuestionnairesList(data, userData.language);
-
-                          List<Questionnaire> _localQuestionnaires = [];
-                          questionnaires.forEach((questionnaire) {
-                            if (questionnaire.troubleUid == trouble.uid) {
-                              _localQuestionnaires.add(questionnaire);
-                            }
-                          });
-                          return Container(
-                            child: _localQuestionnaires.isEmpty
-                                ? emptyList()
-                                : GridView.count(
-                                    scrollDirection: Axis.vertical,
-                                    shrinkWrap: true,
-                                    crossAxisCount: 2,
-                                    childAspectRatio: 3.0,
-                                    children: _localQuestionnaires
-                                        .map((questionnaire) {
-                                      return Card(
-                                        clipBehavior: Clip.antiAlias,
-                                        shape: RoundedRectangleBorder(
-                                            side: BorderSide(
-                                                color: Constants.myGrey,
-                                                width: 1.0),
-                                            borderRadius:
-                                                BorderRadius.circular(24.0)),
-                                        elevation: 2.0,
-                                        child: InkWell(
-                                          onTap: () {
-                                            Constants.navigationFunc(
-                                              context,
-                                              AddQuestionnaire(
-                                                questionnaire: questionnaire,
-                                                userData: userData,
-                                              ),
-                                            );
-                                          },
-                                          child: ListTile(
-                                            title: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(questionnaire
-                                                  .getName(userData.language)),
-                                            ),
-                                            subtitle: Text(
-                                              questionnaire.getDescreption(
-                                                  userData.language),
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 3,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
+                  child: Container(
+                    child: _localQuestionnaires.isEmpty
+                        ? emptyList()
+                        : GridView.count(
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            crossAxisCount: 2,
+                            childAspectRatio: 3.0,
+                            children: _localQuestionnaires.map((questionnaire) {
+                              return Card(
+                                clipBehavior: Clip.antiAlias,
+                                shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: Constants.myGrey, width: 1.0),
+                                    borderRadius: BorderRadius.circular(24.0)),
+                                elevation: 2.0,
+                                child: InkWell(
+                                  onTap: () {
+                                    Constants.navigationFunc(
+                                      context,
+                                      AddQuestionnaire(
+                                        questionnaire: questionnaire,
+                                        userData: userData,
+                                      ),
+                                    );
+                                  },
+                                  child: ListTile(
+                                    title: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(questionnaire
+                                          .getName(userData.language)),
+                                    ),
+                                    subtitle: Text(
+                                      questionnaire
+                                          .getDescreption(userData.language),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 3,
+                                    ),
                                   ),
-                          );
-                        } else {
-                          return loading(context);
-                        }
-                      }),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                  ),
                 ),
               );
             }).toList(),

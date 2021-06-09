@@ -9,8 +9,8 @@ class Questionnaire {
   String descreptionEn;
   String descreptionFr;
   String descreptionAr;
+  String stockageUrl;
   String type;
-  int visits;
   List<Map<String, Object>> questions;
   List<Map<String, Object>> answers;
   List<QuestionAnswer> questionsAnswers;
@@ -26,8 +26,8 @@ class Questionnaire {
     this.descreptionEn,
     this.descreptionFr,
     this.descreptionAr,
+    this.stockageUrl,
     this.type,
-    this.visits,
     this.questions,
     this.answers,
     this.questionsAnswers,
@@ -95,7 +95,7 @@ class Questionnaire {
         return questionsAnswers.length;
         break;
       default:
-        return 0;
+        return questionsAnswers.length;
     }
   }
 

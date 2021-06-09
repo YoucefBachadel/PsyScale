@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/screens/Admin/dashboard.dart';
@@ -8,7 +9,6 @@ import 'package:psyscale/screens/Admin/troubles.dart';
 import 'package:psyscale/screens/Admin/users.dart';
 import 'package:psyscale/screens/settings.dart';
 import 'package:psyscale/services/userServices.dart';
-import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/widgets.dart';
 
 class AdminHome extends StatefulWidget {
@@ -19,23 +19,22 @@ class AdminHome extends StatefulWidget {
 class _AdminHomeState extends State<AdminHome> {
   List<Widget> _screens = [];
   List<Map<String, Object>> _tabs = [
-    {'icon': Icons.home, 'title': 'Home', 'index': 0},
-    {'icon': Icons.home, 'title': 'Troubles', 'index': 1},
-    {'icon': Icons.home, 'title': 'Questionnaires', 'index': 2},
-    {'icon': Icons.home, 'title': 'Hybrids', 'index': 3},
+    {'icon': Icons.home, 'title': 'Home', 'index': 1},
+    {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 2},
+    {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 3},
+    {'icon': Icons.home, 'title': 'Hybrids', 'index': 4},
     {
       'icon': Icons.supervised_user_circle_rounded,
       'title': 'Users',
-      'index': 4
+      'index': 5
     },
-    {'icon': Icons.person, 'title': 'Psychiatrists', 'index': 5},
+    {'icon': MdiIcons.doctor, 'title': 'Psychiatrists', 'index': 6},
   ];
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
   TextEditingController _textFieldController = TextEditingController();
-  FocusNode _textFieldFocusNode = FocusNode();
-  bool isSearching = false;
-  final search = ValueNotifier('');
   final ScrollController _scrollController = ScrollController();
+  FocusNode _textFieldFocusNode = FocusNode();
+  final search = ValueNotifier('');
   bool updatedLastSignIn = false;
 
   @override
@@ -56,15 +55,26 @@ class _AdminHomeState extends State<AdminHome> {
       updatedLastSignIn = true;
     }
     _screens = [
-      // Setting(userData: userData),
+      Setting(userData: userData),
       Dashboard(),
       Troubles(search: search),
-      Questionnaires(search: search),
+      Questionnaires(
+        search: search,
+      ),
       Hybrid(search: search),
-      Users(search: search, type: 'users'),
-      Users(search: search, type: 'psychiatrists'),
+      Users(
+        search: search,
+        type: 'users',
+      ),
+      Users(
+        search: search,
+        type: 'psychiatrists',
+      ),
       userData != null && userData.type == 'superAdmin'
-          ? Users(search: search, type: 'admins')
+          ? Users(
+              search: search,
+              type: 'admins',
+            )
           : SizedBox(),
     ];
     if (userData != null && userData.type == 'superAdmin' && _tabs.length < 7) {
@@ -72,7 +82,7 @@ class _AdminHomeState extends State<AdminHome> {
         Users(search: search, type: 'admins'),
       );
       _tabs.add(
-          {'icon': Icons.admin_panel_settings, 'title': 'Admins', 'index': 6});
+          {'icon': Icons.admin_panel_settings, 'title': 'Admins', 'index': 7});
     }
     return Scaffold(
       body: Row(
@@ -82,12 +92,7 @@ class _AdminHomeState extends State<AdminHome> {
             selectedIndex: _selectedIndex,
             onTap: (index) => setState(() => _selectedIndex = index),
           ),
-          Expanded(
-            child: IndexedStack(
-              index: _selectedIndex,
-              children: _screens,
-            ),
-          ),
+          Expanded(child: _screens[_selectedIndex]),
         ],
       ),
     );
@@ -100,7 +105,7 @@ class _AdminHomeState extends State<AdminHome> {
   }) {
     final userData = Provider.of<UserData>(context);
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
       height: double.infinity,
       width: 280.0,
       color: Theme.of(context).primaryColor,
@@ -115,16 +120,23 @@ class _AdminHomeState extends State<AdminHome> {
             builder: (context, value, child) => TextField(
               controller: _textFieldController,
               focusNode: _textFieldFocusNode,
-              decoration: searchTextInputDecoration(
-                context,
-                () {
-                  _textFieldController.clear();
-                  FocusScope.of(context).requestFocus(new FocusNode());
-                  setState(() {
-                    search.value = '';
-                    isSearching = false;
-                  });
-                },
+              decoration: searchTextInputDecoration(context).copyWith(
+                suffixIcon: search.value.isNotEmpty
+                    ? IconButton(
+                        alignment: Alignment.center,
+                        icon: Icon(
+                          Icons.close,
+                          size: 30.0,
+                        ),
+                        focusColor: Theme.of(context).accentColor,
+                        onPressed: () {
+                          _textFieldController.clear();
+                          FocusScope.of(context).requestFocus(new FocusNode());
+                          setState(() {
+                            search.value = '';
+                          });
+                        })
+                    : null,
               ),
               onChanged: (value) {
                 setState(() {
@@ -133,92 +145,47 @@ class _AdminHomeState extends State<AdminHome> {
               },
             ),
           ),
-          SizedBox(height: 8.0),
-          divider(),
-          DefaultTabController(
-            length: _screens.length,
-            child: customTapBar(
-              tabs: tabs,
-              selectedIndex: selectedIndex,
-              onTap: onTap,
+          const SizedBox(height: 8.0),
+          Expanded(
+            child: Material(
+              color: Colors.transparent,
+              child: ListView(
+                padding: const EdgeInsets.all(20.0),
+                controller: _scrollController,
+                children: tabs
+                    .map((e) => ListTile(
+                          leading: Icon(
+                            e['icon'],
+                            color: e['index'] == selectedIndex
+                                ? Theme.of(context).accentColor
+                                : Colors.grey,
+                          ),
+                          title: Text(
+                            e['title'],
+                            style: TextStyle(
+                                color: e['index'] == selectedIndex
+                                    ? Theme.of(context).accentColor
+                                    : Colors.grey,
+                                fontSize:
+                                    e['index'] == selectedIndex ? 22.0 : 16.0),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _selectedIndex = e['index'];
+                            });
+                          },
+                        ))
+                    .toList(),
+              ),
             ),
           ),
-          userCard(user: userData),
+          userCard(context, userData, () {
+            setState(() {
+              _selectedIndex = 0;
+            });
+          }),
         ],
       ),
     );
-  }
-
-  Widget customTapBar({
-    List<Map<String, Object>> tabs,
-    int selectedIndex,
-    Function(int) onTap,
-  }) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.all(16.0),
-        child: ListView(
-          controller: _scrollController,
-          children: tabs
-              .map((e) => ListTile(
-                    leading: Icon(
-                      e['icon'],
-                      color: e['index'] == selectedIndex
-                          ? Theme.of(context).accentColor
-                          : Colors.grey,
-                    ),
-                    title: Text(
-                      e['title'],
-                      style: TextStyle(
-                          color: e['index'] == selectedIndex
-                              ? Theme.of(context).accentColor
-                              : Colors.grey,
-                          fontSize: e['index'] == selectedIndex ? 22.0 : 16.0),
-                    ),
-                    onTap: () {
-                      setState(() {
-                        _selectedIndex = e['index'];
-                      });
-                    },
-                  ))
-              .toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget userCard({UserData user}) {
-    final userData = Provider.of<UserData>(context);
-    return user == null
-        ? loading(context)
-        : InkWell(
-            onTap: () {
-              Constants.navigationFunc(
-                context,
-                Setting(
-                  userData: userData,
-                ),
-              );
-            },
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage: AssetImage('assets/avatar.jpg'),
-                ),
-                const SizedBox(width: 6.0),
-                Expanded(
-                  child: Text(
-                    user.name,
-                    style: const TextStyle(fontSize: 16.0),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Icon(
-                  Icons.navigate_next,
-                  size: 30.0,
-                ),
-              ],
-            ),
-          );
   }
 }

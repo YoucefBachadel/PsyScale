@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -14,12 +15,14 @@ Widget appBar(BuildContext context, String txt1, String txt2) {
           fontSize: 30,
         ),
       ),
-      Text(txt2,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).accentColor,
-            fontSize: 30,
-          )),
+      Text(
+        txt2,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).accentColor,
+          fontSize: 30,
+        ),
+      ),
     ],
   );
 }
@@ -102,8 +105,7 @@ InputDecoration textInputDecoration(BuildContext context, String hint) {
   );
 }
 
-InputDecoration searchTextInputDecoration(
-    BuildContext context, Function onPressed) {
+InputDecoration searchTextInputDecoration(BuildContext context) {
   return InputDecoration(
     filled: true,
     hintText: 'Search',
@@ -112,22 +114,6 @@ InputDecoration searchTextInputDecoration(
     prefixIcon: Icon(
       Icons.search,
       size: 30.0,
-    ),
-    suffixIcon: IconButton(
-      alignment: Alignment.center,
-      icon: Icon(
-        Icons.close,
-        size: 30.0,
-      ),
-      focusColor: Theme.of(context).accentColor,
-      onPressed: onPressed,
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(20.0),
-      borderSide: BorderSide(
-        color: Constants.myGrey,
-        width: 0.5,
-      ),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(20.0),
@@ -213,4 +199,43 @@ Widget deleteButton(BuildContext context, Function onTap) {
       ),
     ),
   );
+}
+
+ScaffoldFeatureController snackBar(BuildContext context, String message) {
+  return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    elevation: 1.0,
+    shape: RoundedRectangleBorder(
+      side: BorderSide(color: Theme.of(context).accentColor, width: 2.0),
+      borderRadius: BorderRadius.circular(6.0),
+    ),
+    content: Text(message),
+    duration: Duration(seconds: 2),
+  ));
+}
+
+Widget userCard(BuildContext context, UserData userData, Function onTap) {
+  return userData == null
+      ? loading(context)
+      : InkWell(
+          onTap: onTap,
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundImage: AssetImage('assets/avatar.jpg'),
+              ),
+              const SizedBox(width: 6.0),
+              Expanded(
+                child: Text(
+                  userData.name,
+                  style: const TextStyle(fontSize: 16.0),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(
+                Icons.navigate_next,
+                size: 30.0,
+              ),
+            ],
+          ),
+        );
 }

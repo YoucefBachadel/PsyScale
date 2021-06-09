@@ -45,7 +45,9 @@ class _SettingState extends State<Setting> {
         isLoading = false;
       });
     }
-    Navigator.pop(context);
+    if (Responsive.isMobile(context)) {
+      Navigator.pop(context);
+    }
   }
 
   logout() async {
@@ -68,10 +70,12 @@ class _SettingState extends State<Setting> {
   Widget build(BuildContext context) {
     return Responsive.isMobile(context)
         ? Scaffold(
-            appBar: AppBar(
-              title: appBar(context, 'Settings', ''),
-              centerTitle: true,
-            ),
+            appBar: widget.userData.type != 'doctor'
+                ? AppBar(
+                    title: appBar(context, 'Settings', ''),
+                    centerTitle: true,
+                  )
+                : null,
             body: settingContainer(),
           )
         : Scaffold(
@@ -85,7 +89,6 @@ class _SettingState extends State<Setting> {
 
   Widget settingContainer() {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final user = Provider.of<CurrentUser>(context);
     final double screenWidth = MediaQuery.of(context).size.width;
     return isLoading
         ? loading(context)
@@ -105,7 +108,7 @@ class _SettingState extends State<Setting> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   changeUserName
                       ? TextFormField(
                           decoration: textInputDecoration(
@@ -129,31 +132,33 @@ class _SettingState extends State<Setting> {
                             ),
                           ),
                         ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
-                    user == null ? '' : user.email,
+                    widget.userData.email,
                     style: TextStyle(
                       letterSpacing: 2,
                       fontSize: 14,
                     ),
                   ),
-                  Spacer(flex: 1),
+                  const Spacer(flex: 1),
                   divider(),
-                  Spacer(flex: 2),
-                  DropdownButtonFormField(
-                    decoration: textInputDecoration(context, 'Theme'),
-                    items: themes.map((themes) {
-                      return DropdownMenuItem(
-                        value: themes,
-                        child: Text(themes),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      _theme = value;
-                      themeProvider.toggleTheme(value);
-                    },
-                  ),
-                  SizedBox(height: 10.0),
+                  const Spacer(flex: 2),
+                  Responsive.isMobile(context)
+                      ? DropdownButtonFormField(
+                          decoration: textInputDecoration(context, 'Theme'),
+                          items: themes.map((themes) {
+                            return DropdownMenuItem(
+                              value: themes,
+                              child: Text(themes),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            _theme = value;
+                            themeProvider.toggleTheme(value);
+                          },
+                        )
+                      : const SizedBox(),
+                  const SizedBox(height: 10.0),
                   DropdownButtonFormField(
                     decoration: textInputDecoration(context, 'Language'),
                     items: Language.languageList().map((language) {
@@ -161,11 +166,13 @@ class _SettingState extends State<Setting> {
                         value: language,
                         child: Row(
                           children: [
-                            Text(
-                              language.flag,
-                              style: TextStyle(fontSize: 20),
-                            ),
-                            SizedBox(width: 6.0),
+                            Responsive.isMobile(context)
+                                ? Text(
+                                    language.flag,
+                                    style: TextStyle(fontSize: 20),
+                                  )
+                                : const SizedBox(),
+                            const SizedBox(width: 6.0),
                             Text(language.name),
                           ],
                         ),
@@ -175,7 +182,7 @@ class _SettingState extends State<Setting> {
                       _language = language.name;
                     },
                   ),
-                  Spacer(),
+                  const Spacer(),
                   InkWell(
                     onTap: () {
                       save(widget.userData);
@@ -196,11 +203,10 @@ class _SettingState extends State<Setting> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   InkWell(
-                    onTap: () async {
-                      await _auth.signOut();
-                      Navigator.pop(context);
+                    onTap: () {
+                      logout();
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 18.0),
@@ -218,7 +224,7 @@ class _SettingState extends State<Setting> {
                       ),
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                 ],
               ),
             ),

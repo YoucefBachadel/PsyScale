@@ -139,17 +139,19 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
 
   getHestoryList() {
     historys.clear();
-    widget.userData.history.forEach((element) {
-      if ((element['name'] as String).toLowerCase().contains(search)) {
-        historys.add({
-          'name': element['name'],
-          'date': (element['date'] as Timestamp).toDate(),
-          'score': element['score'],
-          'message': element['message'],
-        });
-        historys.sort((a, b) => (b['date'] as DateTime).compareTo(a['date']));
-      }
-    });
+    if (widget.userData.history != null) {
+      widget.userData.history.forEach((element) {
+        if ((element['name'] as String).toLowerCase().contains(search)) {
+          historys.add({
+            'name': element['name'],
+            'date': (element['date'] as Timestamp).toDate(),
+            'score': element['score'],
+            'message': element['message'],
+          });
+          historys.sort((a, b) => (b['date'] as DateTime).compareTo(a['date']));
+        }
+      });
+    }
     UsersServices(useruid: widget.userData.uid)
         .updateHestoryList(historys, widget.userData.uid);
   }
@@ -184,29 +186,38 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                           : 'Hello ${widget.userData.name}',
                       ''),
                   bottom: PreferredSize(
-                      preferredSize: Size.fromHeight(70.0),
+                      preferredSize: Size.fromHeight(71.0),
                       child: Container(
                         child: Column(
                           children: [
                             SizedBox(height: 4.0),
                             Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Material(
                                 color: Colors.transparent,
                                 elevation: 5.0,
-                                child: TextField(
+                                child: TextFormField(
                                   controller: _textFieldController,
-                                  decoration: searchTextInputDecoration(
-                                    context,
-                                    () {
-                                      _textFieldController.clear();
-                                      FocusScope.of(context)
-                                          .requestFocus(new FocusNode());
-                                      setState(() {
-                                        search = '';
-                                      });
-                                    },
+                                  decoration: searchTextInputDecoration(context)
+                                      .copyWith(
+                                    suffixIcon: search.isNotEmpty
+                                        ? IconButton(
+                                            alignment: Alignment.center,
+                                            icon: Icon(
+                                              Icons.close,
+                                              size: 30.0,
+                                            ),
+                                            focusColor:
+                                                Theme.of(context).accentColor,
+                                            onPressed: () {
+                                              _textFieldController.clear();
+                                              FocusScope.of(context)
+                                                  .requestFocus(
+                                                      new FocusNode());
+                                              setState(() {
+                                                search = '';
+                                              });
+                                            })
+                                        : null,
                                   ),
                                   onChanged: (value) {
                                     setState(() {

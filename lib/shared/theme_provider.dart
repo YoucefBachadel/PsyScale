@@ -28,7 +28,7 @@ class MyTheme {
     scaffoldBackgroundColor: Color(0xFFF0F2F5),
     backgroundColor: Colors.white,
     primaryColor: Colors.white,
-    accentColor: Color(0xFF1777F2),
+    accentColor: Color(0xFF00CCCC),
     visualDensity: VisualDensity.adaptivePlatformDensity,
     colorScheme: ColorScheme.light(),
     fontFamily: 'Slabo',

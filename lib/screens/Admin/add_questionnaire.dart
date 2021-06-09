@@ -347,8 +347,9 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                             return DropdownButtonFormField(
                               decoration:
                                   textInputDecoration(context, 'Trouble'),
-                              validator: (value) =>
-                                  value.isEmpty ? 'Chose a trouble' : null,
+                              validator: (value) => _troubleUid == null
+                                  ? 'Chose a trouble'
+                                  : null,
                               value: _troubleUid,
                               items: troubles.map((trouble) {
                                 return DropdownMenuItem(
