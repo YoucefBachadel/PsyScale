@@ -58,7 +58,9 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.userData != null && !updatedLastSignIn) {
+    if (widget.userData != null &&
+        !updatedLastSignIn &&
+        widget.userData.uid != 'gest') {
       UsersServices(useruid: widget.userData.uid).updatelastSignIn();
       updatedLastSignIn = true;
     }
@@ -187,50 +189,46 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                       ''),
                   bottom: PreferredSize(
                       preferredSize: Size.fromHeight(71.0),
-                      child: Container(
-                        child: Column(
-                          children: [
-                            SizedBox(height: 4.0),
-                            Container(
-                              child: Material(
-                                color: Colors.transparent,
-                                elevation: 5.0,
-                                child: TextFormField(
-                                  controller: _textFieldController,
-                                  decoration: searchTextInputDecoration(context)
-                                      .copyWith(
-                                    suffixIcon: search.isNotEmpty
-                                        ? IconButton(
-                                            alignment: Alignment.center,
-                                            icon: Icon(
-                                              Icons.close,
-                                              size: 30.0,
-                                            ),
-                                            focusColor:
-                                                Theme.of(context).accentColor,
-                                            onPressed: () {
-                                              _textFieldController.clear();
-                                              FocusScope.of(context)
-                                                  .requestFocus(
-                                                      new FocusNode());
-                                              setState(() {
-                                                search = '';
-                                              });
-                                            })
-                                        : null,
-                                  ),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      widgets.clear();
-                                      search = value.toLowerCase();
-                                    });
-                                  },
-                                ),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 4.0),
+                          Material(
+                            color: Colors.transparent,
+                            elevation: 5.0,
+                            child: TextFormField(
+                              controller: _textFieldController,
+                              decoration:
+                                  searchTextInputDecoration(context).copyWith(
+                                suffixIcon: search.isNotEmpty
+                                    ? IconButton(
+                                        alignment: Alignment.center,
+                                        icon: Icon(
+                                          Icons.close,
+                                          size: 30.0,
+                                          color: Constants.border,
+                                        ),
+                                        focusColor:
+                                            Theme.of(context).accentColor,
+                                        onPressed: () {
+                                          _textFieldController.clear();
+                                          FocusScope.of(context)
+                                              .requestFocus(new FocusNode());
+                                          setState(() {
+                                            search = '';
+                                          });
+                                        })
+                                    : null,
                               ),
+                              onChanged: (value) {
+                                setState(() {
+                                  widgets.clear();
+                                  search = value.toLowerCase();
+                                });
+                              },
                             ),
-                            SizedBox(height: 5.0),
-                          ],
-                        ),
+                          ),
+                          SizedBox(height: 5.0),
+                        ],
                       )),
                   actions: [
                     SizedBox(width: 4.0),
