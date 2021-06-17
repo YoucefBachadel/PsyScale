@@ -198,27 +198,14 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                             child: TextFormField(
                               controller: _textFieldController,
                               decoration:
-                                  searchTextInputDecoration(context).copyWith(
-                                suffixIcon: search.isNotEmpty
-                                    ? IconButton(
-                                        alignment: Alignment.center,
-                                        icon: Icon(
-                                          Icons.close,
-                                          size: 30.0,
-                                          color: Constants.border,
-                                        ),
-                                        focusColor:
-                                            Theme.of(context).accentColor,
-                                        onPressed: () {
-                                          _textFieldController.clear();
-                                          FocusScope.of(context)
-                                              .requestFocus(new FocusNode());
-                                          setState(() {
-                                            search = '';
-                                          });
-                                        })
-                                    : null,
-                              ),
+                                  searchTextInputDecoration(context, () {
+                                _textFieldController.clear();
+                                FocusScope.of(context)
+                                    .requestFocus(new FocusNode());
+                                setState(() {
+                                  search = '';
+                                });
+                              }),
                               onChanged: (value) {
                                 setState(() {
                                   widgets.clear();

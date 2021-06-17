@@ -5,8 +5,8 @@ import 'package:psyscale/classes/QuestionAnswer.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
+import 'package:psyscale/services/userServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
@@ -48,7 +48,6 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
   List<QuestionAnswer> _questionsAnswers = [];
   List<Map<String, Object>> _localAnswers = [];
   List<Map<String, Object>> _evaluations = [];
-  QuestionnairesServices questionnairesServices = QuestionnairesServices();
 
   getTroublesList(QuerySnapshot data) async {
     troubles.clear();
@@ -65,52 +64,49 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
     }
   }
 
-  addQuestionnaire() async {
-    setState(() {
-      isLoading = true;
-    });
-    await questionnairesServices
-        .addQuestionnaireData(Questionnaire(
-      type: _type,
-      troubleUid: _troubleUid,
-      nameEn: _nameEn,
-      nameFr: _nameFr,
-      nameAr: _nameAr,
-      descreptionEn: _descreptionEn,
-      descreptionFr: _descreptionFr,
-      descreptionAr: _descreptionAr,
-      questions: _questions,
-      answers: _answers,
-      questionsAnswers: _questionsAnswers,
-      evaluations: _evaluations,
-    ))
-        .then((value) {
-      if (value != null) {
-        setState(() {
-          isLoading = false;
-        });
-        Navigator.pop(context);
-      }
-    });
-  }
-
   updateQuestionnaire() async {
     setState(() {
       isLoading = true;
     });
-    await questionnairesServices.updateQuestionnaireData(Questionnaire(
-      uid: widget.questionnaire.uid,
-      nameEn: _nameEn,
-      nameFr: _nameFr,
-      nameAr: _nameAr,
-      descreptionEn: _descreptionEn,
-      descreptionFr: _descreptionFr,
-      descreptionAr: _descreptionAr,
-      questions: _questions,
-      answers: _answers,
-      questionsAnswers: _questionsAnswers,
-      evaluations: _evaluations,
-    ));
+    if (widget.userData.personalQuestionnaires == null) {
+      widget.userData.personalQuestionnaires = [];
+    }
+    Questionnaire questionnaire;
+    if (widget.questionnaire == null) {
+      questionnaire = Questionnaire(
+        type: _type,
+        troubleUid: _troubleUid,
+        nameEn: _nameEn,
+        nameFr: _nameFr,
+        nameAr: _nameAr,
+        descreptionEn: _descreptionEn,
+        descreptionFr: _descreptionFr,
+        descreptionAr: _descreptionAr,
+        questions: _questions,
+        answers: _answers,
+        questionsAnswers: _questionsAnswers,
+        evaluations: _evaluations,
+      );
+    } else {
+      questionnaire = Questionnaire(
+        type: widget.questionnaire.type,
+        troubleUid: widget.questionnaire.troubleUid,
+        nameEn: _nameEn,
+        nameFr: _nameFr,
+        nameAr: _nameAr,
+        descreptionEn: _descreptionEn,
+        descreptionFr: _descreptionFr,
+        descreptionAr: _descreptionAr,
+        questions: _questions,
+        answers: _answers,
+        questionsAnswers: _questionsAnswers,
+        evaluations: _evaluations,
+      );
+      widget.userData.personalQuestionnaires.remove(widget.questionnaire);
+    }
+    widget.userData.personalQuestionnaires.add(questionnaire);
+    await UsersServices(useruid: widget.userData.uid)
+        .updatePersonnalQuestionnaires(widget.userData.personalQuestionnaires);
     setState(() {
       isLoading = false;
     });
@@ -178,9 +174,12 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
           widget.questionnaire != null
               ? Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: deleteButton(context, () {
-                    questionnairesServices
-                        .deleteQuestionnaire(widget.questionnaire.uid);
+                  child: deleteButton(context, () async {
+                    widget.userData.personalQuestionnaires
+                        .remove(widget.questionnaire);
+                    await UsersServices(useruid: widget.userData.uid)
+                        .updatePersonnalQuestionnaires(
+                            widget.userData.personalHybrids);
                     Navigator.pop(context);
                   }, text: 'Delete', color: Colors.red, icon: Icons.delete),
                 )
@@ -278,10 +277,7 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                                   _testScore = evaluation['to'];
                                 }
                               });
-
-                              widget.questionnaire == null
-                                  ? addQuestionnaire()
-                                  : updateQuestionnaire();
+                              updateQuestionnaire();
                             }),
                           ],
                         ),

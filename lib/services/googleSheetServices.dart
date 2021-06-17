@@ -37,6 +37,30 @@ class GoogleSheetApi {
     }
   }
 
+  Future fillStudentsSheets() async {
+    final spreadsheet = await gsheet
+        .spreadsheet('1ToixrUhL3HeP0XOR5F-9AoStsOFAlDx4u88B8DMs8pk');
+    userSheet =
+        await _getWorkSheet(spreadsheet: spreadsheet, title: 'Origin Students');
+
+    final json = await userSheet.values.map.allRows();
+    print(json.length);
+    userSheet = await _getWorkSheet(
+        spreadsheet: spreadsheet,
+        title: 'Anxiety disorder in college students');
+
+    List<List<String>> allRows = [];
+    json.forEach((element) async {
+      List<String> row = [];
+      element.values.forEach((element) {
+        row.add(transferToInt(element));
+      });
+      allRows.add(row);
+    });
+
+    userSheet.values.appendRows(allRows);
+  }
+
   addRow(List<String> items) {
     try {
       userSheet.values.insertRow(1, items);
@@ -50,6 +74,40 @@ class GoogleSheetApi {
       userSheet.values.appendRow(items);
     } catch (e) {
       print('Init Error: $e');
+    }
+  }
+
+  String transferToInt(String value) {
+    switch (value.toLowerCase()) {
+      case 'false':
+      case 'no':
+        return '0';
+      case 'not at all':
+      case 'true':
+      case 'a little of the time':
+      case 'yes':
+      case 'first':
+      case 'less than 3 hours':
+        return '1';
+      case 'several days':
+      case 'some of the time':
+      case 'middle':
+      case '3 to 4 hours':
+        return '2';
+        break;
+      case 'over half the days':
+      case 'good part of the time':
+      case 'last one':
+      case '4 to 5 hours':
+        return '3';
+      case 'nearly everyday':
+      case 'most of the time':
+      case '5 to 6 hours':
+        return '4';
+      case 'more than 6 hours':
+        return '5';
+      default:
+        return '1';
     }
   }
 }

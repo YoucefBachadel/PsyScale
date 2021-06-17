@@ -29,26 +29,34 @@ class AuthService {
   }
 
   // register with email/password
-  Future registerWithEmailAndPassword(
-      String email, String password, String name) async {
+  Future registerWithEmailAndPassword(String type, String email,
+      String password, String name, String clinicName, String phone) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       User user = result.user;
 
       // create a new document for the user with the uid
-      UserData userData = UserData(
-        name: name,
-        email: email,
-        type: 'user',
-        language: 'English',
-        theme: 'System',
-      );
-      if (userData.type == 'user') {
-        userData.history = null;
+      UserData userData;
+      if (type == 'user') {
+        userData = UserData(
+          name: name,
+          email: email,
+          language: 'English',
+          theme: 'System',
+        );
+      } else {
+        userData = UserData(
+          name: name,
+          clinicName: clinicName,
+          email: email,
+          phone: phone,
+          language: 'English',
+          theme: 'System',
+        );
       }
 
-      await UsersServices(useruid: user.uid).addUserData(userData);
+      await UsersServices(useruid: user.uid).addUserData(userData, type);
       return _userFromFirebaseUser(user);
     } catch (e) {
       print(e.toString());

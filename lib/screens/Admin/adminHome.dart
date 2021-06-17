@@ -84,15 +84,61 @@ class _AdminHomeState extends State<AdminHome> {
       _tabs.add(
           {'icon': Icons.admin_panel_settings, 'title': 'Admins', 'index': 7});
     }
-    return Scaffold(
-      body: Row(
+    return Material(
+      child: Row(
         children: [
-          sideMenu(
-            tabs: _tabs,
-            selectedIndex: _selectedIndex,
-            onTap: (index) => setState(() => _selectedIndex = index),
+          Expanded(
+            child: sideMenu(
+              tabs: _tabs,
+              selectedIndex: _selectedIndex,
+              onTap: (index) => setState(() => _selectedIndex = index),
+            ),
           ),
-          Expanded(child: _screens[_selectedIndex]),
+          Expanded(
+              flex: 5,
+              child: Column(
+                children: [
+                  ![0, 1].contains(_selectedIndex) ? header() : SizedBox(),
+                  Expanded(child: _screens[_selectedIndex]),
+                ],
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget header() {
+    return Container(
+      padding: EdgeInsets.all(8.0),
+      color: Theme.of(context).primaryColor,
+      child: Row(
+        children: [
+          Text(
+            _tabs[_selectedIndex - 1]['title'],
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          Spacer(flex: 2),
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: search,
+              builder: (context, value, child) => TextField(
+                controller: _textFieldController,
+                focusNode: _textFieldFocusNode,
+                decoration: searchTextInputDecoration(context, () {
+                  _textFieldController.clear();
+                  FocusScope.of(context).requestFocus(new FocusNode());
+                  setState(() {
+                    search.value = '';
+                  });
+                }),
+                onChanged: (value) {
+                  setState(() {
+                    search.value = value;
+                  });
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -103,88 +149,63 @@ class _AdminHomeState extends State<AdminHome> {
     int selectedIndex,
     Function(int) onTap,
   }) {
-    final userData = Provider.of<UserData>(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-      height: double.infinity,
-      width: 280.0,
-      color: Theme.of(context).primaryColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          appBar(context, 'Psy', 'Scale'),
-          SizedBox(height: 8.0),
-          ValueListenableBuilder(
-            valueListenable: search,
-            builder: (context, value, child) => TextField(
-              controller: _textFieldController,
-              focusNode: _textFieldFocusNode,
-              decoration: searchTextInputDecoration(context).copyWith(
-                suffixIcon: search.value.isNotEmpty
-                    ? IconButton(
-                        alignment: Alignment.center,
-                        icon: Icon(
-                          Icons.close,
-                          size: 30.0,
+    return Drawer(
+      child: Container(
+        color: Theme.of(context).primaryColor,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              DrawerHeader(child: appBar(context, 'Psy', 'Scale')),
+              ...tabs
+                  .map((e) => ListTile(
+                        leading: Icon(
+                          e['icon'],
+                          color: e['index'] == selectedIndex
+                              ? Theme.of(context).accentColor
+                              : Colors.grey,
                         ),
-                        focusColor: Theme.of(context).accentColor,
-                        onPressed: () {
-                          _textFieldController.clear();
-                          FocusScope.of(context).requestFocus(new FocusNode());
+                        title: Text(
+                          e['title'],
+                          style: TextStyle(
+                              color: e['index'] == selectedIndex
+                                  ? Theme.of(context).accentColor
+                                  : Colors.grey,
+                              fontSize:
+                                  e['index'] == selectedIndex ? 22.0 : 16.0),
+                        ),
+                        onTap: () {
                           setState(() {
-                            search.value = '';
+                            _selectedIndex = e['index'];
                           });
-                        })
-                    : null,
+                        },
+                      ))
+                  .toList(),
+              ListTile(
+                leading: Icon(
+                  Icons.settings,
+                  color: selectedIndex == 0
+                      ? Theme.of(context).accentColor
+                      : Colors.grey,
+                ),
+                title: Text(
+                  'Setting',
+                  style: TextStyle(
+                      color: selectedIndex == 0
+                          ? Theme.of(context).accentColor
+                          : Colors.grey,
+                      fontSize: selectedIndex == 0 ? 22.0 : 16.0),
+                ),
+                onTap: () {
+                  setState(() {
+                    _selectedIndex = 0;
+                  });
+                },
               ),
-              onChanged: (value) {
-                setState(() {
-                  search.value = value;
-                });
-              },
-            ),
+            ],
           ),
-          const SizedBox(height: 8.0),
-          Expanded(
-            child: Material(
-              color: Colors.transparent,
-              child: ListView(
-                padding: const EdgeInsets.all(20.0),
-                controller: _scrollController,
-                children: tabs
-                    .map((e) => ListTile(
-                          leading: Icon(
-                            e['icon'],
-                            color: e['index'] == selectedIndex
-                                ? Theme.of(context).accentColor
-                                : Colors.grey,
-                          ),
-                          title: Text(
-                            e['title'],
-                            style: TextStyle(
-                                color: e['index'] == selectedIndex
-                                    ? Theme.of(context).accentColor
-                                    : Colors.grey,
-                                fontSize:
-                                    e['index'] == selectedIndex ? 22.0 : 16.0),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _selectedIndex = e['index'];
-                            });
-                          },
-                        ))
-                    .toList(),
-              ),
-            ),
-          ),
-          userCard(context, userData, () {
-            setState(() {
-              _selectedIndex = 0;
-            });
-          }),
-        ],
+        ),
       ),
     );
   }

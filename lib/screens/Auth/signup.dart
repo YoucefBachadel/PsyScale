@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:psyscale/main.dart';
 import 'package:psyscale/screens/Auth/signin.dart';
-import 'package:psyscale/services/auth.dart';
+import 'package:psyscale/services/authenticationServices%20.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
@@ -21,35 +22,61 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
-  String name = '', email = '', password;
+  String name = '', clinicName = '', phone, email = '', password;
   AuthService authService = AuthService();
-  bool isLoading = false;
+  bool _isLoading = false;
+  bool _isDoctor = false;
 
   signUp() async {
     if (_formKey.currentState.validate()) {
       setState(() {
-        isLoading = true;
+        _isLoading = true;
       });
-      await authService
-          .registerWithEmailAndPassword(email, password, name)
-          .then((value) {
-        if (value.toString().split(':')[0] != 'error') {
-          setState(() {
-            isLoading = false;
-          });
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => Wrapper()));
-        } else {
-          setState(() {
-            isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            elevation: 1.0,
-            content: Text((value as String).split(':')[1].split(']')[1]),
-            duration: Duration(seconds: 5),
-          ));
-        }
-      });
+      if (_isDoctor) {
+        await authService
+            .registerWithEmailAndPassword(
+                'doctor', email, password, name, clinicName, phone)
+            .then((value) {
+          if (value.toString().split(':')[0] != 'error') {
+            setState(() {
+              _isLoading = false;
+            });
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => Wrapper()));
+          } else {
+            setState(() {
+              _isLoading = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              elevation: 1.0,
+              content: Text((value as String).split(':')[1].split(']')[1]),
+              duration: Duration(seconds: 5),
+            ));
+          }
+        });
+      } else {
+        await authService
+            .registerWithEmailAndPassword(
+                'user', email, password, name, null, null)
+            .then((value) {
+          if (value.toString().split(':')[0] != 'error') {
+            setState(() {
+              _isLoading = false;
+            });
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => Wrapper()));
+          } else {
+            setState(() {
+              _isLoading = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              elevation: 1.0,
+              content: Text((value as String).split(':')[1].split(']')[1]),
+              duration: Duration(seconds: 5),
+            ));
+          }
+        });
+      }
     }
   }
 
@@ -64,19 +91,19 @@ class _SignUpFormState extends State<SignUpForm> {
               elevation: 0.0,
             )
           : null,
-      body: isLoading
+      body: _isLoading
           ? loading(context)
           : Container(
               color: Theme.of(context).backgroundColor,
               child: Form(
                 key: _formKey,
                 child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 24.0),
+                  margin: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     children: [
-                      Spacer(flex: 1),
+                      const Spacer(flex: 1),
                       appBar(context, 'Sign', 'Up'),
-                      Spacer(flex: 5),
+                      const Spacer(flex: 5),
                       TextFormField(
                         initialValue: name,
                         validator: (value) =>
@@ -84,7 +111,36 @@ class _SignUpFormState extends State<SignUpForm> {
                         decoration: textInputDecoration(context, 'Name'),
                         onChanged: (value) => name = value,
                       ),
-                      SizedBox(height: 6.0),
+                      const SizedBox(height: 6.0),
+                      _isDoctor
+                          ? TextFormField(
+                              initialValue: clinicName,
+                              decoration:
+                                  textInputDecoration(context, 'Clinic Name'),
+                              onChanged: (value) => clinicName = value,
+                            )
+                          : const SizedBox(),
+                      _isDoctor
+                          ? const SizedBox(height: 6.0)
+                          : const SizedBox(height: 0.0),
+                      _isDoctor
+                          ? TextFormField(
+                              initialValue: phone,
+                              validator: (value) => value.length != 10
+                                  ? 'Enter correct phone number'
+                                  : null,
+                              decoration:
+                                  textInputDecoration(context, 'Phone number'),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              onChanged: (value) => phone = value,
+                            )
+                          : const SizedBox(),
+                      _isDoctor
+                          ? const SizedBox(height: 6.0)
+                          : const SizedBox(height: 0.0),
                       TextFormField(
                         initialValue: email,
                         validator: (value) =>
@@ -92,7 +148,7 @@ class _SignUpFormState extends State<SignUpForm> {
                         decoration: textInputDecoration(context, 'Email'),
                         onChanged: (value) => email = value,
                       ),
-                      SizedBox(height: 6.0),
+                      const SizedBox(height: 6.0),
                       TextFormField(
                         obscureText: true,
                         validator: (value) =>
@@ -100,15 +156,13 @@ class _SignUpFormState extends State<SignUpForm> {
                         decoration: textInputDecoration(context, 'Password'),
                         onChanged: (value) => password = value,
                       ),
-                      SizedBox(
-                        height: 14.0,
-                      ),
+                      const SizedBox(height: 14.0),
                       InkWell(
                         onTap: () {
                           signUp();
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 18.0),
+                          padding: const EdgeInsets.symmetric(vertical: 18.0),
                           decoration: BoxDecoration(
                             color: Theme.of(context).accentColor,
                             borderRadius: BorderRadius.circular(30),
@@ -123,9 +177,40 @@ class _SignUpFormState extends State<SignUpForm> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 18.0,
+                      const SizedBox(height: 18.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _isDoctor
+                                ? 'You are a user ? '
+                                : 'You are a doctor ? ',
+                            style: TextStyle(fontSize: 15.5),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                _isDoctor = !_isDoctor;
+                              });
+                            },
+                            child: Text(
+                              _isDoctor
+                                  ? 'Create a user account'
+                                  : 'Create a doctor account',
+                              style: TextStyle(
+                                fontSize: 15.5,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          )
+                        ],
                       ),
+                      const SizedBox(height: 6.0),
+                      Text(
+                        'or',
+                        style: TextStyle(fontSize: 15.5),
+                      ),
+                      const SizedBox(height: 6.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -150,9 +235,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           )
                         ],
                       ),
-                      SizedBox(
-                        height: 80.0,
-                      ),
+                      const SizedBox(height: 80.0),
                     ],
                   ),
                 ),

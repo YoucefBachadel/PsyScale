@@ -1,8 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/shared/constants.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 Widget appBar(BuildContext context, String txt1, String txt2) {
   return Row(
@@ -43,20 +43,28 @@ Widget loadingImage(BuildContext context, String image) {
   return Stack(
     fit: StackFit.expand,
     children: [
-      Container(
-        color: Colors.transparent,
-        child: Center(
-          child: SpinKitPulse(
-            color: Theme.of(context).accentColor,
-            size: 50.0,
-          ),
+      // Container(
+      //   color: Colors.transparent,
+      //   child: Center(
+      //     child: SpinKitPulse(
+      //       color: Theme.of(context).accentColor,
+      //       size: 50.0,
+      //     ),
+      //   ),
+      // ),
+      CachedNetworkImage(
+        imageUrl: image,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => SpinKitPulse(
+          color: Theme.of(context).accentColor,
+          size: 50.0,
         ),
       ),
-      FadeInImage.memoryNetwork(
-        fit: BoxFit.cover,
-        placeholder: kTransparentImage,
-        image: image,
-      ),
+      // FadeInImage.memoryNetwork(
+      //   fit: BoxFit.cover,
+      //   placeholder: kTransparentImage,
+      //   image: image,
+      // ),
     ],
   );
 }
@@ -105,7 +113,8 @@ InputDecoration textInputDecoration(BuildContext context, String hint) {
   );
 }
 
-InputDecoration searchTextInputDecoration(BuildContext context) {
+InputDecoration searchTextInputDecoration(
+    BuildContext context, Function onPressed) {
   return InputDecoration(
     filled: true,
     hintText: 'Search',
@@ -114,13 +123,28 @@ InputDecoration searchTextInputDecoration(BuildContext context) {
     prefixIcon: Icon(
       Icons.search,
       size: 30.0,
+      color: Constants.border,
+    ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10.0),
+      borderSide: BorderSide.none,
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(20.0),
+      borderRadius: BorderRadius.circular(10.0),
       borderSide: BorderSide(
         color: Theme.of(context).accentColor,
         width: 0.5,
       ),
+    ),
+    suffixIcon: IconButton(
+      alignment: Alignment.center,
+      icon: Icon(
+        Icons.close,
+        size: 30.0,
+        color: Constants.border,
+      ),
+      focusColor: Theme.of(context).accentColor,
+      onPressed: onPressed,
     ),
   );
 }
@@ -174,28 +198,32 @@ Widget emptyList() {
   );
 }
 
-Widget deleteButton(BuildContext context, Function onTap) {
-  return InkWell(
-    onTap: onTap,
-    child: Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.red, width: 2.0),
-        borderRadius: BorderRadius.circular(5.0),
-      ),
-      alignment: Alignment.center,
-      child: Row(
-        children: [
-          Icon(
-            Icons.delete,
-            color: Colors.red,
-          ),
-          SizedBox(width: 8.0),
-          Text(
-            'Delete',
-            style: TextStyle(color: Colors.red, fontSize: 16),
-          ),
-        ],
+Widget deleteButton(BuildContext context, Function onTap,
+    {String text, Color color, IconData icon}) {
+  return Container(
+    padding: EdgeInsets.symmetric(vertical: 3.0),
+    child: InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 6.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: color, width: 2.0),
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: color,
+            ),
+            SizedBox(width: 8.0),
+            Text(
+              text,
+              style: TextStyle(color: color, fontSize: 16),
+            ),
+          ],
+        ),
       ),
     ),
   );

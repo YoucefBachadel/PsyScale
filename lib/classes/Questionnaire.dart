@@ -13,6 +13,7 @@ class Questionnaire {
   String type;
   List<Map<String, Object>> questions;
   List<Map<String, Object>> answers;
+  List<Map<String, Object>> classes;
   List<QuestionAnswer> questionsAnswers;
   List<Map<String, Object>> evaluations;
   bool isExpanded;
@@ -30,6 +31,7 @@ class Questionnaire {
     this.type,
     this.questions,
     this.answers,
+    this.classes,
     this.questionsAnswers,
     this.evaluations,
     this.isExpanded = false,

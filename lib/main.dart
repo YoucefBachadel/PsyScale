@@ -7,7 +7,8 @@ import 'package:psyscale/screens/Admin/adminHome.dart';
 import 'package:psyscale/screens/Auth/signin.dart';
 import 'package:psyscale/screens/Psychiatrist/doctorHome.dart';
 import 'package:psyscale/screens/User/userHome.dart';
-import 'package:psyscale/services/auth.dart';
+import 'package:psyscale/services/authenticationServices%20.dart';
+import 'package:psyscale/services/googleSheetServices.dart';
 import 'package:psyscale/services/userServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
@@ -20,6 +21,7 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     systemNavigationBarColor: Constants.border,
   ));
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   await Firebase.initializeApp();
   runApp(MyApp());
@@ -57,6 +59,8 @@ class Wrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = Provider.of<CurrentUser>(context);
 
+    // GoogleSheetApi().fillStudentsSheets();
+
     // return either HomePages or Authenticate widget
     if (user == null) {
       return Responsive.isMobile(context)
@@ -83,7 +87,9 @@ class Wrapper extends StatelessWidget {
                   ? userData.type == 'admin' || userData.type == 'superAdmin'
                       ? AdminHome()
                       : userData.type == 'doctor'
-                          ? DoctorHome()
+                          ? userData.validated
+                              ? DoctorHome()
+                              : SignIn()
                           : UserHome(
                               userData: userData,
                             )

@@ -25,7 +25,7 @@ class AddTroubles extends StatelessWidget {
                     child: deleteButton(context, () {
                       troublesServices.deleteTrouble(trouble.uid);
                       Navigator.pop(context);
-                    }),
+                    }, text: 'Delete', color: Colors.red, icon: Icons.delete),
                   )
                 : SizedBox(),
           ],

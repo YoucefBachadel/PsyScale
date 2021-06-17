@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
 
 class UsersServices {
@@ -10,26 +11,82 @@ class UsersServices {
   final CollectionReference usersCollection =
       FirebaseFirestore.instance.collection('users');
 
-  // update user data
-  Future updateUserData(UserData userData) async {
-    return await usersCollection.doc(useruid).update({
-      'name': userData.name,
-      'email': userData.email,
-      'type': userData.type,
-      'language': userData.language,
-      'theme': userData.theme,
-    });
+  Future addUserData(UserData userData, String type) async {
+    switch (type) {
+      case 'user':
+        return await usersCollection.doc(useruid).set({
+          'name': userData.name,
+          'email': userData.email,
+          'type': type,
+          'language': userData.language,
+          'theme': userData.theme,
+          'creationDate': Timestamp.now(),
+          'lastSignIn': Timestamp.now(),
+        });
+      case 'doctor':
+        return await usersCollection.doc(useruid).set({
+          'name': userData.name,
+          'clinicName': userData.clinicName,
+          'email': userData.email,
+          'type': type,
+          'language': userData.language,
+          'theme': userData.theme,
+          'phone': userData.phone,
+          'creationDate': Timestamp.now(),
+          'lastSignIn': Timestamp.now(),
+          'validated': false,
+        });
+      case 'admin':
+      case 'superAdmin':
+        return await usersCollection.doc(useruid).set({
+          'name': userData.name,
+          'email': userData.email,
+          'type': type,
+          'language': userData.language,
+          'theme': userData.theme,
+          'creationDate': Timestamp.now(),
+          'lastSignIn': Timestamp.now(),
+        });
+      default:
+        return null;
+    }
   }
 
-  Future addUserData(UserData userData) async {
-    return await usersCollection.doc(useruid).set({
-      'name': userData.name,
-      'email': userData.email,
-      'type': userData.type,
-      'language': userData.language,
-      'theme': userData.theme,
-      'creationDate': Timestamp.now(),
-      'lastSignIn': Timestamp.now(),
+  // update user data
+  Future updateUserData(UserData userData, String type) async {
+    switch (type) {
+      case 'user':
+        return await usersCollection.doc(useruid).update({
+          'name': userData.name,
+          'email': userData.email,
+          'language': userData.language,
+          'theme': userData.theme,
+        });
+      case 'doctor':
+        return await usersCollection.doc(useruid).update({
+          'name': userData.name,
+          'clinicName': userData.clinicName,
+          'email': userData.email,
+          'language': userData.language,
+          'theme': userData.theme,
+          'phone': userData.phone,
+        });
+      case 'admin':
+        return await usersCollection.doc(useruid).update({
+          'name': userData.name,
+          'email': userData.email,
+          'language': userData.language,
+          'theme': userData.theme,
+        });
+      default:
+        return null;
+    }
+  }
+
+  // update doctor validation
+  Future validateDoctor(String uid) async {
+    return await usersCollection.doc(uid).update({
+      'validated': true,
     });
   }
 
@@ -47,6 +104,7 @@ class UsersServices {
     });
   }
 
+// this function delete the history item of the same month in the past year
   updateHestoryList(List<Map<String, Object>> historys, String userUid) {
     String _currentYear = DateFormat(DateFormat.YEAR).format(DateTime.now());
     String _currentMonth = DateFormat(DateFormat.MONTH).format(DateTime.now());
@@ -57,6 +115,74 @@ class UsersServices {
         historys.remove(element);
         UsersServices(useruid: userUid).updateUserHestory(historys);
       }
+    });
+  }
+
+  // update user hestory
+  Future updatePersonnalQuestionnaires(
+      List<Questionnaire> personalQuestionnaires) async {
+    List<dynamic> result = [];
+    personalQuestionnaires.forEach((element) {
+      List<Map<String, Object>> _questionsAnswersMap = [];
+      if (element.questionsAnswers != null &&
+          element.questionsAnswers.isNotEmpty) {
+        element.questionsAnswers.forEach((item) {
+          _questionsAnswersMap.add({
+            'questionEn': item.questionEn,
+            'questionFr': item.questionFr,
+            'questionAr': item.questionAr,
+            'answers': item.answers,
+          });
+        });
+      }
+      result.add({
+        'type': element.type,
+        'troubleUid': element.troubleUid,
+        'nameEn': element.nameEn,
+        'nameFr': element.nameFr,
+        'nameAr': element.nameAr,
+        'descreptionEn': element.descreptionEn,
+        'descreptionFr': element.descreptionFr,
+        'descreptionAr': element.descreptionAr,
+        'questions': element.questions,
+        'answers': element.answers,
+        'questionsAnswers': _questionsAnswersMap,
+        'evaluations': element.evaluations,
+      });
+    });
+    return await usersCollection.doc(useruid).update({
+      'personalQuestionnaires': result,
+    });
+  }
+
+  Future updatePersonnalHybrids(List<Questionnaire> personalHybrids) async {
+    List<dynamic> result = [];
+    personalHybrids.forEach((element) {
+      List<Map<String, Object>> _questionsAnswersMap = [];
+      element.questionsAnswers.forEach((item) {
+        _questionsAnswersMap.add({
+          'questionEn': item.questionEn,
+          'questionFr': item.questionFr,
+          'questionAr': item.questionAr,
+          'answers': item.answers,
+        });
+      });
+
+      result.add({
+        'troubleUid': element.troubleUid,
+        'nameEn': element.nameEn,
+        'nameFr': element.nameFr,
+        'nameAr': element.nameAr,
+        'descreptionEn': element.descreptionEn,
+        'descreptionFr': element.descreptionFr,
+        'descreptionAr': element.descreptionAr,
+        'stockageUrl': element.stockageUrl,
+        'questionsAnswers': _questionsAnswersMap,
+      });
+    });
+
+    return await usersCollection.doc(useruid).update({
+      'personalHybrids': result,
     });
   }
 
@@ -71,8 +197,25 @@ class UsersServices {
       theme: snapshot.data()['theme'],
       creationDate: snapshot.data()['creationDate'],
       lastSignIn: snapshot.data()['lastSignIn'],
+      clinicName: snapshot.data().containsKey('clinicName')
+          ? snapshot.data()['clinicName']
+          : null,
+      phone: snapshot.data().containsKey('phone')
+          ? snapshot.data()['phone']
+          : null,
+      validated: snapshot.data().containsKey('validated')
+          ? snapshot.data()['validated']
+          : false,
       history: snapshot.data().containsKey('history')
           ? UserData.getList(snapshot.data()['history'])
+          : null,
+      personalQuestionnaires:
+          snapshot.data().containsKey('personalQuestionnaires')
+              ? UserData.getPersonalQuestionnaires(
+                  snapshot.data()['personalQuestionnaires'])
+              : null,
+      personalHybrids: snapshot.data().containsKey('personalHybrids')
+          ? UserData.getPersonalHybrids(snapshot.data()['personalHybrids'])
           : null,
     );
   }

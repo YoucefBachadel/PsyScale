@@ -91,7 +91,6 @@ class _TroublesState extends State<Troubles> {
   Widget troublesList() {
     final userData = Provider.of<UserData>(context);
     return Container(
-        color: Theme.of(context).backgroundColor,
         child: troubles.isEmpty
             ? emptyList()
             : GridView.count(

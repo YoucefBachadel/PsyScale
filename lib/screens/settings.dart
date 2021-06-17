@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/classes/Language.dart';
 import 'package:psyscale/main.dart';
-import 'package:psyscale/services/auth.dart';
+import 'package:psyscale/services/authenticationServices%20.dart';
 import 'package:psyscale/services/userServices.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/theme_provider.dart';
@@ -32,15 +32,17 @@ class _SettingState extends State<Setting> {
       setState(() {
         isLoading = true;
       });
-      await UsersServices(useruid: widget.userData.uid).updateUserData(UserData(
-        uid: widget.userData.uid,
-        name: _userName == null ? widget.userData.name : _userName,
-        email: widget.userData.email,
-        type: widget.userData.type,
-        language: _language == null ? widget.userData.language : _language,
-        theme: _theme == null ? widget.userData.theme : _theme,
-        history: widget.userData.history,
-      ));
+      await UsersServices(useruid: widget.userData.uid).updateUserData(
+          UserData(
+            uid: widget.userData.uid,
+            name: _userName == null ? widget.userData.name : _userName,
+            email: widget.userData.email,
+            type: widget.userData.type,
+            language: _language == null ? widget.userData.language : _language,
+            theme: _theme == null ? widget.userData.theme : _theme,
+            history: widget.userData.history,
+          ),
+          'user');
       setState(() {
         isLoading = false;
       });

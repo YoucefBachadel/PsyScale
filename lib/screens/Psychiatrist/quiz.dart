@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
-import 'package:psyscale/services/GoogleSheetApi.dart';
+import 'package:psyscale/services/googleSheetServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';

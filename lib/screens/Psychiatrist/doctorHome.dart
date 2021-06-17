@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/User.dart';
+import 'package:psyscale/screens/Psychiatrist/hybridsPersonal.dart';
+import 'package:psyscale/screens/Psychiatrist/questionnairesPersonal.dart';
 import 'package:psyscale/screens/Psychiatrist/troubles.dart';
 import 'package:psyscale/screens/Psychiatrist/questionnaires.dart';
 import 'package:psyscale/screens/Psychiatrist/hybrids.dart';
 import 'package:psyscale/screens/settings.dart';
 import 'package:psyscale/services/userServices.dart';
-import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
@@ -22,6 +23,11 @@ class _DoctorHomeState extends State<DoctorHome> {
     {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 2},
     {'icon': Icons.home, 'title': 'Hybrids', 'index': 3},
   ];
+  List<Map<String, Object>> _tabsPerosnal = [
+    {'icon': Icons.format_list_numbered, 'title': 'Questionnaires', 'index': 4},
+    {'icon': Icons.home, 'title': 'Hybrids', 'index': 5},
+  ];
+
   List<Widget> _screens = [];
   int _selectedIndex = 1;
   TextEditingController _textFieldController = TextEditingController();
@@ -29,6 +35,7 @@ class _DoctorHomeState extends State<DoctorHome> {
   final search = ValueNotifier('');
   bool updatedLastSignIn = false;
   String _appBarTitle = 'Troubles';
+  bool _isSearching = false;
 
   @override
   void dispose() {
@@ -50,6 +57,8 @@ class _DoctorHomeState extends State<DoctorHome> {
       Troubles(search: search),
       Questionnaires(search: search),
       Hybrids(search: search),
+      QuestionnairesPersonal(search: search),
+      HybridsPersonal(search: search),
     ];
 
     return Responsive.isdesktop(context) ? desktopView() : mobileView();
@@ -58,92 +67,110 @@ class _DoctorHomeState extends State<DoctorHome> {
   Widget mobileView() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_appBarTitle),
+        title: !_isSearching
+            ? Text(_appBarTitle)
+            : ValueListenableBuilder(
+                valueListenable: search,
+                builder: (context, value, child) => TextField(
+                  controller: _textFieldController,
+                  focusNode: _textFieldFocusNode,
+                  decoration: searchTextInputDecoration(context, () {
+                    _textFieldController.clear();
+                    FocusScope.of(context).requestFocus(new FocusNode());
+                    setState(() {
+                      search.value = '';
+                      _isSearching = false;
+                    });
+                  }),
+                  onChanged: (value) {
+                    setState(() {
+                      search.value = value;
+                    });
+                  },
+                ),
+              ),
         centerTitle: true,
+        actions: [
+          !_isSearching
+              ? IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _isSearching = true;
+                    });
+                  },
+                  icon: Icon(Icons.search),
+                )
+              : SizedBox(),
+        ],
       ),
-      drawer: drawer(),
+      drawer: sideMenu(
+        tabs: _tabs,
+        selectedIndex: _selectedIndex,
+        onTap: (index) => setState(() {
+          _selectedIndex = index;
+        }),
+      ),
       body: _screens[_selectedIndex],
     );
   }
 
   Widget desktopView() {
-    return Scaffold(
-      body: Row(
+    return Material(
+      child: Row(
         children: [
-          sideMenu(
-            tabs: _tabs,
-            selectedIndex: _selectedIndex,
-            onTap: (index) => setState(() => _selectedIndex = index),
+          Expanded(
+            child: sideMenu(
+              tabs: _tabs,
+              selectedIndex: _selectedIndex,
+              onTap: (index) => setState(() => _selectedIndex = index),
+            ),
           ),
-          Expanded(child: _screens[_selectedIndex]),
+          Expanded(
+              flex: 5,
+              child: Column(
+                children: [
+                  ![0].contains(_selectedIndex) ? header() : SizedBox(),
+                  Expanded(child: _screens[_selectedIndex]),
+                ],
+              )),
         ],
       ),
     );
   }
 
-  Widget drawer() {
-    final userData = Provider.of<UserData>(context);
-    return Drawer(
-      child: Material(
-        color: Theme.of(context).primaryColor,
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            userData == null
-                ? loading(context)
-                : InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedIndex = 0;
-                        _appBarTitle = 'Account';
-                        Navigator.pop(context);
-                      });
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundImage: AssetImage('assets/avatar.jpg'),
-                          ),
-                          const SizedBox(width: 20.0),
-                          Expanded(
-                            child: ListTile(
-                              title: Text(userData.name),
-                              subtitle: Text(userData.email),
-                            ),
-                          ),
-                          Icon(
-                            Icons.navigate_next,
-                            size: 30.0,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-            SizedBox(height: 8.0),
-            divider(),
-            Expanded(
-              child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  children: _tabs
-                      .map((e) => ListTile(
-                            leading: Icon(e['icon']),
-                            title: Text(e['title']),
-                            hoverColor: Constants.myGrey,
-                            onTap: () {
-                              setState(() {
-                                _selectedIndex = e['index'];
-                                _appBarTitle = e['title'];
-                                Navigator.pop(context);
-                              });
-                            },
-                          ))
-                      .toList()),
+  Widget header() {
+    return Container(
+      padding: EdgeInsets.all(8.0),
+      color: Theme.of(context).primaryColor,
+      child: Row(
+        children: [
+          Text(
+            _appBarTitle,
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          Spacer(flex: 2),
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: search,
+              builder: (context, value, child) => TextField(
+                controller: _textFieldController,
+                focusNode: _textFieldFocusNode,
+                decoration: searchTextInputDecoration(context, () {
+                  _textFieldController.clear();
+                  FocusScope.of(context).requestFocus(new FocusNode());
+                  setState(() {
+                    search.value = '';
+                  });
+                }),
+                onChanged: (value) {
+                  setState(() {
+                    search.value = value;
+                  });
+                },
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -153,87 +180,107 @@ class _DoctorHomeState extends State<DoctorHome> {
     int selectedIndex,
     Function(int) onTap,
   }) {
-    final userData = Provider.of<UserData>(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-      height: double.infinity,
-      width: 280.0,
-      color: Theme.of(context).primaryColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          appBar(context, 'Psy', 'Scale'),
-          SizedBox(height: 8.0),
-          ValueListenableBuilder(
-            valueListenable: search,
-            builder: (context, value, child) => TextField(
-              controller: _textFieldController,
-              focusNode: _textFieldFocusNode,
-              decoration: searchTextInputDecoration(context).copyWith(
-                suffixIcon: search.value.isNotEmpty
-                    ? IconButton(
-                        alignment: Alignment.center,
-                        icon: Icon(
-                          Icons.close,
-                          size: 30.0,
+    return Drawer(
+      child: Container(
+        color: Theme.of(context).primaryColor,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              DrawerHeader(child: appBar(context, 'Psy', 'Scale')),
+              ...tabs
+                  .map((e) => ListTile(
+                        leading: Icon(
+                          e['icon'],
+                          color: e['index'] == selectedIndex
+                              ? Theme.of(context).accentColor
+                              : Colors.grey,
                         ),
-                        focusColor: Theme.of(context).accentColor,
-                        onPressed: () {
-                          _textFieldController.clear();
-                          FocusScope.of(context).requestFocus(new FocusNode());
+                        title: Text(
+                          e['title'],
+                          style: TextStyle(
+                              color: e['index'] == selectedIndex
+                                  ? Theme.of(context).accentColor
+                                  : Colors.grey,
+                              fontSize:
+                                  e['index'] == selectedIndex ? 22.0 : 16.0),
+                        ),
+                        onTap: () {
                           setState(() {
-                            search.value = '';
+                            _selectedIndex = e['index'];
+                            _appBarTitle = e['title'];
+                            if (!Responsive.isdesktop(context)) {
+                              Navigator.pop(context);
+                            }
                           });
-                        })
-                    : null,
+                        },
+                      ))
+                  .toList(),
+              Text(
+                'Personal',
+                style: Theme.of(context)
+                    .textTheme
+                    .headline6
+                    .copyWith(color: Colors.grey),
               ),
-              onChanged: (value) {
-                setState(() {
-                  search.value = value;
-                });
-              },
-            ),
-          ),
-          const SizedBox(height: 8.0),
-          Expanded(
-            child: Material(
-              color: Colors.transparent,
-              child: ListView(
-                padding: const EdgeInsets.all(20.0),
-                children: tabs
-                    .map((e) => ListTile(
-                          leading: Icon(
-                            e['icon'],
-                            color: e['index'] == selectedIndex
-                                ? Theme.of(context).accentColor
-                                : Colors.grey,
-                          ),
-                          title: Text(
-                            e['title'],
-                            style: TextStyle(
-                                color: e['index'] == selectedIndex
-                                    ? Theme.of(context).accentColor
-                                    : Colors.grey,
-                                fontSize:
-                                    e['index'] == selectedIndex ? 22.0 : 16.0),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _selectedIndex = e['index'];
-                            });
-                          },
-                        ))
-                    .toList(),
+              SizedBox(height: 8.0),
+              ..._tabsPerosnal
+                  .map((e) => ListTile(
+                        leading: Icon(
+                          e['icon'],
+                          color: e['index'] == selectedIndex
+                              ? Theme.of(context).accentColor
+                              : Colors.grey,
+                        ),
+                        title: Text(
+                          e['title'],
+                          style: TextStyle(
+                              color: e['index'] == selectedIndex
+                                  ? Theme.of(context).accentColor
+                                  : Colors.grey,
+                              fontSize:
+                                  e['index'] == selectedIndex ? 22.0 : 16.0),
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _selectedIndex = e['index'];
+                            _appBarTitle = e['title'];
+                            if (!Responsive.isdesktop(context)) {
+                              Navigator.pop(context);
+                            }
+                          });
+                        },
+                      ))
+                  .toList(),
+              ListTile(
+                leading: Icon(
+                  Icons.settings,
+                  color: selectedIndex == 0
+                      ? Theme.of(context).accentColor
+                      : Colors.grey,
+                ),
+                title: Text(
+                  'Setting',
+                  style: TextStyle(
+                      color: selectedIndex == 0
+                          ? Theme.of(context).accentColor
+                          : Colors.grey,
+                      fontSize: selectedIndex == 0 ? 22.0 : 16.0),
+                ),
+                onTap: () {
+                  setState(() {
+                    _selectedIndex = 0;
+                    _appBarTitle = 'Setting';
+                    if (!Responsive.isdesktop(context)) {
+                      Navigator.pop(context);
+                    }
+                  });
+                },
               ),
-            ),
+            ],
           ),
-          userCard(context, userData, () {
-            setState(() {
-              _selectedIndex = 0;
-            });
-          }),
-        ],
+        ),
       ),
     );
   }

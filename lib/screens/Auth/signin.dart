@@ -2,25 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:psyscale/main.dart';
 import 'package:psyscale/screens/Auth/signup.dart';
 
-import 'package:psyscale/services/auth.dart';
+import 'package:psyscale/services/authenticationServices%20.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
-class SignIn extends StatelessWidget {
+class SignIn extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Responsive.isMobile(context)
-        ? SignInForm()
-        : Scaffold(body: desktopWidget(Container(), Container(), SignInForm()));
-  }
+  _SignInState createState() => _SignInState();
 }
 
-class SignInForm extends StatefulWidget {
-  @override
-  _SignInFormState createState() => _SignInFormState();
-}
-
-class _SignInFormState extends State<SignInForm> {
+class _SignInState extends State<SignIn> {
   final _formKey = GlobalKey<FormState>();
   String email = '', password;
   AuthService authService = AuthService();
@@ -56,6 +47,12 @@ class _SignInFormState extends State<SignInForm> {
 
   @override
   Widget build(BuildContext context) {
+    return Responsive.isMobile(context)
+        ? signInForm()
+        : Scaffold(body: desktopWidget(Container(), Container(), signInForm()));
+  }
+
+  Widget signInForm() {
     final double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: Responsive.isMobile(context)

@@ -6,8 +6,8 @@ import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/services/googleSheetServices.dart';
-import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
+import 'package:psyscale/services/userServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
@@ -27,7 +27,6 @@ class _AddHybridState extends State<AddHybrid> {
   bool isLoading = false;
   List<String> _steps = [
     'Questionnaire Informations',
-    'List Of Classes',
     'List Of Question/Answers',
   ];
   int _currentStep = 1;
@@ -42,13 +41,8 @@ class _AddHybridState extends State<AddHybrid> {
   String _localQuestionEn = '';
   String _localQuestionFr = '';
   String _localQuestionAr = '';
-  String _localClasseEn = '';
-  String _localClasseFr = '';
-  String _localClasseAr = '';
   List<QuestionAnswer> _questionsAnswers = [];
-  List<Map<String, Object>> _classes = [];
   List<Map<String, Object>> _localAnswers = [];
-  HybridServices hybridServices = HybridServices();
   GoogleSheetApi _googleSheetApi = GoogleSheetApi();
 
   getTroublesList(QuerySnapshot data) async {
@@ -66,50 +60,44 @@ class _AddHybridState extends State<AddHybrid> {
     }
   }
 
-  addQuestionnaire() async {
-    setState(() {
-      isLoading = true;
-    });
-    await hybridServices
-        .addHybridData(Questionnaire(
-      troubleUid: _troubleUid,
-      nameEn: _nameEn,
-      nameFr: _nameFr,
-      nameAr: _nameAr,
-      descreptionEn: _descreptionEn,
-      descreptionFr: _descreptionFr,
-      descreptionAr: _descreptionAr,
-      stockageUrl: _stockageUrl.split('/')[5],
-      classes: _classes,
-      questionsAnswers: _questionsAnswers,
-    ))
-        .then((value) {
-      if (value != null) {
-        createGoogleSheet();
-
-        setState(() {
-          isLoading = false;
-        });
-        Navigator.pop(context);
-      }
-    });
-  }
-
   updateQuestionnaire() async {
     setState(() {
       isLoading = true;
     });
-    await hybridServices.updateHybridData(Questionnaire(
-      uid: widget.questionnaire.uid,
-      nameEn: _nameEn,
-      nameFr: _nameFr,
-      nameAr: _nameAr,
-      descreptionEn: _descreptionEn,
-      descreptionFr: _descreptionFr,
-      descreptionAr: _descreptionAr,
-      classes: _classes,
-      questionsAnswers: _questionsAnswers,
-    ));
+    List<Questionnaire> _personalHybrids = [];
+    if (widget.userData.personalHybrids != null) {
+      _personalHybrids.addAll(widget.userData.personalHybrids);
+    }
+    Questionnaire questionnaire = Questionnaire();
+    if (widget.questionnaire == null) {
+      questionnaire = Questionnaire(
+        troubleUid: _troubleUid,
+        nameEn: _nameEn,
+        nameFr: _nameFr,
+        nameAr: _nameAr,
+        descreptionEn: _descreptionEn,
+        descreptionFr: _descreptionFr,
+        descreptionAr: _descreptionAr,
+        stockageUrl: _stockageUrl.split('/')[5],
+        questionsAnswers: _questionsAnswers,
+      );
+    } else {
+      questionnaire = Questionnaire(
+        troubleUid: widget.questionnaire.troubleUid,
+        stockageUrl: widget.questionnaire.stockageUrl,
+        nameEn: _nameEn,
+        nameFr: _nameFr,
+        nameAr: _nameAr,
+        descreptionEn: _descreptionEn,
+        descreptionFr: _descreptionFr,
+        descreptionAr: _descreptionAr,
+        questionsAnswers: _questionsAnswers,
+      );
+      _personalHybrids.remove(widget.questionnaire);
+    }
+    _personalHybrids.add(questionnaire);
+    await UsersServices(useruid: widget.userData.uid)
+        .updatePersonnalHybrids(_personalHybrids);
 
     createGoogleSheet();
 
@@ -164,8 +152,12 @@ class _AddHybridState extends State<AddHybrid> {
           widget.questionnaire != null
               ? Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: deleteButton(context, () {
-                    hybridServices.deleteHybrid(widget.questionnaire.uid);
+                  child: deleteButton(context, () async {
+                    widget.userData.personalHybrids
+                        .remove(widget.questionnaire);
+                    await UsersServices(useruid: widget.userData.uid)
+                        .updatePersonnalHybrids(
+                            widget.userData.personalHybrids);
                     Navigator.pop(context);
                   }, text: 'Delete', color: Colors.red, icon: Icons.delete),
                 )
@@ -227,10 +219,8 @@ class _AddHybridState extends State<AddHybrid> {
                                 ? index == 1
                                     ? _questionnaireInfo()
                                     : index == 2
-                                        ? _classesList()
-                                        : index == 3
-                                            ? _questionAnswerList()
-                                            : const SizedBox()
+                                        ? _questionAnswerList()
+                                        : const SizedBox()
                                 : const SizedBox(),
                           ],
                         ),
@@ -238,7 +228,7 @@ class _AddHybridState extends State<AddHybrid> {
                     }).toList(),
                   ),
                 ),
-                _currentStep == 4
+                _currentStep == 3
                     ? Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -251,9 +241,7 @@ class _AddHybridState extends State<AddHybrid> {
                             }),
                             const SizedBox(width: 6.0),
                             button('Save', () {
-                              widget.questionnaire == null
-                                  ? addQuestionnaire()
-                                  : updateQuestionnaire();
+                              updateQuestionnaire();
                             }),
                           ],
                         ),
@@ -397,126 +385,6 @@ class _AddHybridState extends State<AddHybrid> {
                 }
               }),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _classesList() {
-    final _classesformkey = GlobalKey<FormState>();
-    return Container(
-      color: Theme.of(context).backgroundColor,
-      child: Column(
-        children: [
-          ..._classes
-              .map((classe) => Card(
-                  shape: RoundedRectangleBorder(
-                      side: BorderSide(color: Constants.myGrey, width: 1.0)),
-                  child: ListTile(
-                    title: Text(classe['classEn']),
-                    trailing: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _localAnswers.remove(classe);
-                        });
-                      },
-                      icon: Icon(
-                        Icons.delete,
-                        color: Constants.border,
-                      ),
-                    ),
-                  )))
-              .toList(),
-          Form(
-            key: _classesformkey,
-            child: Container(
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-              child: Column(
-                children: [
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localClasseEn,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'English Class'),
-                    onChanged: (value) => _localClasseEn = value,
-                  ),
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localClasseFr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Frensh Class'),
-                    onChanged: (value) => _localClasseFr = value,
-                  ),
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localClasseAr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Arabic Class'),
-                    onChanged: (value) => _localClasseAr = value,
-                  ),
-                  const SizedBox(height: 6.0),
-                ],
-              ),
-            ),
-          ),
-          button('Add Class', () {
-            if (_classesformkey.currentState.validate()) {
-              setState(() {
-                _classes.add({
-                  'classEn': _localClasseEn,
-                  'classFr': _localClasseFr,
-                  'classAr': _localClasseAr,
-                });
-                _localClasseEn = '';
-                _localClasseFr = '';
-                _localClasseAr = '';
-              });
-            }
-          }),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Spacer(),
-                button('Previos', () {
-                  setState(() {
-                    _currentStep--;
-                  });
-                }),
-                const SizedBox(width: 6.0),
-                button('Next', () {
-                  if (_classes.isEmpty) {
-                    final snackBar = SnackBar(
-                      elevation: 1.0,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                            color: Theme.of(context).accentColor, width: 2.0),
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      content: Text('At least one classe'),
-                      duration: Duration(seconds: 2),
-                    );
-
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  } else {
-                    setState(() {
-                      _currentStep++;
-                    });
-                  }
-                }),
-              ],
-            ),
           ),
         ],
       ),

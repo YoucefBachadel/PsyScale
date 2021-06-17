@@ -31,6 +31,7 @@ class HybridServices {
       'descreptionFr': questionnaire.descreptionFr,
       'descreptionAr': questionnaire.descreptionAr,
       'stockageUrl': questionnaire.stockageUrl,
+      'classes': questionnaire.classes,
       'questionsAnswers': _questionsAnswersMap,
     });
   }
@@ -55,6 +56,7 @@ class HybridServices {
       'descreptionEn': questionnaire.descreptionEn,
       'descreptionFr': questionnaire.descreptionFr,
       'descreptionAr': questionnaire.descreptionAr,
+      'classes': questionnaire.classes,
       'questionsAnswers': _questionsAnswersMap,
     });
   }
