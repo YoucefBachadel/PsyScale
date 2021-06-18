@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Psychiatrist/quiz.dart';
+import 'package:psyscale/screens/Psychiatrist/quizQuesionnaire.dart';
 import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/customSplashFactory.dart';
@@ -159,12 +159,10 @@ class _QuestionnairesState extends State<Questionnaires> {
                                         onTap: () {
                                           Constants.navigationFunc(
                                               context,
-                                              Quiz(
+                                              QuizQuestionnaire(
                                                 questionnaire: questionnaire,
-                                                type: 'screening',
                                                 languge: userData.language,
                                                 history: userData.history,
-                                                userUid: userData.uid,
                                               ));
                                         },
                                         child: Container(

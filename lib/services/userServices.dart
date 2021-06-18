@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
@@ -177,6 +178,7 @@ class UsersServices {
         'descreptionFr': element.descreptionFr,
         'descreptionAr': element.descreptionAr,
         'stockageUrl': element.stockageUrl,
+        'classes': element.classes,
         'questionsAnswers': _questionsAnswersMap,
       });
     });
@@ -188,8 +190,10 @@ class UsersServices {
 
   // user data from snapshot
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
     return UserData(
       uid: useruid,
+      user: _auth.currentUser,
       name: snapshot.data()['name'],
       email: snapshot.data()['email'],
       type: snapshot.data()['type'],

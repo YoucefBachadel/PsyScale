@@ -7,6 +7,7 @@ class Trouble {
   String nameAr;
   String imageUrl;
   int questionnaresCount;
+  int hybridesCount;
   String descreptionEn;
   String descreptionFr;
   String descreptionAr;
@@ -20,6 +21,7 @@ class Trouble {
       this.nameAr,
       this.imageUrl,
       this.questionnaresCount,
+      this.hybridesCount,
       this.descreptionEn,
       this.descreptionFr,
       this.descreptionAr,

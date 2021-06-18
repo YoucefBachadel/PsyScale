@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Psychiatrist/quiz.dart';
+import 'package:psyscale/screens/Psychiatrist/quizHybrid.dart';
+import 'package:psyscale/screens/Psychiatrist/quizQuesionnaire.dart';
 import 'package:psyscale/shared/customSplashFactory.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
@@ -223,12 +224,10 @@ class _TroubleDetailsState extends State<TroubleDetails>
                                     onTap: () {
                                       Constants.navigationFunc(
                                           context,
-                                          Quiz(
+                                          QuizQuestionnaire(
                                             questionnaire: questionnaire,
-                                            type: 'screening',
                                             languge: widget.userData.language,
                                             history: widget.userData.history,
-                                            userUid: widget.userData.uid,
                                           ));
                                     },
                                     child: Container(
@@ -311,12 +310,10 @@ class _TroubleDetailsState extends State<TroubleDetails>
                                   onTap: () {
                                     Constants.navigationFunc(
                                         context,
-                                        Quiz(
+                                        QuizHybrid(
                                           questionnaire: questionnaire,
-                                          type: 'dataCollection',
                                           languge: widget.userData.language,
                                           history: widget.userData.history,
-                                          userUid: widget.userData.uid,
                                         ));
                                   },
                                   child: Container(

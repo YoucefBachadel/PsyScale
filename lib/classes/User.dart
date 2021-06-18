@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 
 class CurrentUser {
@@ -10,6 +11,7 @@ class CurrentUser {
 
 class UserData {
   final String uid;
+  final User user;
   final String name;
   final String clinicName;
   final String email;
@@ -27,6 +29,7 @@ class UserData {
   UserData(
       {this.uid,
       this.name,
+      this.user,
       this.clinicName,
       this.email,
       this.phone,
@@ -87,6 +90,7 @@ class UserData {
             descreptionEn: item['descreptionEn'],
             descreptionFr: item['descreptionFr'],
             descreptionAr: item['descreptionAr'],
+            classes: Questionnaire.getList(item['classes']),
             stockageUrl: item['stockageUrl'],
             questionsAnswers:
                 Questionnaire.getQuestionAnswerList(item['questionsAnswers'])));

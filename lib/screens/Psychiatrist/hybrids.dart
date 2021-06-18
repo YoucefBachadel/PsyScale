@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Psychiatrist/quiz.dart';
+import 'package:psyscale/screens/Psychiatrist/quizHybrid.dart';
 import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
@@ -38,6 +38,7 @@ class _HybridsState extends State<Hybrids> {
             descreptionFr: doc['descreptionFr'],
             descreptionAr: doc['descreptionAr'],
             stockageUrl: doc['stockageUrl'],
+            classes: Questionnaire.getList(doc['classes']),
             questionsAnswers:
                 Questionnaire.getQuestionAnswerList(doc['questionsAnswers'])));
       });
@@ -105,7 +106,7 @@ class _HybridsState extends State<Hybrids> {
                               style: Theme.of(context).textTheme.headline6,
                             ),
                             subtitle: Text(
-                              '${questionnaire.getQuestionsCount()} questions',
+                              '${questionnaire.getQuestionsCount() + 1} questions',
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle1
@@ -130,12 +131,10 @@ class _HybridsState extends State<Hybrids> {
                                   onTap: () {
                                     Constants.navigationFunc(
                                         context,
-                                        Quiz(
+                                        QuizHybrid(
                                           questionnaire: questionnaire,
-                                          type: 'dataCollection',
                                           languge: userData.language,
                                           history: userData.history,
-                                          userUid: userData.uid,
                                         ));
                                   },
                                   child: Container(

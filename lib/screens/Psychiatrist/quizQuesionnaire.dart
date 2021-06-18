@@ -1,36 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
-import 'package:psyscale/services/googleSheetServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
-class Quiz extends StatefulWidget {
+class QuizQuestionnaire extends StatefulWidget {
   final Questionnaire questionnaire;
-  final String type;
   final String languge;
   final List<Map<String, Object>> history;
-  final String userUid;
 
-  const Quiz({
+  const QuizQuestionnaire({
     Key key,
     this.questionnaire,
-    this.type,
     this.languge,
     this.history,
-    this.userUid,
   }) : super(key: key);
   @override
-  _QuizState createState() => _QuizState();
+  _QuizQuestionnaireState createState() => _QuizQuestionnaireState();
 }
 
-class _QuizState extends State<Quiz> {
+class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
   int _currentQuestionIndex = 1;
   List<int> _choises;
   int _maxScore = 0;
   int _totalScore = 0;
   bool isLoading = false;
-  GoogleSheetApi _googleSheetApi = GoogleSheetApi();
 
   @override
   void initState() {
@@ -44,7 +38,7 @@ class _QuizState extends State<Quiz> {
 
   getMaxScore() {
     int _maxAnswerScore = 0;
-    if (widget.type == 'dataCollection' || widget.questionnaire.type == '2') {
+    if (widget.questionnaire.type == '2') {
       int _localmaxAnswerScore = 0;
       widget.questionnaire.questionsAnswers.forEach((questionsAnswer) {
         questionsAnswer.answers.forEach((element) {
@@ -62,19 +56,6 @@ class _QuizState extends State<Quiz> {
       });
       _maxScore = _maxAnswerScore * widget.questionnaire.questions.length;
     }
-  }
-
-  savedataCollected() {
-    _choises.forEach((element) {
-      print(element);
-    });
-    _googleSheetApi.init(
-        widget.questionnaire.stockageUrl,
-        widget.questionnaire.nameEn,
-        _choises.map((e) => e.toString()).toList(),
-        'items');
-
-    Navigator.pop(context);
   }
 
   @override
@@ -190,15 +171,15 @@ class _QuizState extends State<Quiz> {
     String _question = '';
     List<Map<String, Object>> _answers = [];
 
-    if (widget.type == 'screening' && widget.questionnaire.type == '1') {
+    if (widget.questionnaire.type == '1') {
       _question = widget.questionnaire
           .getQuesionsList(widget.languge)[_currentQuestionIndex - 1];
       _answers = widget.questionnaire.getAnswersList(widget.languge, 0);
     } else {
       _question = widget.questionnaire
-          .getQuesAnsQuestion(widget.languge, _currentQuestionIndex - 1);
+          .getQuesAnsQuestion(widget.languge, _currentQuestionIndex - 2);
       _answers = widget.questionnaire
-          .getAnswersList(widget.languge, _currentQuestionIndex - 1);
+          .getAnswersList(widget.languge, _currentQuestionIndex - 2);
     }
 
     return Column(
@@ -293,96 +274,61 @@ class _QuizState extends State<Quiz> {
   }
 
   Widget score() {
-    if (widget.type == 'dataCollection') {
-      return Expanded(
-        child: Column(
-          children: [
-            Text(
-              'Thank you so much for your time!!',
-              style: Theme.of(context)
-                  .textTheme
-                  .headline3
-                  .copyWith(color: Constants.myGrey),
-            ),
-            SizedBox(height: MediaQuery.of(context).size.height / 5),
-            InkWell(
-              onTap: () async {
-                savedataCollected();
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 18.0),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).accentColor,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width,
-                child: Text(
-                  'Done',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ),
-            ),
-          ],
+    String _message = '';
+
+    // get the total score
+    _totalScore = 0;
+    _choises.forEach((element) {
+      _totalScore += element;
+    });
+
+    // get the right message for the total score
+    widget.questionnaire.getEvaluationList(widget.languge).forEach((element) {
+      if (_totalScore >= element['from'] && _totalScore <= element['to']) {
+        _message = element['message'];
+      }
+    });
+
+    return Column(
+      children: [
+        Text(
+          'Score:',
+          style: Theme.of(context)
+              .textTheme
+              .headline3
+              .copyWith(color: Constants.myGrey),
         ),
-      );
-    } else {
-      String _message = '';
-
-      // get the total score
-      _totalScore = 0;
-      _choises.forEach((element) {
-        _totalScore += element;
-      });
-
-      // get the right message for the total score
-      widget.questionnaire.getEvaluationList(widget.languge).forEach((element) {
-        if (_totalScore >= element['from'] && _totalScore <= element['to']) {
-          _message = element['message'];
-        }
-      });
-
-      return Column(
-        children: [
-          Text(
-            'Score:',
+        Text('$_totalScore/$_maxScore',
             style: Theme.of(context)
                 .textTheme
-                .headline3
-                .copyWith(color: Constants.myGrey),
-          ),
-          Text('$_totalScore/$_maxScore',
-              style: Theme.of(context)
-                  .textTheme
-                  .headline2
-                  .copyWith(color: Colors.black)),
-          SizedBox(height: 15.0),
-          Text(_message,
-              style: Theme.of(context)
-                  .textTheme
-                  .headline5
-                  .copyWith(color: Colors.black)),
-          SizedBox(height: MediaQuery.of(context).size.height / 5),
-          InkWell(
-            onTap: () async {
-              Navigator.pop(context);
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 18.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).accentColor,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
-              child: Text(
-                widget.userUid == 'gest' ? 'Done' : 'Save',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
+                .headline2
+                .copyWith(color: Colors.black)),
+        SizedBox(height: 15.0),
+        Text(_message,
+            style: Theme.of(context)
+                .textTheme
+                .headline5
+                .copyWith(color: Colors.black)),
+        SizedBox(height: MediaQuery.of(context).size.height / 5),
+        InkWell(
+          onTap: () async {
+            Navigator.pop(context);
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 18.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).accentColor,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            alignment: Alignment.center,
+            width: MediaQuery.of(context).size.width,
+            child: Text(
+              'Done',
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
-        ],
-      );
-    }
+        ),
+      ],
+    );
   }
 }

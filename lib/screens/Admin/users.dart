@@ -18,11 +18,12 @@ class Users extends StatefulWidget {
 }
 
 class _UsersState extends State<Users> {
-  String _sortBy = 'User Name';
-  String _lastStore = '';
   List<UserData> allUsers = [];
   List<UserData> users = [];
   bool _isAddingAdmin = false;
+  int _sortColumnIndex = 0;
+  bool _isAscending = false;
+  String _sortBy = '';
 
   getUsersList(QuerySnapshot data, String type) {
     allUsers.clear();
@@ -73,34 +74,58 @@ class _UsersState extends State<Users> {
         users.add(element);
       }
     });
-    listStor();
+    listSort();
   }
 
-  listStor() {
+  void listSort() {
     switch (_sortBy) {
       case 'User Name':
-        users.sort(
-            (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        users.sort((user1, user2) {
+          return !_isAscending
+              ? user1.name.compareTo(user2.name)
+              : user2.name.compareTo(user1.name);
+        });
         break;
       case 'Email':
-        users.sort(
-            (a, b) => a.email.toLowerCase().compareTo(b.email.toLowerCase()));
+        users.sort((user1, user2) {
+          return !_isAscending
+              ? user1.email.compareTo(user2.email)
+              : user2.email.compareTo(user1.email);
+        });
         break;
       case 'Creation Date':
-        users.sort((a, b) => a.creationDate.compareTo(b.creationDate));
+        users.sort((user1, user2) {
+          return !_isAscending
+              ? user1.creationDate.compareTo(user2.creationDate)
+              : user2.creationDate.compareTo(user1.creationDate);
+        });
         break;
       case 'Last SignIn':
-        users.sort((a, b) => a.lastSignIn.compareTo(b.lastSignIn));
+        users.sort((user1, user2) {
+          return !_isAscending
+              ? user1.lastSignIn.compareTo(user2.lastSignIn)
+              : user2.lastSignIn.compareTo(user1.lastSignIn);
+        });
         break;
-      case 'Language':
-        users.sort((a, b) => a.language.compareTo(b.language));
+      case 'Clinic Name':
+        users.sort((user1, user2) {
+          return !_isAscending
+              ? user1.clinicName.compareTo(user2.clinicName)
+              : user2.clinicName.compareTo(user1.clinicName);
+        });
         break;
-    }
-    if (_lastStore == _sortBy) {
-      users.reversed.toList();
-      _lastStore = '';
-    } else {
-      _lastStore = _sortBy;
+      case 'Validation':
+        users.sort((user1, user2) {
+          return !_isAscending ? 1 : -1;
+        });
+        break;
+      case 'Type':
+        users.sort((user1, user2) {
+          return !_isAscending
+              ? user1.type.compareTo(user2.type)
+              : user2.type.compareTo(user1.type);
+        });
+        break;
     }
   }
 
@@ -271,112 +296,182 @@ class _UsersState extends State<Users> {
 
   Widget usersList() {
     List<DataColumn> columns = [
-      DataColumn(label: culomnItem('User Name', true)),
-      DataColumn(label: culomnItem('Email', true)),
-      DataColumn(label: culomnItem('Creation Date', true)),
-      DataColumn(label: culomnItem('Last SignIn', true)),
-      DataColumn(label: culomnItem('Language', true)),
-      DataColumn(label: culomnItem('', false)),
+      DataColumn(
+          label: culomnItem('User Name'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'User Name');
+          }),
+      DataColumn(
+          label: culomnItem('Email'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Email');
+          }),
+      DataColumn(
+          label: culomnItem('Creation Date'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Creation Date');
+          }),
+      DataColumn(
+          label: culomnItem('Last SignIn'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Last SignIn');
+          }),
+      DataColumn(label: culomnItem('Language')),
+      DataColumn(label: culomnItem('')),
     ];
     List<DataRow> rows = users.map((e) {
-      return DataRow(cells: [
-        DataCell(Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: AssetImage('assets/avatar.jpg'),
-            ),
-            SizedBox(width: 8.0),
-            Text(e.name),
-          ],
-        )),
-        DataCell(Text(e.email)),
-        DataCell(
-            Text(DateFormat('yyyy-MM-dd').format(e.creationDate.toDate()))),
-        DataCell(
-            Text(DateFormat('yyyy-MM-dd H:mm').format(e.lastSignIn.toDate()))),
-        DataCell(Text(e.language)),
-        DataCell(deleteButton(context, () {},
-            text: 'Delete', color: Colors.red, icon: Icons.delete)),
-      ]);
+      return DataRow(
+        color: MaterialStateProperty.all(Colors.white),
+        cells: [
+          DataCell(Row(
+            children: [
+              CircleAvatar(
+                backgroundImage: AssetImage('assets/avatar.jpg'),
+              ),
+              SizedBox(width: 8.0),
+              Text(e.name),
+            ],
+          )),
+          DataCell(Text(e.email)),
+          DataCell(
+              Text(DateFormat('yyyy-MM-dd').format(e.creationDate.toDate()))),
+          DataCell(Text(
+              DateFormat('yyyy-MM-dd H:mm').format(e.lastSignIn.toDate()))),
+          DataCell(Text(e.language)),
+          DataCell(deleteButton(context, () {},
+              text: 'Delete', color: Colors.red, icon: Icons.delete)),
+        ],
+      );
     }).toList();
     return dataTable(columns, rows);
   }
 
   Widget psychiatristsList() {
     List<DataColumn> columns = [
-      DataColumn(label: culomnItem('User Name', true)),
-      DataColumn(label: culomnItem('Clinic Name', true)),
-      DataColumn(label: culomnItem('Email', true)),
-      DataColumn(label: culomnItem('Phone', false)),
-      DataColumn(label: culomnItem('Creation Date', true)),
-      DataColumn(label: culomnItem('Last SignIn', true)),
-      DataColumn(label: culomnItem('Language', true)),
-      DataColumn(label: culomnItem('Validation', true)),
-      DataColumn(label: culomnItem('', false)),
+      DataColumn(
+          label: culomnItem('User Name'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'User Name');
+          }),
+      DataColumn(
+          label: culomnItem('Clinic Name'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Clinic Name');
+          }),
+      DataColumn(
+          label: culomnItem('Email'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Email');
+          }),
+      DataColumn(label: culomnItem('Phone')),
+      DataColumn(
+          label: culomnItem('Creation Date'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Creation Date');
+          }),
+      DataColumn(
+          label: culomnItem('Last SignIn'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Last SignIn');
+          }),
+      DataColumn(label: culomnItem('Language')),
+      DataColumn(
+          label: culomnItem('Validation'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Validation');
+          }),
+      DataColumn(label: culomnItem('')),
     ];
     List<DataRow> rows = users.map((e) {
-      return DataRow(cells: [
-        DataCell(Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: AssetImage('assets/avatar.jpg'),
-            ),
-            SizedBox(width: 8.0),
-            Text(e.name),
-          ],
-        )),
-        DataCell(Text(e.clinicName)),
-        DataCell(Text(e.email)),
-        DataCell(Text(e.phone)),
-        DataCell(
-            Text(DateFormat('yyyy-MM-dd').format(e.creationDate.toDate()))),
-        DataCell(
-            Text(DateFormat('yyyy-MM-dd H:mm').format(e.lastSignIn.toDate()))),
-        DataCell(Text(e.language)),
-        DataCell(!e.validated
-            ? deleteButton(context, () {
-                print(e.uid);
-                UsersServices().validateDoctor(e.uid);
-              }, text: 'Validate', color: Colors.green, icon: Icons.cloud_done)
-            : Icon(Icons.done)),
-        DataCell(deleteButton(context, () {},
-            text: 'Delete', color: Colors.red, icon: Icons.delete)),
-      ]);
+      return DataRow(
+        color: MaterialStateProperty.all(Colors.white),
+        cells: [
+          DataCell(Row(
+            children: [
+              CircleAvatar(
+                backgroundImage: AssetImage('assets/avatar.jpg'),
+              ),
+              SizedBox(width: 8.0),
+              Text(e.name),
+            ],
+          )),
+          DataCell(Text(e.clinicName)),
+          DataCell(Text(e.email)),
+          DataCell(Text(e.phone)),
+          DataCell(
+              Text(DateFormat('yyyy-MM-dd').format(e.creationDate.toDate()))),
+          DataCell(Text(
+              DateFormat('yyyy-MM-dd H:mm').format(e.lastSignIn.toDate()))),
+          DataCell(Text(e.language)),
+          DataCell(!e.validated
+              ? deleteButton(context, () {
+                  print(e.uid);
+                  UsersServices().validateDoctor(e.uid);
+                },
+                  text: 'Validate', color: Colors.green, icon: Icons.cloud_done)
+              : Icon(Icons.done)),
+          DataCell(deleteButton(context, () {},
+              text: 'Delete', color: Colors.red, icon: Icons.delete)),
+        ],
+      );
     }).toList();
     return dataTable(columns, rows);
   }
 
   Widget adminsList() {
     List<DataColumn> columns = [
-      DataColumn(label: culomnItem('User Name', true)),
-      DataColumn(label: culomnItem('Type', true)),
-      DataColumn(label: culomnItem('Email', true)),
-      DataColumn(label: culomnItem('Creation Date', true)),
-      DataColumn(label: culomnItem('Last SignIn', true)),
-      DataColumn(label: culomnItem('Language', true)),
-      DataColumn(label: culomnItem('', false)),
+      DataColumn(
+          label: culomnItem('User Name'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'User Name');
+          }),
+      DataColumn(
+          label: culomnItem('Type'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Type');
+          }),
+      DataColumn(
+          label: culomnItem('Email'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Email');
+          }),
+      DataColumn(
+          label: culomnItem('Creation Date'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Creation Date');
+          }),
+      DataColumn(
+          label: culomnItem('Last SignIn'),
+          onSort: (int index, bool ascending) {
+            onSort(index, ascending, 'Last SignIn');
+          }),
+      DataColumn(label: culomnItem('Language')),
+      DataColumn(label: culomnItem('')),
     ];
     List<DataRow> rows = users.map((e) {
-      return DataRow(cells: [
-        DataCell(Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: AssetImage('assets/avatar.jpg'),
-            ),
-            SizedBox(width: 8.0),
-            Text(e.name),
-          ],
-        )),
-        DataCell(Text(e.type)),
-        DataCell(Text(e.email)),
-        DataCell(
-            Text(DateFormat('yyyy-MM-dd').format(e.creationDate.toDate()))),
-        DataCell(
-            Text(DateFormat('yyyy-MM-dd H:mm').format(e.lastSignIn.toDate()))),
-        DataCell(Text(e.language)),
-        DataCell(deleteButton(context, () {},
-            text: 'Delete', color: Colors.red, icon: Icons.delete)),
-      ]);
+      return DataRow(
+        color: MaterialStateProperty.all(Colors.white),
+        cells: [
+          DataCell(Row(
+            children: [
+              CircleAvatar(
+                backgroundImage: AssetImage('assets/avatar.jpg'),
+              ),
+              SizedBox(width: 8.0),
+              Text(e.name),
+            ],
+          )),
+          DataCell(Text(e.type)),
+          DataCell(Text(e.email)),
+          DataCell(
+              Text(DateFormat('yyyy-MM-dd').format(e.creationDate.toDate()))),
+          DataCell(Text(
+              DateFormat('yyyy-MM-dd H:mm').format(e.lastSignIn.toDate()))),
+          DataCell(Text(e.language)),
+          DataCell(deleteButton(context, () {},
+              text: 'Delete', color: Colors.red, icon: Icons.delete)),
+        ],
+      );
     }).toList();
     return dataTable(columns, rows);
   }
@@ -395,6 +490,8 @@ class _UsersState extends State<Users> {
                       color: Theme.of(context).backgroundColor,
                       height: double.infinity,
                       child: DataTable(
+                        sortAscending: _isAscending,
+                        sortColumnIndex: _sortColumnIndex,
                         columnSpacing: 22.0,
                         dataRowHeight: 40.0,
                         headingRowColor: MaterialStateColor.resolveWith(
@@ -408,35 +505,21 @@ class _UsersState extends State<Users> {
               );
   }
 
-  Widget culomnItem(String text, bool ordorable) {
-    return ordorable
-        ? InkWell(
-            onTap: () {
-              setState(() {
-                _sortBy = text;
-              });
-            },
-            child: Row(
-              children: [
-                Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: 14.0,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                ),
-              ],
-            ),
-          )
-        : Text(
-            text,
-            style: TextStyle(
-              fontSize: 14.0,
-            ),
-            textAlign: TextAlign.center,
-          );
+  void onSort(int columnIndex, bool ascending, String sortby) {
+    setState(() {
+      _sortBy = sortby;
+      _isAscending = ascending;
+      _sortColumnIndex = columnIndex;
+    });
+  }
+
+  Widget culomnItem(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 14.0,
+      ),
+      textAlign: TextAlign.center,
+    );
   }
 }

@@ -27,6 +27,7 @@ class _AddHybridState extends State<AddHybrid> {
   bool isLoading = false;
   List<String> _steps = [
     'Questionnaire Informations',
+    'List Of Classes',
     'List Of Question/Answers',
   ];
   int _currentStep = 1;
@@ -41,7 +42,11 @@ class _AddHybridState extends State<AddHybrid> {
   String _localQuestionEn = '';
   String _localQuestionFr = '';
   String _localQuestionAr = '';
+  String _localClasseEn = '';
+  String _localClasseFr = '';
+  String _localClasseAr = '';
   List<QuestionAnswer> _questionsAnswers = [];
+  List<Map<String, Object>> _classes = [];
   List<Map<String, Object>> _localAnswers = [];
   GoogleSheetApi _googleSheetApi = GoogleSheetApi();
 
@@ -79,6 +84,7 @@ class _AddHybridState extends State<AddHybrid> {
         descreptionFr: _descreptionFr,
         descreptionAr: _descreptionAr,
         stockageUrl: _stockageUrl.split('/')[5],
+        classes: _classes,
         questionsAnswers: _questionsAnswers,
       );
     } else {
@@ -91,6 +97,7 @@ class _AddHybridState extends State<AddHybrid> {
         descreptionEn: _descreptionEn,
         descreptionFr: _descreptionFr,
         descreptionAr: _descreptionAr,
+        classes: _classes,
         questionsAnswers: _questionsAnswers,
       );
       _personalHybrids.remove(widget.questionnaire);
@@ -112,6 +119,7 @@ class _AddHybridState extends State<AddHybrid> {
         ? _stockageUrl.split('/')[5]
         : _stockageUrl;
     List<String> _questions = [];
+    _questions.add('class');
     _questionsAnswers.forEach((element) {
       _questions.add(element.questionEn);
     });
@@ -130,6 +138,7 @@ class _AddHybridState extends State<AddHybrid> {
       _descreptionFr = widget.questionnaire.descreptionFr;
       _descreptionAr = widget.questionnaire.descreptionAr;
       _stockageUrl = widget.questionnaire.stockageUrl;
+      // _classes = widget.questionnaire.classes;
       _questionsAnswers = widget.questionnaire.questionsAnswers;
     }
 
@@ -219,8 +228,10 @@ class _AddHybridState extends State<AddHybrid> {
                                 ? index == 1
                                     ? _questionnaireInfo()
                                     : index == 2
-                                        ? _questionAnswerList()
-                                        : const SizedBox()
+                                        ? _classesList()
+                                        : index == 3
+                                            ? _questionAnswerList()
+                                            : const SizedBox()
                                 : const SizedBox(),
                           ],
                         ),
@@ -228,7 +239,7 @@ class _AddHybridState extends State<AddHybrid> {
                     }).toList(),
                   ),
                 ),
-                _currentStep == 3
+                _currentStep == 4
                     ? Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -385,6 +396,126 @@ class _AddHybridState extends State<AddHybrid> {
                 }
               }),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _classesList() {
+    final _classesformkey = GlobalKey<FormState>();
+    return Container(
+      color: Theme.of(context).backgroundColor,
+      child: Column(
+        children: [
+          ..._classes
+              .map((classe) => Card(
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: Constants.myGrey, width: 1.0)),
+                  child: ListTile(
+                    title: Text(classe['classEn']),
+                    trailing: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _localAnswers.remove(classe);
+                        });
+                      },
+                      icon: Icon(
+                        Icons.delete,
+                        color: Constants.border,
+                      ),
+                    ),
+                  )))
+              .toList(),
+          Form(
+            key: _classesformkey,
+            child: Container(
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 6.0),
+                  TextFormField(
+                    initialValue: _localClasseEn,
+                    validator: (value) =>
+                        value.isEmpty ? 'Required field' : null,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    decoration: textInputDecoration(context, 'English Class'),
+                    onChanged: (value) => _localClasseEn = value,
+                  ),
+                  const SizedBox(height: 6.0),
+                  TextFormField(
+                    initialValue: _localClasseFr,
+                    validator: (value) =>
+                        value.isEmpty ? 'Required field' : null,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    decoration: textInputDecoration(context, 'Frensh Class'),
+                    onChanged: (value) => _localClasseFr = value,
+                  ),
+                  const SizedBox(height: 6.0),
+                  TextFormField(
+                    initialValue: _localClasseAr,
+                    validator: (value) =>
+                        value.isEmpty ? 'Required field' : null,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    decoration: textInputDecoration(context, 'Arabic Class'),
+                    onChanged: (value) => _localClasseAr = value,
+                  ),
+                  const SizedBox(height: 6.0),
+                ],
+              ),
+            ),
+          ),
+          button('Add Class', () {
+            if (_classesformkey.currentState.validate()) {
+              setState(() {
+                _classes.add({
+                  'classEn': _localClasseEn,
+                  'classFr': _localClasseFr,
+                  'classAr': _localClasseAr,
+                });
+                _localClasseEn = '';
+                _localClasseFr = '';
+                _localClasseAr = '';
+              });
+            }
+          }),
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Spacer(),
+                button('Previos', () {
+                  setState(() {
+                    _currentStep--;
+                  });
+                }),
+                const SizedBox(width: 6.0),
+                button('Next', () {
+                  if (_classes.isEmpty) {
+                    final snackBar = SnackBar(
+                      elevation: 1.0,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                            color: Theme.of(context).accentColor, width: 2.0),
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                      content: Text('At least one classe'),
+                      duration: Duration(seconds: 2),
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  } else {
+                    setState(() {
+                      _currentStep++;
+                    });
+                  }
+                }),
+              ],
+            ),
           ),
         ],
       ),

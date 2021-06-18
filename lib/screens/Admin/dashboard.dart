@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
+import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
@@ -12,7 +13,9 @@ import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/widgets.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({key}) : super(key: key);
+  final Function changeTab;
+  final UserData userData;
+  const Dashboard({key, this.changeTab, this.userData}) : super(key: key);
 
   @override
   _DashboardState createState() => _DashboardState();
@@ -29,6 +32,9 @@ class _DashboardState extends State<Dashboard> {
   List<Trouble> troubles = [];
   List<Questionnaire> questionnaires = [];
   List<Questionnaire> hybrides = [];
+  int _sortColumnIndex = 0;
+  bool _isAscending = false;
+  String _sortBy = 'Trouble Name';
 
   getTroublesList(QuerySnapshot data) async {
     troubles.clear();
@@ -37,10 +43,11 @@ class _DashboardState extends State<Dashboard> {
         troubles.add(Trouble(
           uid: doc.id,
           nameEn: doc['nameEn'],
+          nameFr: doc['nameFr'],
+          nameAr: doc['nameAr'],
           imageUrl: doc['imageUrl'],
         ));
       });
-      troubles.sort((a, b) => a.nameEn.compareTo(b.nameEn));
     }
   }
 
@@ -51,12 +58,17 @@ class _DashboardState extends State<Dashboard> {
         questionnaires.add(Questionnaire(
           uid: doc.id,
           troubleUid: doc['troubleUid'],
-          nameEn: doc['nameEn'],
         ));
       });
-
-      questionnaires.sort((a, b) => a.nameEn.compareTo(b.nameEn));
     }
+    troubles.forEach((trouble) {
+      trouble.questionnaresCount = 0;
+      questionnaires.forEach((questionnaire) {
+        if (questionnaire.troubleUid == trouble.uid) {
+          trouble.questionnaresCount++;
+        }
+      });
+    });
   }
 
   getHybridsList(QuerySnapshot data) async {
@@ -66,11 +78,49 @@ class _DashboardState extends State<Dashboard> {
         hybrides.add(Questionnaire(
           uid: doc.id,
           troubleUid: doc['troubleUid'],
-          nameEn: doc['nameEn'],
         ));
       });
+    }
+    troubles.forEach((trouble) {
+      trouble.hybridesCount = 0;
+      hybrides.forEach((hybrid) {
+        if (hybrid.troubleUid == trouble.uid) {
+          trouble.hybridesCount++;
+        }
+      });
+    });
+    onSort();
+  }
 
-      hybrides.sort((a, b) => a.nameEn.compareTo(b.nameEn));
+  void onSort() {
+    switch (_sortBy) {
+      case 'Trouble Name':
+        troubles.sort((trouble1, trouble2) {
+          return !_isAscending
+              ? trouble1
+                  .getName(widget.userData.language)
+                  .compareTo(trouble2.getName(widget.userData.language))
+              : trouble2
+                  .getName(widget.userData.language)
+                  .compareTo(trouble1.getName(widget.userData.language));
+        });
+        break;
+      case 'Questionnaires':
+        troubles.sort((trouble1, trouble2) {
+          return !_isAscending
+              ? trouble1.questionnaresCount
+                  .compareTo(trouble2.questionnaresCount)
+              : trouble2.questionnaresCount
+                  .compareTo(trouble1.questionnaresCount);
+        });
+        break;
+      case 'Hybrides':
+        troubles.sort((trouble1, trouble2) {
+          return !_isAscending
+              ? trouble1.hybridesCount.compareTo(trouble2.hybridesCount)
+              : trouble2.hybridesCount.compareTo(trouble1.hybridesCount);
+        });
+        break;
     }
   }
 
@@ -83,7 +133,7 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       body: Row(
         children: [
-          Expanded(
+          Flexible(
             flex: 2,
             child: StreamBuilder(
                 stream: TroublesServices().troubleData,
@@ -108,11 +158,11 @@ class _DashboardState extends State<Dashboard> {
                                     getHybridsList(data);
                                     return Column(
                                       children: [
-                                        Expanded(
+                                        Flexible(
                                           flex: 2,
                                           child: ressources(),
                                         ),
-                                        Expanded(
+                                        Flexible(
                                           flex: 5,
                                           child: troublesDetailes(),
                                         ),
@@ -131,7 +181,7 @@ class _DashboardState extends State<Dashboard> {
                   }
                 }),
           ),
-          Expanded(
+          Flexible(
             child: allUsers(),
           ),
         ],
@@ -185,13 +235,13 @@ class _DashboardState extends State<Dashboard> {
                   SizedBox(height: 16.0),
                   chart(context),
                   userCardInfo(Icons.supervised_user_circle_rounded, 'Users',
-                      _usersCount, Constants.border),
+                      _usersCount, Constants.border, 5),
                   userCardInfo(MdiIcons.doctor, 'Doctors', _psychiatristsCount,
-                      Color(0xFF26E5FF)),
+                      Color(0xFF26E5FF), 6),
                   userCardInfo(Icons.admin_panel_settings, 'Admins',
-                      _adminsCount, Color(0xFFFFCF26)),
+                      _adminsCount, Color(0xFFFFCF26), 7),
                   userCardInfo(Icons.add_moderator_outlined, 'Super Admins',
-                      _superAdminsCount, Color(0xFFEE2727)),
+                      _superAdminsCount, Color(0xFFEE2727), 7),
                 ],
               ),
             );
@@ -207,16 +257,19 @@ class _DashboardState extends State<Dashboard> {
         'title': 'Troubles',
         'icon': MdiIcons.brain,
         'count': _troublesCount.toString(),
+        'index': 2,
       },
       {
         'title': 'Questionnaires',
         'icon': Icons.format_list_bulleted,
         'count': _questionnairesCount.toString(),
+        'index': 3,
       },
       {
         'title': 'Hybrides',
         'icon': Icons.home,
         'count': _hybridsCount.toString(),
+        'index': 4,
       }
     ];
     return Container(
@@ -225,34 +278,41 @@ class _DashboardState extends State<Dashboard> {
         childAspectRatio: 1.5,
         crossAxisSpacing: 16.0,
         children: items
-            .map((e) => Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 1, color: Constants.border),
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ListTile(
-                        leading: Icon(
-                          e['icon'],
-                          size: 30.0,
-                          color: Colors.black,
+            .map((e) => InkWell(
+                  onTap: () {
+                    widget.changeTab(e['index']);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 1, color: Constants.border),
+                      color: Theme.of(context).primaryColor,
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10.0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ListTile(
+                          leading: Icon(
+                            e['icon'],
+                            size: 30.0,
+                            color: Colors.black,
+                          ),
+                          title: Text(e['title'],
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  .copyWith(fontWeight: FontWeight.w600)),
                         ),
-                        title: Text(e['title'],
+                        Text(e['count'],
                             style: Theme.of(context)
                                 .textTheme
-                                .headline5
-                                .copyWith(fontWeight: FontWeight.w600)),
-                      ),
-                      Text(e['count'],
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline2
-                              .copyWith(fontWeight: FontWeight.w900)),
-                    ],
+                                .headline2
+                                .copyWith(fontWeight: FontWeight.w900)),
+                      ],
+                    ),
                   ),
                 ))
             .toList(),
@@ -275,25 +335,58 @@ class _DashboardState extends State<Dashboard> {
         SizedBox(
           width: double.infinity,
           child: DataTable(
+            sortAscending: _isAscending,
+            sortColumnIndex: _sortColumnIndex,
             dataRowHeight: 60.0,
             horizontalMargin: 0,
             columnSpacing: 8.0,
             columns: [
               DataColumn(
+                  onSort: (int columnIndex, bool ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _isAscending = ascending;
+                      _sortBy = 'Trouble Name';
+                    });
+                  },
                   label: Text(
-                'Trouble Name',
-                style: Theme.of(context).textTheme.subtitle1,
-              )),
+                    'Trouble Name',
+                    style: Theme.of(context)
+                        .textTheme
+                        .subtitle1
+                        .copyWith(fontWeight: FontWeight.w900),
+                  )),
               DataColumn(
+                  onSort: (int columnIndex, bool ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _isAscending = ascending;
+                      _sortBy = 'Questionnaires';
+                    });
+                  },
                   label: Text(
-                'Questionnaires',
-                style: Theme.of(context).textTheme.subtitle1,
-              )),
+                    'Questionnaires',
+                    style: Theme.of(context)
+                        .textTheme
+                        .subtitle1
+                        .copyWith(fontWeight: FontWeight.w900),
+                  )),
               DataColumn(
-                  label: Text(
-                'Hubrides',
-                style: Theme.of(context).textTheme.subtitle1,
-              )),
+                onSort: (int columnIndex, bool ascending) {
+                  setState(() {
+                    _sortColumnIndex = columnIndex;
+                    _isAscending = ascending;
+                    _sortBy = 'Hybrides';
+                  });
+                },
+                label: Text(
+                  'Hybrides',
+                  style: Theme.of(context)
+                      .textTheme
+                      .subtitle1
+                      .copyWith(fontWeight: FontWeight.w900),
+                ),
+              ),
             ],
             rows: troubles.map((trouble) {
               int _troubleQuestionnaires = 0;
@@ -308,30 +401,35 @@ class _DashboardState extends State<Dashboard> {
                   _troubleHybrides++;
                 }
               });
-              return DataRow(cells: [
-                DataCell(Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CircleAvatar(
-                          backgroundImage: NetworkImage(trouble.imageUrl)),
+              return DataRow(
+                  color: MaterialStateProperty.all(Colors.white),
+                  cells: [
+                    DataCell(
+                      Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CircleAvatar(
+                                backgroundImage:
+                                    NetworkImage(trouble.imageUrl)),
+                          ),
+                          SizedBox(width: 8.0),
+                          Text(
+                            trouble.getName(widget.userData.language),
+                            style: Theme.of(context).textTheme.subtitle2,
+                          )
+                        ],
+                      ),
                     ),
-                    SizedBox(width: 8.0),
-                    Text(
-                      trouble.nameEn,
-                      style: Theme.of(context).textTheme.subtitle2,
-                    )
-                  ],
-                )),
-                DataCell(Text(
-                  _troubleQuestionnaires.toString(),
-                  style: Theme.of(context).textTheme.headline6,
-                )),
-                DataCell(Text(
-                  _troubleHybrides.toString(),
-                  style: Theme.of(context).textTheme.headline6,
-                )),
-              ]);
+                    DataCell(Text(
+                      _troubleQuestionnaires.toString(),
+                      style: Theme.of(context).textTheme.headline6,
+                    )),
+                    DataCell(Text(
+                      _troubleHybrides.toString(),
+                      style: Theme.of(context).textTheme.headline6,
+                    )),
+                  ]);
             }).toList(),
           ),
         )
@@ -401,23 +499,28 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget userCardInfo(
-      IconData icon, String title, int numOfUsers, Color color) {
-    return Container(
-      margin: EdgeInsets.only(top: 8.0),
-      decoration: BoxDecoration(
-        border: Border.all(width: 2, color: color),
-        borderRadius: const BorderRadius.all(
-          Radius.circular(8.0),
+      IconData icon, String title, int numOfUsers, Color color, int tapIndex) {
+    return InkWell(
+      onTap: () {
+        widget.changeTab(tapIndex);
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 8.0),
+        decoration: BoxDecoration(
+          border: Border.all(width: 2, color: color),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(8.0),
+          ),
         ),
-      ),
-      child: ListTile(
-        leading: Icon(
-          icon,
-          size: 30.0,
-          color: color,
+        child: ListTile(
+          leading: Icon(
+            icon,
+            size: 30.0,
+            color: color,
+          ),
+          title: Text(title),
+          subtitle: Text(numOfUsers.toString()),
         ),
-        title: Text(title),
-        subtitle: Text(numOfUsers.toString()),
       ),
     );
   }

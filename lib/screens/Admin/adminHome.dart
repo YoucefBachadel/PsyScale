@@ -9,6 +9,7 @@ import 'package:psyscale/screens/Admin/troubles.dart';
 import 'package:psyscale/screens/Admin/users.dart';
 import 'package:psyscale/screens/settings.dart';
 import 'package:psyscale/services/userServices.dart';
+import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
 class AdminHome extends StatefulWidget {
@@ -19,7 +20,7 @@ class AdminHome extends StatefulWidget {
 class _AdminHomeState extends State<AdminHome> {
   List<Widget> _screens = [];
   List<Map<String, Object>> _tabs = [
-    {'icon': Icons.home, 'title': 'Home', 'index': 1},
+    {'icon': Icons.home, 'title': 'Dashboard', 'index': 1},
     {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 2},
     {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 3},
     {'icon': Icons.home, 'title': 'Hybrids', 'index': 4},
@@ -28,7 +29,7 @@ class _AdminHomeState extends State<AdminHome> {
       'title': 'Users',
       'index': 5
     },
-    {'icon': MdiIcons.doctor, 'title': 'Psychiatrists', 'index': 6},
+    {'icon': MdiIcons.doctor, 'title': 'Doctors', 'index': 6},
   ];
   int _selectedIndex = 1;
   TextEditingController _textFieldController = TextEditingController();
@@ -36,6 +37,8 @@ class _AdminHomeState extends State<AdminHome> {
   FocusNode _textFieldFocusNode = FocusNode();
   final search = ValueNotifier('');
   bool updatedLastSignIn = false;
+  String _appBarTitle = 'Dashboard';
+  bool _isSearching = false;
 
   @override
   void dispose() {
@@ -47,6 +50,12 @@ class _AdminHomeState extends State<AdminHome> {
     super.dispose();
   }
 
+  void changePage(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final userData = Provider.of<UserData>(context);
@@ -56,7 +65,10 @@ class _AdminHomeState extends State<AdminHome> {
     }
     _screens = [
       Setting(userData: userData),
-      Dashboard(),
+      Dashboard(
+        changeTab: changePage,
+        userData: userData,
+      ),
       Troubles(search: search),
       Questionnaires(
         search: search,
@@ -84,6 +96,72 @@ class _AdminHomeState extends State<AdminHome> {
       _tabs.add(
           {'icon': Icons.admin_panel_settings, 'title': 'Admins', 'index': 7});
     }
+
+    return Responsive.isdesktop(context)
+        ? desktopView()
+        : Responsive.isMobile(context)
+            ? Scaffold(
+                body: Container(
+                  alignment: Alignment.center,
+                  child: Text('Not supported for mobile'),
+                ),
+              )
+            : tabletView();
+  }
+
+  Widget tabletView() {
+    return Scaffold(
+      appBar: AppBar(
+        title: !_isSearching
+            ? Text(_appBarTitle)
+            : ValueListenableBuilder(
+                valueListenable: search,
+                builder: (context, value, child) => TextField(
+                  controller: _textFieldController,
+                  focusNode: _textFieldFocusNode,
+                  decoration: searchTextInputDecoration(context, () {
+                    _textFieldController.clear();
+                    FocusScope.of(context).requestFocus(new FocusNode());
+                    setState(() {
+                      search.value = '';
+                      _isSearching = false;
+                    });
+                  }),
+                  onChanged: (value) {
+                    setState(() {
+                      search.value = value;
+                    });
+                  },
+                ),
+              ),
+        centerTitle: true,
+        actions: [
+          ![0, 1].contains(_selectedIndex)
+              ? !_isSearching
+                  ? IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isSearching = true;
+                        });
+                      },
+                      icon: Icon(Icons.search),
+                    )
+                  : SizedBox()
+              : SizedBox(),
+        ],
+      ),
+      drawer: sideMenu(
+        tabs: _tabs,
+        selectedIndex: _selectedIndex,
+        onTap: (index) => setState(() {
+          _selectedIndex = index;
+        }),
+      ),
+      body: _screens[_selectedIndex],
+    );
+  }
+
+  Widget desktopView() {
     return Material(
       child: Row(
         children: [
@@ -178,6 +256,13 @@ class _AdminHomeState extends State<AdminHome> {
                         onTap: () {
                           setState(() {
                             _selectedIndex = e['index'];
+                            _appBarTitle = e['title'];
+                            if ([0, 1].contains(_selectedIndex)) {
+                              _isSearching = false;
+                            }
+                            if (!Responsive.isdesktop(context)) {
+                              Navigator.pop(context);
+                            }
                           });
                         },
                       ))
@@ -200,6 +285,11 @@ class _AdminHomeState extends State<AdminHome> {
                 onTap: () {
                   setState(() {
                     _selectedIndex = 0;
+                    _appBarTitle = 'Setting';
+                    _isSearching = false;
+                    if (!Responsive.isdesktop(context)) {
+                      Navigator.pop(context);
+                    }
                   });
                 },
               ),

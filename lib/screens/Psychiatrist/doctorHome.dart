@@ -91,15 +91,17 @@ class _DoctorHomeState extends State<DoctorHome> {
               ),
         centerTitle: true,
         actions: [
-          !_isSearching
-              ? IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _isSearching = true;
-                    });
-                  },
-                  icon: Icon(Icons.search),
-                )
+          ![0].contains(_selectedIndex)
+              ? !_isSearching
+                  ? IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isSearching = true;
+                        });
+                      },
+                      icon: Icon(Icons.search),
+                    )
+                  : SizedBox()
               : SizedBox(),
         ],
       ),
@@ -118,19 +120,19 @@ class _DoctorHomeState extends State<DoctorHome> {
     return Material(
       child: Row(
         children: [
-          Expanded(
+          Flexible(
             child: sideMenu(
               tabs: _tabs,
               selectedIndex: _selectedIndex,
               onTap: (index) => setState(() => _selectedIndex = index),
             ),
           ),
-          Expanded(
+          Flexible(
               flex: 5,
               child: Column(
                 children: [
                   ![0].contains(_selectedIndex) ? header() : SizedBox(),
-                  Expanded(child: _screens[_selectedIndex]),
+                  Flexible(child: _screens[_selectedIndex]),
                 ],
               )),
         ],
@@ -149,7 +151,7 @@ class _DoctorHomeState extends State<DoctorHome> {
             style: Theme.of(context).textTheme.headline6,
           ),
           Spacer(flex: 2),
-          Expanded(
+          Flexible(
             child: ValueListenableBuilder(
               valueListenable: search,
               builder: (context, value, child) => TextField(
@@ -217,12 +219,16 @@ class _DoctorHomeState extends State<DoctorHome> {
                         },
                       ))
                   .toList(),
-              Text(
-                'Personal',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline6
-                    .copyWith(color: Colors.grey),
+              divider(),
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Text(
+                  'Personal',
+                  style: Theme.of(context)
+                      .textTheme
+                      .subtitle1
+                      .copyWith(color: Colors.grey),
+                ),
               ),
               SizedBox(height: 8.0),
               ..._tabsPerosnal
@@ -272,6 +278,7 @@ class _DoctorHomeState extends State<DoctorHome> {
                   setState(() {
                     _selectedIndex = 0;
                     _appBarTitle = 'Setting';
+                    _isSearching = false;
                     if (!Responsive.isdesktop(context)) {
                       Navigator.pop(context);
                     }

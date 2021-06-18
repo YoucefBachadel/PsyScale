@@ -64,6 +64,7 @@ class _HybridState extends State<Hybrid> {
             descreptionFr: doc['descreptionFr'],
             descreptionAr: doc['descreptionAr'],
             stockageUrl: doc['stockageUrl'],
+            classes: Questionnaire.getList(doc['classes']),
             questionsAnswers:
                 Questionnaire.getQuestionAnswerList(doc['questionsAnswers'])));
       });

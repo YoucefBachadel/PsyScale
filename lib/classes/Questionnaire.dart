@@ -103,7 +103,7 @@ class Questionnaire {
 
   List<String> getQuesionsList(String language) {
     List<String> questions = [];
-    String questionLanguage = '';
+    String questionLanguage = 'questionEn';
 
     switch (language) {
       case 'English':
@@ -142,7 +142,7 @@ class Questionnaire {
       _list = this.questionsAnswers[index].answers;
     }
     List<Map<String, Object>> answers = [];
-    String answerLanguage = '';
+    String answerLanguage = 'answerEn';
 
     switch (language) {
       case 'English':
@@ -166,9 +166,37 @@ class Questionnaire {
     return answers;
   }
 
+  List<Map<String, Object>> getClassesList(String language) {
+    List<Map<String, Object>> _list = this.classes;
+    List<Map<String, Object>> classes = [];
+    int _score = 1;
+    String classLanguage = 'classEn';
+
+    switch (language) {
+      case 'English':
+        classLanguage = 'classEn';
+        break;
+      case 'Français':
+        classLanguage = 'classFr';
+        break;
+      case 'العربية':
+        classLanguage = 'classAr';
+        break;
+    }
+    _list.forEach((element) {
+      classes.add({
+        'answer': element[classLanguage],
+        'score': _score,
+      });
+      _score++;
+    });
+
+    return classes;
+  }
+
   List<Map<String, Object>> getEvaluationList(String language) {
     List<Map<String, Object>> evaluations = [];
-    String evaluationLanguage = '';
+    String evaluationLanguage = 'messageEn';
 
     switch (language) {
       case 'English':

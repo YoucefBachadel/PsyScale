@@ -124,6 +124,7 @@ class _AddHybridState extends State<AddHybrid> {
         ? _stockageUrl.split('/')[5]
         : _stockageUrl;
     List<String> _questions = [];
+    _questions.add('class');
     _questionsAnswers.forEach((element) {
       _questions.add(element.questionEn);
     });
@@ -142,6 +143,7 @@ class _AddHybridState extends State<AddHybrid> {
       _descreptionFr = widget.questionnaire.descreptionFr;
       _descreptionAr = widget.questionnaire.descreptionAr;
       _stockageUrl = widget.questionnaire.stockageUrl;
+      _classes = widget.questionnaire.classes;
       _questionsAnswers = widget.questionnaire.questionsAnswers;
     }
 

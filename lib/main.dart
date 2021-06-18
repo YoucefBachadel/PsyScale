@@ -8,7 +8,6 @@ import 'package:psyscale/screens/Auth/signin.dart';
 import 'package:psyscale/screens/Psychiatrist/doctorHome.dart';
 import 'package:psyscale/screens/User/userHome.dart';
 import 'package:psyscale/services/authenticationServices%20.dart';
-import 'package:psyscale/services/googleSheetServices.dart';
 import 'package:psyscale/services/userServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
@@ -90,9 +89,11 @@ class Wrapper extends StatelessWidget {
                           ? userData.validated
                               ? DoctorHome()
                               : SignIn()
-                          : UserHome(
-                              userData: userData,
-                            )
+                          : userData.user.emailVerified
+                              ? UserHome(
+                                  userData: userData,
+                                )
+                              : SignIn()
                   : Scaffold(body: checkYourNetwork(context)),
             );
           } else if (snapshot.connectionState == ConnectionState.waiting) {

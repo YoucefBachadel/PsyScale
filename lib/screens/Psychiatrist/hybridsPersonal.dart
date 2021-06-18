@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/screens/Psychiatrist/add_hybrid.dart';
-import 'package:psyscale/screens/Psychiatrist/quiz.dart';
+import 'package:psyscale/screens/Psychiatrist/quizHybrid.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
@@ -97,7 +97,7 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                               style: Theme.of(context).textTheme.headline6,
                             ),
                             subtitle: Text(
-                              '${questionnaire.getQuestionsCount()} questions',
+                              '${questionnaire.getQuestionsCount() + 1} questions',
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle1
@@ -122,12 +122,10 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                                   onTap: () {
                                     Constants.navigationFunc(
                                         context,
-                                        Quiz(
+                                        QuizHybrid(
                                           questionnaire: questionnaire,
-                                          type: 'dataCollection',
                                           languge: userData.language,
                                           history: userData.history,
-                                          userUid: userData.uid,
                                         ));
                                   },
                                   child: Container(

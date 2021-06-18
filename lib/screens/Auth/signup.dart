@@ -143,8 +143,12 @@ class _SignUpFormState extends State<SignUpForm> {
                           : const SizedBox(height: 0.0),
                       TextFormField(
                         initialValue: email,
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter the Email' : null,
+                        validator: (value) => value.isEmpty
+                            ? 'Enter the Email'
+                            : !['gmail.com', 'yahoo.com', 'hotmail.com']
+                                    .contains(value.split('@')[1].toLowerCase())
+                                ? 'Enter a valid email format'
+                                : null,
                         decoration: textInputDecoration(context, 'Email'),
                         onChanged: (value) => email = value,
                       ),
