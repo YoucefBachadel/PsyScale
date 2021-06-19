@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/shared/constants.dart';
 
 Widget appBar(BuildContext context, String txt1, String txt2) {
@@ -43,15 +42,6 @@ Widget loadingImage(BuildContext context, String image) {
   return Stack(
     fit: StackFit.expand,
     children: [
-      // Container(
-      //   color: Colors.transparent,
-      //   child: Center(
-      //     child: SpinKitPulse(
-      //       color: Theme.of(context).accentColor,
-      //       size: 50.0,
-      //     ),
-      //   ),
-      // ),
       CachedNetworkImage(
         imageUrl: image,
         fit: BoxFit.cover,
@@ -60,11 +50,6 @@ Widget loadingImage(BuildContext context, String image) {
           size: 50.0,
         ),
       ),
-      // FadeInImage.memoryNetwork(
-      //   fit: BoxFit.cover,
-      //   placeholder: kTransparentImage,
-      //   image: image,
-      // ),
     ],
   );
 }
@@ -239,31 +224,4 @@ ScaffoldFeatureController snackBar(BuildContext context, String message) {
     content: Text(message),
     duration: Duration(seconds: 2),
   ));
-}
-
-Widget userCard(BuildContext context, UserData userData, Function onTap) {
-  return userData == null
-      ? loading(context)
-      : InkWell(
-          onTap: onTap,
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: AssetImage('assets/avatar.jpg'),
-              ),
-              const SizedBox(width: 6.0),
-              Expanded(
-                child: Text(
-                  userData.name,
-                  style: const TextStyle(fontSize: 16.0),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Icon(
-                Icons.navigate_next,
-                size: 30.0,
-              ),
-            ],
-          ),
-        );
 }

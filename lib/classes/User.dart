@@ -15,6 +15,7 @@ class UserData {
   final String name;
   final String clinicName;
   final String email;
+  final String imageUrl;
   final String phone;
   final String type;
   final String language;
@@ -30,6 +31,7 @@ class UserData {
       {this.uid,
       this.name,
       this.user,
+      this.imageUrl,
       this.clinicName,
       this.email,
       this.phone,

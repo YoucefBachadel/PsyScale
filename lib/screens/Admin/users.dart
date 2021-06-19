@@ -36,6 +36,7 @@ class _UsersState extends State<Users> {
             type: doc['type'],
             name: doc['name'],
             email: doc['email'],
+            imageUrl: doc['imageUrl'],
             language: doc['language'],
             creationDate: doc['creationDate'],
             lastSignIn: doc['lastSignIn'],
@@ -48,6 +49,7 @@ class _UsersState extends State<Users> {
             clinicName: doc['clinicName'],
             email: doc['email'],
             phone: doc['phone'],
+            imageUrl: doc['imageUrl'],
             language: doc['language'],
             creationDate: doc['creationDate'],
             lastSignIn: doc['lastSignIn'],
@@ -60,6 +62,7 @@ class _UsersState extends State<Users> {
             type: doc['type'],
             name: doc['name'],
             email: doc['email'],
+            imageUrl: doc['imageUrl'],
             language: doc['language'],
             creationDate: doc['creationDate'],
             lastSignIn: doc['lastSignIn'],
@@ -323,15 +326,7 @@ class _UsersState extends State<Users> {
       return DataRow(
         color: MaterialStateProperty.all(Colors.white),
         cells: [
-          DataCell(Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: AssetImage('assets/avatar.jpg'),
-              ),
-              SizedBox(width: 8.0),
-              Text(e.name),
-            ],
-          )),
+          DataCell(Text(e.name)),
           DataCell(Text(e.email)),
           DataCell(
               Text(DateFormat('yyyy-MM-dd').format(e.creationDate.toDate()))),
@@ -386,15 +381,7 @@ class _UsersState extends State<Users> {
       return DataRow(
         color: MaterialStateProperty.all(Colors.white),
         cells: [
-          DataCell(Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: AssetImage('assets/avatar.jpg'),
-              ),
-              SizedBox(width: 8.0),
-              Text(e.name),
-            ],
-          )),
+          DataCell(Text(e.name)),
           DataCell(Text(e.clinicName)),
           DataCell(Text(e.email)),
           DataCell(Text(e.phone)),
@@ -452,15 +439,7 @@ class _UsersState extends State<Users> {
       return DataRow(
         color: MaterialStateProperty.all(Colors.white),
         cells: [
-          DataCell(Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: AssetImage('assets/avatar.jpg'),
-              ),
-              SizedBox(width: 8.0),
-              Text(e.name),
-            ],
-          )),
+          DataCell(Text(e.name)),
           DataCell(Text(e.type)),
           DataCell(Text(e.email)),
           DataCell(

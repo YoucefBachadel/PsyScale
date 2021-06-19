@@ -1,4 +1,10 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/classes/Language.dart';
@@ -24,11 +30,14 @@ class _SettingState extends State<Setting> {
   AuthService _auth = AuthService();
   bool isLoading = false;
   bool changeUserName = false;
-
+  File _image;
+  String imageUrl;
+  UploadTask task;
   save(UserData userData) async {
     if (_userName != widget.userData.name ||
         _language != widget.userData.language ||
-        _theme != widget.userData.theme) {
+        _theme != widget.userData.theme ||
+        _image != null) {
       setState(() {
         isLoading = true;
       });
@@ -37,6 +46,8 @@ class _SettingState extends State<Setting> {
             uid: widget.userData.uid,
             name: _userName == null ? widget.userData.name : _userName,
             email: widget.userData.email,
+            imageUrl:
+                _image != null ? 'users/${widget.userData.uid}' : 'avatar.png',
             type: widget.userData.type,
             language: _language == null ? widget.userData.language : _language,
             theme: _theme == null ? widget.userData.theme : _theme,
@@ -52,6 +63,14 @@ class _SettingState extends State<Setting> {
     }
   }
 
+  Future saveImage(UserData userData) async {
+    if (_image != null) {
+      await uploadFile().whenComplete(() => save(userData));
+    } else {
+      return save(userData);
+    }
+  }
+
   logout() async {
     await _auth.signOut();
     Navigator.pushReplacement(
@@ -60,11 +79,62 @@ class _SettingState extends State<Setting> {
     );
   }
 
+  Future selectFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.image,
+    );
+
+    if (result == null) return;
+    final path = result.files.single.path;
+
+    setState(() {
+      _image = File(path);
+    });
+  }
+
+  Future uploadFile() async {
+    final destination = 'users/${widget.userData.uid}';
+    try {
+      final ref = FirebaseStorage.instance.ref(destination);
+
+      // task = ref.putFile(_image);
+      ref.putFile(_image);
+    } on FirebaseException catch (e) {
+      print(e.message);
+      return null;
+    }
+
+    setState(() {});
+
+    if (task == null) return;
+
+    await task.whenComplete(() {});
+  }
+
+  Widget buildUploadStatus(UploadTask task) => StreamBuilder<TaskSnapshot>(
+        stream: task.snapshotEvents,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final snap = snapshot.data;
+            final progress = snap.bytesTransferred / snap.totalBytes;
+            final percentage = (progress * 100).toStringAsFixed(2);
+
+            return Text(
+              'uploading image: $percentage %',
+            );
+          } else {
+            return Container();
+          }
+        },
+      );
+
   @override
   void initState() {
     _userName = widget.userData.name;
     _language = widget.userData.language;
     _theme = widget.userData.theme;
+
     super.initState();
   }
 
@@ -101,15 +171,70 @@ class _SettingState extends State<Setting> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Center(
-                    child: Hero(
-                      tag: widget.userData.name,
-                      child: CircleAvatar(
-                        backgroundImage: AssetImage('assets/avatar.jpg'),
-                        radius: 80.0,
-                      ),
-                    ),
-                  ),
+                  Responsive.isMobile(context)
+                      ? Center(
+                          child: Hero(
+                            tag: widget.userData.name,
+                            child: Stack(
+                              children: [
+                                _image != null
+                                    ? CircleAvatar(
+                                        radius: 100,
+                                        backgroundImage: FileImage(_image))
+                                    : FutureBuilder(
+                                        future: UsersServices.getUserImage(
+                                            context, widget.userData.imageUrl),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.done) {
+                                            return ClipOval(
+                                              child: Container(
+                                                width: 200,
+                                                height: 200,
+                                                child: snapshot.data,
+                                              ),
+                                            );
+                                          } else {
+                                            return SpinKitPulse(
+                                              color:
+                                                  Theme.of(context).accentColor,
+                                              size: 50.0,
+                                            );
+                                          }
+                                        },
+                                      ),
+                                Positioned(
+                                  bottom: 0,
+                                  right: 4,
+                                  child: ClipOval(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(3.0),
+                                      color: Colors.white,
+                                      child: InkWell(
+                                        onTap: () => selectFile(),
+                                        child: ClipOval(
+                                          child: Container(
+                                            padding: const EdgeInsets.all(8.0),
+                                            color:
+                                                Theme.of(context).accentColor,
+                                            child: Icon(
+                                              Icons.edit,
+                                              size: 20.0,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
+                  const SizedBox(height: 4),
+                  task != null ? buildUploadStatus(task) : const SizedBox(),
                   const SizedBox(height: 10),
                   changeUserName
                       ? TextFormField(
@@ -128,19 +253,15 @@ class _SettingState extends State<Setting> {
                           child: Text(
                             widget.userData.name,
                             style: TextStyle(
-                              color: Colors.amberAccent[200],
-                              fontSize: 28,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 4),
                   Text(
                     widget.userData.email,
-                    style: TextStyle(
-                      letterSpacing: 2,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey),
                   ),
                   const Spacer(flex: 1),
                   divider(),
@@ -187,7 +308,7 @@ class _SettingState extends State<Setting> {
                   const Spacer(),
                   InkWell(
                     onTap: () {
-                      save(widget.userData);
+                      saveImage(widget.userData);
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 18.0),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
@@ -232,8 +233,25 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                       },
                       child: Hero(
                         tag: widget.userData.name,
-                        child: CircleAvatar(
-                          backgroundImage: AssetImage('assets/avatar.jpg'),
+                        child: FutureBuilder(
+                          future: UsersServices.getUserImage(
+                              context, widget.userData.imageUrl),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              return ClipOval(
+                                child: Container(
+                                  width: 55.0,
+                                  child: snapshot.data,
+                                ),
+                              );
+                            } else {
+                              return SpinKitPulse(
+                                color: Theme.of(context).accentColor,
+                                size: 50.0,
+                              );
+                            }
+                          },
                         ),
                       ),
                     ),
