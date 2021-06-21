@@ -255,6 +255,14 @@ class UsersServices {
     }
   }
 
+  //  delete trouble data
+  Future deleteUser(String uid) {
+    return usersCollection
+        .doc(uid)
+        .delete()
+        .catchError((error) => print("Failed to delete trouble: $error"));
+  }
+
   // get current user data stream
   Stream<UserData> get userData {
     return usersCollection.doc(useruid).snapshots().map(_userDataFromSnapshot);

@@ -17,8 +17,17 @@ import 'package:psyscale/shared/widgets.dart';
 
 class Setting extends StatefulWidget {
   final UserData userData;
+  final Function changeTab;
+  final int backIndex;
+  final String backappbarTitle;
 
-  const Setting({Key key, this.userData}) : super(key: key);
+  const Setting({
+    Key key,
+    this.userData,
+    this.changeTab,
+    this.backIndex,
+    this.backappbarTitle,
+  }) : super(key: key);
 
   @override
   _SettingState createState() => _SettingState();
@@ -41,24 +50,71 @@ class _SettingState extends State<Setting> {
       setState(() {
         isLoading = true;
       });
-      await UsersServices(useruid: widget.userData.uid).updateUserData(
-          UserData(
-            uid: widget.userData.uid,
-            name: _userName == null ? widget.userData.name : _userName,
-            email: widget.userData.email,
-            imageUrl:
-                _image != null ? 'users/${widget.userData.uid}' : 'avatar.png',
-            type: widget.userData.type,
-            language: _language == null ? widget.userData.language : _language,
-            theme: _theme == null ? widget.userData.theme : _theme,
-            history: widget.userData.history,
-          ),
-          'user');
+      switch (widget.userData.type) {
+        case 'user':
+          await UsersServices(useruid: widget.userData.uid).updateUserData(
+              UserData(
+                uid: widget.userData.uid,
+                name: _userName == null ? widget.userData.name : _userName,
+                email: widget.userData.email,
+                imageUrl: _image != null
+                    ? 'users/${widget.userData.uid}'
+                    : 'avatar.png',
+                type: widget.userData.type,
+                language:
+                    _language == null ? widget.userData.language : _language,
+                theme: _theme == null ? widget.userData.theme : _theme,
+                history: widget.userData.history,
+              ),
+              'user');
+          break;
+        case 'doctor':
+          await UsersServices(useruid: widget.userData.uid).updateUserData(
+              UserData(
+                uid: widget.userData.uid,
+                name: _userName == null ? widget.userData.name : _userName,
+                email: widget.userData.email,
+                imageUrl: _image != null
+                    ? 'users/${widget.userData.uid}'
+                    : 'avatar.png',
+                type: widget.userData.type,
+                language:
+                    _language == null ? widget.userData.language : _language,
+                theme: _theme == null ? widget.userData.theme : _theme,
+                history: widget.userData.history,
+              ),
+              'doctor');
+          break;
+        case 'admin':
+        case 'superAdmin':
+          await UsersServices(useruid: widget.userData.uid).updateUserData(
+              UserData(
+                uid: widget.userData.uid,
+                name: _userName == null ? widget.userData.name : _userName,
+                email: widget.userData.email,
+                imageUrl: _image != null
+                    ? 'users/${widget.userData.uid}'
+                    : 'avatar.png',
+                type: widget.userData.type,
+                language:
+                    _language == null ? widget.userData.language : _language,
+                theme: _theme == null ? widget.userData.theme : _theme,
+                history: widget.userData.history,
+              ),
+              'admin');
+          break;
+      }
       setState(() {
         isLoading = false;
       });
     }
-    if (Responsive.isMobile(context)) {
+
+    if (Responsive.isMobile(context) && widget.userData.type == 'doctor') {
+      widget.changeTab(
+        index: widget.backIndex,
+        backAppbarTitle: widget.backappbarTitle,
+      );
+    } else {
       Navigator.pop(context);
     }
   }
@@ -73,6 +129,7 @@ class _SettingState extends State<Setting> {
 
   logout() async {
     await _auth.signOut();
+    Navigator.pop(context);
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => Wrapper()),
@@ -112,23 +169,6 @@ class _SettingState extends State<Setting> {
     await task.whenComplete(() {});
   }
 
-  Widget buildUploadStatus(UploadTask task) => StreamBuilder<TaskSnapshot>(
-        stream: task.snapshotEvents,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final snap = snapshot.data;
-            final progress = snap.bytesTransferred / snap.totalBytes;
-            final percentage = (progress * 100).toStringAsFixed(2);
-
-            return Text(
-              'uploading image: $percentage %',
-            );
-          } else {
-            return Container();
-          }
-        },
-      );
-
   @override
   void initState() {
     _userName = widget.userData.name;
@@ -140,23 +180,15 @@ class _SettingState extends State<Setting> {
 
   @override
   Widget build(BuildContext context) {
-    return Responsive.isMobile(context)
-        ? Scaffold(
-            appBar: widget.userData.type != 'doctor'
-                ? AppBar(
-                    title: appBar(context, 'Settings', ''),
-                    centerTitle: true,
-                  )
-                : null,
-            body: settingContainer(),
-          )
-        : Scaffold(
-            body: desktopWidget(
-              Container(),
-              Container(),
-              settingContainer(),
-            ),
-          );
+    return Scaffold(
+      appBar: widget.userData.type != 'doctor' || !Responsive.isMobile(context)
+          ? AppBar(
+              title: appBar(context, 'Settings', ''),
+              centerTitle: true,
+            )
+          : null,
+      body: settingContainer(),
+    );
   }
 
   Widget settingContainer() {
@@ -173,63 +205,65 @@ class _SettingState extends State<Setting> {
                 children: [
                   Responsive.isMobile(context)
                       ? Center(
-                          child: Hero(
-                            tag: widget.userData.name,
-                            child: Stack(
-                              children: [
-                                _image != null
-                                    ? CircleAvatar(
-                                        radius: 100,
-                                        backgroundImage: FileImage(_image))
-                                    : FutureBuilder(
-                                        future: UsersServices.getUserImage(
-                                            context, widget.userData.imageUrl),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.done) {
-                                            return ClipOval(
-                                              child: Container(
-                                                width: 200,
-                                                height: 200,
-                                                child: snapshot.data,
-                                              ),
-                                            );
-                                          } else {
-                                            return SpinKitPulse(
-                                              color:
-                                                  Theme.of(context).accentColor,
-                                              size: 50.0,
-                                            );
-                                          }
-                                        },
-                                      ),
-                                Positioned(
-                                  bottom: 0,
-                                  right: 4,
-                                  child: ClipOval(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(3.0),
-                                      color: Colors.white,
-                                      child: InkWell(
-                                        onTap: () => selectFile(),
-                                        child: ClipOval(
-                                          child: Container(
-                                            padding: const EdgeInsets.all(8.0),
-                                            color:
-                                                Theme.of(context).accentColor,
-                                            child: Icon(
-                                              Icons.edit,
-                                              size: 20.0,
-                                              color: Colors.white,
-                                            ),
+                          child: Stack(
+                            children: [
+                              _image != null
+                                  ? CircleAvatar(
+                                      radius: 100,
+                                      backgroundImage: FileImage(_image))
+                                  : widget.userData.imageUrl == 'avatar.png'
+                                      ? CircleAvatar(
+                                          radius: 100,
+                                          backgroundImage:
+                                              AssetImage('assets/avatar.jpg'))
+                                      : FutureBuilder(
+                                          future: UsersServices.getUserImage(
+                                              context,
+                                              widget.userData.imageUrl),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.done) {
+                                              return ClipOval(
+                                                child: Container(
+                                                  width: 200,
+                                                  height: 200,
+                                                  child: snapshot.data,
+                                                ),
+                                              );
+                                            } else {
+                                              return SpinKitPulse(
+                                                color: Theme.of(context)
+                                                    .accentColor,
+                                                size: 50.0,
+                                              );
+                                            }
+                                          },
+                                        ),
+                              Positioned(
+                                bottom: 0,
+                                right: 4,
+                                child: ClipOval(
+                                  child: Container(
+                                    padding: const EdgeInsets.all(3.0),
+                                    color: Colors.white,
+                                    child: InkWell(
+                                      onTap: () => selectFile(),
+                                      child: ClipOval(
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8.0),
+                                          color: Theme.of(context).accentColor,
+                                          child: Icon(
+                                            Icons.edit,
+                                            size: 20.0,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         )
                       : SizedBox(),
@@ -353,4 +387,21 @@ class _SettingState extends State<Setting> {
             ),
           );
   }
+
+  Widget buildUploadStatus(UploadTask task) => StreamBuilder<TaskSnapshot>(
+        stream: task.snapshotEvents,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final snap = snapshot.data;
+            final progress = snap.bytesTransferred / snap.totalBytes;
+            final percentage = (progress * 100).toStringAsFixed(2);
+
+            return Text(
+              'uploading image: $percentage %',
+            );
+          } else {
+            return Container();
+          }
+        },
+      );
 }

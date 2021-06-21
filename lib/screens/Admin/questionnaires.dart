@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Admin/add_questionnaire.dart';
 import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
 import 'package:psyscale/shared/constants.dart';
@@ -13,8 +12,10 @@ import 'package:psyscale/shared/widgets.dart';
 
 class Questionnaires extends StatefulWidget {
   final ValueListenable<String> search;
+  final Function changeTab;
 
-  const Questionnaires({Key key, this.search}) : super(key: key);
+  const Questionnaires({Key key, this.search, this.changeTab})
+      : super(key: key);
   @override
   _QuestionnairesState createState() => _QuestionnairesState();
 }
@@ -138,13 +139,14 @@ class _QuestionnairesState extends State<Questionnaires> {
             color: Colors.white,
           ),
           onPressed: () {
-            Constants.navigationFunc(
-              context,
-              AddQuestionnaire(
-                questionnaire: null,
-                userData: userData,
-              ),
-            );
+            widget.changeTab(0, null);
+            // Constants.navigationFunc(
+            //   context,
+            //   AddQuestionnaire(
+            //     questionnaire: null,
+            //     userData: userData,
+            //   ),
+            // );
           },
         ));
   }
@@ -169,13 +171,14 @@ class _QuestionnairesState extends State<Questionnaires> {
                     elevation: 2.0,
                     child: InkWell(
                       onTap: () {
-                        Constants.navigationFunc(
-                          context,
-                          AddQuestionnaire(
-                            questionnaire: questionnaire,
-                            userData: userData,
-                          ),
-                        );
+                        widget.changeTab(0, questionnaire);
+                        // Constants.navigationFunc(
+                        //   context,
+                        //   AddQuestionnaire(
+                        //     questionnaire: questionnaire,
+                        //     userData: userData,
+                        //   ),
+                        // );
                       },
                       child: ListTile(
                         title: Padding(
@@ -238,13 +241,14 @@ class _QuestionnairesState extends State<Questionnaires> {
                                 elevation: 2.0,
                                 child: InkWell(
                                   onTap: () {
-                                    Constants.navigationFunc(
-                                      context,
-                                      AddQuestionnaire(
-                                        questionnaire: questionnaire,
-                                        userData: userData,
-                                      ),
-                                    );
+                                    widget.changeTab(0, questionnaire);
+                                    // Constants.navigationFunc(
+                                    //   context,
+                                    //   AddQuestionnaire(
+                                    //     questionnaire: questionnaire,
+                                    //     userData: userData,
+                                    //   ),
+                                    // );
                                   },
                                   child: ListTile(
                                     title: Padding(

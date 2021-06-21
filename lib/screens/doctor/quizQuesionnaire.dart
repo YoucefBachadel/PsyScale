@@ -7,13 +7,15 @@ import 'package:psyscale/shared/widgets.dart';
 class QuizQuestionnaire extends StatefulWidget {
   final Questionnaire questionnaire;
   final String languge;
-  final List<Map<String, Object>> history;
+  final Function changeTab;
+  final int backIndex;
 
   const QuizQuestionnaire({
     Key key,
     this.questionnaire,
     this.languge,
-    this.history,
+    this.changeTab,
+    this.backIndex,
   }) : super(key: key);
   @override
   _QuizQuestionnaireState createState() => _QuizQuestionnaireState();
@@ -177,9 +179,9 @@ class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
       _answers = widget.questionnaire.getAnswersList(widget.languge, 0);
     } else {
       _question = widget.questionnaire
-          .getQuesAnsQuestion(widget.languge, _currentQuestionIndex - 2);
+          .getQuesAnsQuestion(widget.languge, _currentQuestionIndex - 1);
       _answers = widget.questionnaire
-          .getAnswersList(widget.languge, _currentQuestionIndex - 2);
+          .getAnswersList(widget.languge, _currentQuestionIndex - 1);
     }
 
     return Column(
@@ -311,8 +313,8 @@ class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
                 .copyWith(color: Colors.black)),
         SizedBox(height: MediaQuery.of(context).size.height / 5),
         InkWell(
-          onTap: () async {
-            Navigator.pop(context);
+          onTap: () {
+            widget.changeTab(index: widget.backIndex);
           },
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 18.0),

@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Psychiatrist/trouble_details.dart';
 import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
@@ -15,7 +14,8 @@ import 'package:psyscale/shared/widgets.dart';
 
 class Troubles extends StatefulWidget {
   final ValueListenable<String> search;
-  const Troubles({Key key, this.search}) : super(key: key);
+  final Function changeTab;
+  const Troubles({Key key, this.search, this.changeTab}) : super(key: key);
   @override
   _TroublesState createState() => _TroublesState();
 }
@@ -104,6 +104,7 @@ class _TroublesState extends State<Troubles> {
             descreptionFr: doc['descreptionFr'],
             descreptionAr: doc['descreptionAr'],
             stockageUrl: doc['stockageUrl'],
+            classes: Questionnaire.getList(doc['classes']),
             questionsAnswers:
                 Questionnaire.getQuestionAnswerList(doc['questionsAnswers'])));
       });
@@ -171,25 +172,22 @@ class _TroublesState extends State<Troubles> {
                       // splashFactory: CustomSplashFactory(),
                       // splashColor: Theme.of(context).accentColor,
                       onTap: () async {
-                        List<Questionnaire> _hybrids = [];
                         trouble.questionnaires = [];
                         questionnaires.forEach((questionnaire) {
                           if (questionnaire.troubleUid == trouble.uid) {
                             trouble.questionnaires.add(questionnaire);
                           }
                         });
+                        trouble.hybrids = [];
                         hybrids.forEach((hybrid) {
                           if (hybrid.troubleUid == trouble.uid) {
-                            _hybrids.add(hybrid);
+                            trouble.hybrids.add(hybrid);
                           }
                         });
-                        Constants.navigationFunc(
-                          context,
-                          TroubleDetails(
-                            trouble: trouble,
-                            userData: userData,
-                            hybrids: _hybrids,
-                          ),
+                        widget.changeTab(
+                          index: 5,
+                          trouble: trouble,
+                          language: userData.language,
                         );
                       },
                       child: Stack(

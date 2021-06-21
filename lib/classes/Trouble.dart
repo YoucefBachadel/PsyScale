@@ -13,6 +13,7 @@ class Trouble {
   String descreptionAr;
   bool isExpanded;
   List<Questionnaire> questionnaires = [];
+  List<Questionnaire> hybrids = [];
 
   Trouble(
       {this.uid,
@@ -25,7 +26,8 @@ class Trouble {
       this.descreptionEn,
       this.descreptionFr,
       this.descreptionAr,
-      this.questionnaires});
+      this.questionnaires,
+      this.hybrids});
 
   Trouble.expandable(
       {this.uid,

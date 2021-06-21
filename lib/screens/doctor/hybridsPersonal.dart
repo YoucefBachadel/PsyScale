@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Psychiatrist/add_hybrid.dart';
-import 'package:psyscale/screens/Psychiatrist/quizHybrid.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
 class HybridsPersonal extends StatefulWidget {
   final ValueListenable<String> search;
+  final Function changeTab;
 
-  const HybridsPersonal({Key key, this.search}) : super(key: key);
+  const HybridsPersonal({Key key, this.search, this.changeTab})
+      : super(key: key);
   @override
   _HybridsPersonalState createState() => _HybridsPersonalState();
 }
@@ -42,7 +42,6 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
 
   @override
   Widget build(BuildContext context) {
-    final userData = Provider.of<UserData>(context);
     getQuestionnairesList();
     return Scaffold(
         body: Responsive.isdesktop(context)
@@ -57,13 +56,7 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  Constants.navigationFunc(
-                    context,
-                    AddHybrid(
-                      questionnaire: null,
-                      userData: userData,
-                    ),
-                  );
+                  widget.changeTab(index: 2);
                 },
               )
             : null);
@@ -120,13 +113,12 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                                     vertical: 8.0, horizontal: 50.0),
                                 child: InkWell(
                                   onTap: () {
-                                    Constants.navigationFunc(
-                                        context,
-                                        QuizHybrid(
-                                          questionnaire: questionnaire,
-                                          languge: userData.language,
-                                          history: userData.history,
-                                        ));
+                                    widget.changeTab(
+                                      index: 4,
+                                      questionnaire: questionnaire,
+                                      language: userData.language,
+                                      backIndex: 10,
+                                    );
                                   },
                                   child: Container(
                                     padding:
@@ -151,12 +143,10 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                                           vertical: 8.0, horizontal: 50.0),
                                       child: InkWell(
                                         onTap: () {
-                                          Constants.navigationFunc(
-                                              context,
-                                              AddHybrid(
-                                                userData: userData,
-                                                questionnaire: questionnaire,
-                                              ));
+                                          widget.changeTab(
+                                            index: 2,
+                                            questionnaire: questionnaire,
+                                          );
                                         },
                                         child: Container(
                                           padding: EdgeInsets.symmetric(

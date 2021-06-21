@@ -14,8 +14,10 @@ import 'package:psyscale/shared/widgets.dart';
 class AddQuestionnaire extends StatefulWidget {
   final Questionnaire questionnaire;
   final UserData userData;
+  final Function changeTab;
 
-  const AddQuestionnaire({Key key, this.userData, this.questionnaire})
+  const AddQuestionnaire(
+      {Key key, this.userData, this.questionnaire, this.changeTab})
       : super(key: key);
   @override
   _AddQuestionnaireState createState() => _AddQuestionnaireState();
@@ -110,7 +112,7 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
     setState(() {
       isLoading = false;
     });
-    Navigator.pop(context);
+    widget.changeTab(index: 9);
   }
 
   @override
@@ -174,13 +176,9 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
           widget.questionnaire != null
               ? Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: deleteButton(context, () async {
-                    widget.userData.personalQuestionnaires
-                        .remove(widget.questionnaire);
-                    await UsersServices(useruid: widget.userData.uid)
-                        .updatePersonnalQuestionnaires(
-                            widget.userData.personalHybrids);
-                    Navigator.pop(context);
+                  child: deleteButton(context, () {
+                    createDialog(context,
+                        delteQuestionnaire(widget.questionnaire.uid), true);
                   }, text: 'Delete', color: Colors.red, icon: Icons.delete),
                 )
               : SizedBox(),
@@ -1178,6 +1176,65 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
           text,
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
+      ),
+    );
+  }
+
+  Widget delteQuestionnaire(String questionnaireUid) {
+    return Container(
+      padding: EdgeInsets.all(8.0),
+      width: 300,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: 12.0),
+          Text(
+            'Confirm Delete Questionnaire',
+            textAlign: TextAlign.center,
+            style: Theme.of(context)
+                .textTheme
+                .headline6
+                .copyWith(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 12.0),
+          Text(
+            'Are you sure you want to delete this questionnaire?',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.subtitle2,
+          ),
+          SizedBox(height: 12.0),
+          Container(
+            width: 100,
+            child: InkWell(
+              onTap: () async {
+                widget.userData.personalQuestionnaires
+                    .remove(widget.questionnaire);
+                await UsersServices(useruid: widget.userData.uid)
+                    .updatePersonnalQuestionnaires(
+                        widget.userData.personalHybrids);
+                widget.changeTab(index: 9);
+                snackBar(
+                    context, 'The questionnaire has been deleted successfully');
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                width: 100,
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.circular(18.0),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'Confirm',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 12.0),
+        ],
       ),
     );
   }

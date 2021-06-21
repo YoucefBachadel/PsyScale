@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/services/userServices.dart';
+import 'package:psyscale/shared/widgets.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -63,6 +65,11 @@ class AuthService {
       print(e.toString());
       return 'error:${e.toString()}';
     }
+  }
+
+  Future forgotPassword(BuildContext context, String email) async {
+    await _auth.sendPasswordResetEmail(email: email);
+    snackBar(context, 'We have sent you an email, check your box');
   }
 
   // sign out

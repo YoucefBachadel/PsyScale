@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
-import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Psychiatrist/quizHybrid.dart';
-import 'package:psyscale/screens/Psychiatrist/quizQuesionnaire.dart';
 import 'package:psyscale/shared/customSplashFactory.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
 class TroubleDetails extends StatefulWidget {
-  final UserData userData;
   final Trouble trouble;
-  final List<Questionnaire> hybrids;
+  final String language;
+  final Function changeTab;
 
-  const TroubleDetails({Key key, this.trouble, this.userData, this.hybrids})
+  const TroubleDetails({Key key, this.trouble, this.language, this.changeTab})
       : super(key: key);
   @override
   _TroubleDetailsState createState() => _TroubleDetailsState();
@@ -29,7 +26,7 @@ class _TroubleDetailsState extends State<TroubleDetails>
   void initState() {
     _scrollController = ScrollController();
     _tabController = TabController(vsync: this, length: 3);
-    troubleExpanded = List.filled(widget.hybrids.length, false);
+    troubleExpanded = List.filled(widget.trouble.hybrids.length, false);
     super.initState();
   }
 
@@ -56,11 +53,11 @@ class _TroubleDetailsState extends State<TroubleDetails>
               color: Colors.white,
             ),
             title: Hero(
-              tag: widget.trouble.getName(widget.userData.language),
+              tag: widget.trouble.getName(widget.language),
               child: Material(
                 color: Colors.transparent,
                 child: Text(
-                  widget.trouble.getName(widget.userData.language),
+                  widget.trouble.getName(widget.language),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 30,
@@ -149,7 +146,7 @@ class _TroubleDetailsState extends State<TroubleDetails>
         padding: EdgeInsets.all(16.0),
         child: RichText(
           text: TextSpan(
-            text: widget.trouble.getDescreption(widget.userData.language),
+            text: widget.trouble.getDescreption(widget.language),
             style: Theme.of(context).textTheme.subtitle1,
           ),
         ),
@@ -187,7 +184,7 @@ class _TroubleDetailsState extends State<TroubleDetails>
                         children: [
                           ListTile(
                             title: Text(
-                              questionnaire.getName(widget.userData.language),
+                              questionnaire.getName(widget.language),
                               style: Theme.of(context)
                                   .textTheme
                                   .headline6
@@ -207,8 +204,8 @@ class _TroubleDetailsState extends State<TroubleDetails>
                               ? Container(
                                   padding: EdgeInsets.all(16.0),
                                   child: Text(
-                                    questionnaire.getDescreption(
-                                        widget.userData.language),
+                                    questionnaire
+                                        .getDescreption(widget.language),
                                     style: Theme.of(context)
                                         .textTheme
                                         .subtitle1
@@ -222,13 +219,12 @@ class _TroubleDetailsState extends State<TroubleDetails>
                                       vertical: 8.0, horizontal: 50.0),
                                   child: InkWell(
                                     onTap: () {
-                                      Constants.navigationFunc(
-                                          context,
-                                          QuizQuestionnaire(
-                                            questionnaire: questionnaire,
-                                            languge: widget.userData.language,
-                                            history: widget.userData.history,
-                                          ));
+                                      widget.changeTab(
+                                        index: 3,
+                                        questionnaire: questionnaire,
+                                        language: widget.language,
+                                        backIndex: 6,
+                                      );
                                     },
                                     child: Container(
                                       padding:
@@ -259,7 +255,7 @@ class _TroubleDetailsState extends State<TroubleDetails>
 
   Widget troubleHybridList() {
     int index = -1;
-    return widget.hybrids.isEmpty
+    return widget.trouble.hybrids.isEmpty
         ? emptyList()
         : Container(
             color: Theme.of(context).backgroundColor,
@@ -274,17 +270,18 @@ class _TroubleDetailsState extends State<TroubleDetails>
                         troubleExpanded[panelIndex] = !isExpanded;
                       });
                     },
-                    children: widget.hybrids.map((Questionnaire questionnaire) {
+                    children: widget.trouble.hybrids
+                        .map((Questionnaire questionnaire) {
                       index++;
                       return ExpansionPanel(
                         headerBuilder: (BuildContext context, bool isExpanded) {
                           return ListTile(
                             title: Text(
-                              questionnaire.getName(widget.userData.language),
+                              questionnaire.getName(widget.language),
                               style: Theme.of(context).textTheme.headline6,
                             ),
                             subtitle: Text(
-                              '${questionnaire.getQuestionsCount()} questions',
+                              '${questionnaire.getQuestionsCount() + 1} questions',
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle1
@@ -299,8 +296,7 @@ class _TroubleDetailsState extends State<TroubleDetails>
                           child: Column(
                             children: [
                               Text(
-                                questionnaire
-                                    .getDescreption(widget.userData.language),
+                                questionnaire.getDescreption(widget.language),
                                 style: Theme.of(context).textTheme.subtitle1,
                               ),
                               Padding(
@@ -308,13 +304,12 @@ class _TroubleDetailsState extends State<TroubleDetails>
                                     vertical: 8.0, horizontal: 50.0),
                                 child: InkWell(
                                   onTap: () {
-                                    Constants.navigationFunc(
-                                        context,
-                                        QuizHybrid(
-                                          questionnaire: questionnaire,
-                                          languge: widget.userData.language,
-                                          history: widget.userData.history,
-                                        ));
+                                    widget.changeTab(
+                                      index: 4,
+                                      questionnaire: questionnaire,
+                                      language: widget.language,
+                                      backIndex: 6,
+                                    );
                                   },
                                   child: Container(
                                     padding:

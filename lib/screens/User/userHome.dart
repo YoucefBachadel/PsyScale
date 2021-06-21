@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -55,23 +56,6 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
   void dispose() {
     _textFieldController.dispose();
     super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.userData != null &&
-        !updatedLastSignIn &&
-        widget.userData.uid != 'gest') {
-      UsersServices(useruid: widget.userData.uid).updatelastSignIn();
-      updatedLastSignIn = true;
-    }
-    return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
-        body: Responsive.isMobile(context)
-            ? mobileView()
-            : Center(
-                child: Text('User Home Page'), // tablet and web view
-              ));
   }
 
   getTroublesList(QuerySnapshot data, String language) async {
@@ -159,6 +143,28 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
         .updateHestoryList(historys, widget.userData.uid);
   }
 
+  @override
+  Widget build(BuildContext context) {
+    if (widget.userData != null &&
+        !updatedLastSignIn &&
+        widget.userData.uid != 'gest') {
+      UsersServices(useruid: widget.userData.uid).updatelastSignIn();
+      updatedLastSignIn = true;
+    }
+    return Scaffold(
+        backgroundColor: Theme.of(context).backgroundColor,
+        body: Responsive.isMobile(context)
+            ? mobileView()
+            : kIsWeb
+                ? unsupportedScreenSize(
+                    context, 'The user interface is not supported on web', true)
+                : unsupportedScreenSize(
+                    context,
+                    'The user interface is not supported in this screen size',
+                    false,
+                  ));
+  }
+
   Widget mobileView() {
     List<Widget> widgets = [];
 
@@ -231,29 +237,30 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                                 ),
                         );
                       },
-                      child: Hero(
-                        tag: widget.userData.name,
-                        child: FutureBuilder(
-                          future: UsersServices.getUserImage(
-                              context, widget.userData.imageUrl),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              return ClipOval(
-                                child: Container(
-                                  width: 55.0,
-                                  child: snapshot.data,
-                                ),
-                              );
-                            } else {
-                              return SpinKitPulse(
-                                color: Theme.of(context).accentColor,
-                                size: 50.0,
-                              );
-                            }
-                          },
-                        ),
-                      ),
+                      child: widget.userData.imageUrl == 'avatar.png'
+                          ? CircleAvatar(
+                              backgroundImage: AssetImage('assets/avatar.jpg'),
+                            )
+                          : FutureBuilder(
+                              future: UsersServices.getUserImage(
+                                  context, widget.userData.imageUrl),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  return ClipOval(
+                                    child: Container(
+                                      width: 55.0,
+                                      child: snapshot.data,
+                                    ),
+                                  );
+                                } else {
+                                  return SpinKitPulse(
+                                    color: Theme.of(context).accentColor,
+                                    size: 50.0,
+                                  );
+                                }
+                              },
+                            ),
                     ),
                     SizedBox(width: 16.0),
                   ],

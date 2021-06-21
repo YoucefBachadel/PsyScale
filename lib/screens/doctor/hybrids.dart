@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Psychiatrist/quizHybrid.dart';
 import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
@@ -12,8 +11,9 @@ import 'package:psyscale/shared/widgets.dart';
 
 class Hybrids extends StatefulWidget {
   final ValueListenable<String> search;
+  final Function changeTab;
 
-  const Hybrids({Key key, this.search}) : super(key: key);
+  const Hybrids({Key key, this.search, this.changeTab}) : super(key: key);
   @override
   _HybridsState createState() => _HybridsState();
 }
@@ -129,13 +129,12 @@ class _HybridsState extends State<Hybrids> {
                                     vertical: 8.0, horizontal: 50.0),
                                 child: InkWell(
                                   onTap: () {
-                                    Constants.navigationFunc(
-                                        context,
-                                        QuizHybrid(
-                                          questionnaire: questionnaire,
-                                          languge: userData.language,
-                                          history: userData.history,
-                                        ));
+                                    widget.changeTab(
+                                      index: 4,
+                                      questionnaire: questionnaire,
+                                      language: userData.language,
+                                      backIndex: 8,
+                                    );
                                   },
                                   child: Container(
                                     padding:

@@ -127,9 +127,9 @@ class Questionnaire {
       case 'English':
         return this.questionsAnswers[index].questionEn;
       case 'Français':
-        return this.questionsAnswers[index].questionEn;
+        return this.questionsAnswers[index].questionFr;
       case 'العربية':
-        return this.questionsAnswers[index].questionEn;
+        return this.questionsAnswers[index].questionAr;
     }
     return this.questionsAnswers[index].questionEn;
   }

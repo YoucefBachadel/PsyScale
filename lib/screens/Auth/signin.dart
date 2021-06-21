@@ -16,6 +16,7 @@ class _SignInState extends State<SignIn> {
   String email = '', password;
   AuthService authService = AuthService();
   bool isLoading = false;
+  bool emailSended = false;
 
   signIn() async {
     if (_formKey.currentState.validate()) {
@@ -29,17 +30,16 @@ class _SignInState extends State<SignIn> {
           setState(() {
             isLoading = false;
           });
+          if (Responsive.isMobile(context)) {
+            Navigator.pop(context);
+          }
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => Wrapper()));
         } else {
           setState(() {
             isLoading = false;
           });
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            elevation: 1.0,
-            content: Text((value as String).split(':')[1].split(']')[1]),
-            duration: Duration(seconds: 5),
-          ));
+          snackBar(context, (value as String).split(':')[1].split(']')[1]);
         }
       });
     }
@@ -91,9 +91,40 @@ class _SignInState extends State<SignIn> {
                         decoration: textInputDecoration(context, 'Password'),
                         onChanged: (value) => password = value,
                       ),
-                      SizedBox(
-                        height: 14.0,
+                      SizedBox(height: 14.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Don\'t remember your password ? ',
+                            style: TextStyle(fontSize: 15.5),
+                          ),
+                          InkWell(
+                            onTap: () async {
+                              if (!emailSended) {
+                                if (email.isNotEmpty) {
+                                  authService.forgotPassword(context, email);
+                                  emailSended = true;
+                                } else {
+                                  snackBar(
+                                      context, 'First, Enter your email!!');
+                                }
+                              } else {
+                                snackBar(context,
+                                    'We\'ve already sent you an email!!');
+                              }
+                            },
+                            child: Text(
+                              'Change Password',
+                              style: TextStyle(
+                                fontSize: 15.5,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          )
+                        ],
                       ),
+                      SizedBox(height: 14.0),
                       InkWell(
                         onTap: () {
                           signIn();

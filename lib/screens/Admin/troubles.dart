@@ -79,10 +79,13 @@ class _TroublesState extends State<Troubles> {
           color: Colors.white,
         ),
         onPressed: () {
-          Constants.navigationFunc(
-            context,
-            AddTroubles(trouble: null),
-          );
+          createDialog(
+              context,
+              Container(
+                width: 700.0,
+                child: AddTroubles(trouble: null),
+              ),
+              false);
         },
       ),
     );
@@ -144,11 +147,13 @@ class _TroublesState extends State<Troubles> {
                                 child: InkWell(
                                     splashColor: Theme.of(context).accentColor,
                                     onTap: () {
-                                      Navigator.push(
+                                      createDialog(
                                           context,
-                                          MaterialPageRoute(
-                                              builder: (context) => AddTroubles(
-                                                  trouble: trouble)));
+                                          Container(
+                                              width: 700.0,
+                                              child: AddTroubles(
+                                                  trouble: trouble)),
+                                          false);
                                     }),
                               ),
                             ),

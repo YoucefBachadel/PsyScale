@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Admin/add_hybrid.dart';
 import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
 import 'package:psyscale/shared/constants.dart';
@@ -13,8 +12,8 @@ import 'package:psyscale/shared/widgets.dart';
 
 class Hybrid extends StatefulWidget {
   final ValueListenable<String> search;
-
-  const Hybrid({Key key, this.search}) : super(key: key);
+  final Function changeTab;
+  const Hybrid({Key key, this.search, this.changeTab}) : super(key: key);
 
   @override
   _HybridState createState() => _HybridState();
@@ -132,13 +131,14 @@ class _HybridState extends State<Hybrid> {
             color: Colors.white,
           ),
           onPressed: () {
-            Constants.navigationFunc(
-              context,
-              AddHybrid(
-                questionnaire: null,
-                userData: userData,
-              ),
-            );
+            widget.changeTab(1, null);
+            // Constants.navigationFunc(
+            //   context,
+            //   AddHybrid(
+            //     questionnaire: null,
+            //     userData: userData,
+            //   ),
+            // );
           },
         ));
   }
@@ -163,13 +163,14 @@ class _HybridState extends State<Hybrid> {
                     elevation: 2.0,
                     child: InkWell(
                       onTap: () {
-                        Constants.navigationFunc(
-                          context,
-                          AddHybrid(
-                            questionnaire: questionnaire,
-                            userData: userData,
-                          ),
-                        );
+                        widget.changeTab(1, questionnaire);
+                        // Constants.navigationFunc(
+                        //   context,
+                        //   AddHybrid(
+                        //     questionnaire: questionnaire,
+                        //     userData: userData,
+                        //   ),
+                        // );
                       },
                       child: ListTile(
                         title: Padding(
@@ -232,13 +233,14 @@ class _HybridState extends State<Hybrid> {
                                 elevation: 2.0,
                                 child: InkWell(
                                   onTap: () {
-                                    Constants.navigationFunc(
-                                      context,
-                                      AddHybrid(
-                                        questionnaire: questionnaire,
-                                        userData: userData,
-                                      ),
-                                    );
+                                    widget.changeTab(1, questionnaire);
+                                    // Constants.navigationFunc(
+                                    //   context,
+                                    //   AddHybrid(
+                                    //     questionnaire: questionnaire,
+                                    //     userData: userData,
+                                    //   ),
+                                    // );
                                   },
                                   child: ListTile(
                                     title: Padding(

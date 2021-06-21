@@ -1,12 +1,20 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:psyscale/classes/Questionnaire.dart';
+import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Psychiatrist/hybridsPersonal.dart';
-import 'package:psyscale/screens/Psychiatrist/questionnairesPersonal.dart';
-import 'package:psyscale/screens/Psychiatrist/troubles.dart';
-import 'package:psyscale/screens/Psychiatrist/questionnaires.dart';
-import 'package:psyscale/screens/Psychiatrist/hybrids.dart';
+import 'package:psyscale/screens/doctor/add_hybrid.dart';
+import 'package:psyscale/screens/doctor/add_questionnaire.dart';
+import 'package:psyscale/screens/doctor/hybridsPersonal.dart';
+import 'package:psyscale/screens/doctor/questionnairesPersonal.dart';
+import 'package:psyscale/screens/doctor/quizHybrid.dart';
+import 'package:psyscale/screens/doctor/quizQuesionnaire.dart';
+import 'package:psyscale/screens/doctor/trouble_details.dart';
+import 'package:psyscale/screens/doctor/troubles.dart';
+import 'package:psyscale/screens/doctor/questionnaires.dart';
+import 'package:psyscale/screens/doctor/hybrids.dart';
 import 'package:psyscale/screens/settings.dart';
 import 'package:psyscale/services/userServices.dart';
 import 'package:psyscale/shared/responsive.dart';
@@ -19,17 +27,17 @@ class DoctorHome extends StatefulWidget {
 
 class _DoctorHomeState extends State<DoctorHome> {
   List<Map<String, Object>> _tabs = [
-    {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 1},
-    {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 2},
-    {'icon': Icons.home, 'title': 'Hybrids', 'index': 3},
+    {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 6},
+    {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 7},
+    {'icon': Icons.home, 'title': 'Hybrids', 'index': 8},
   ];
   List<Map<String, Object>> _tabsPerosnal = [
-    {'icon': Icons.format_list_numbered, 'title': 'Questionnaires', 'index': 4},
-    {'icon': Icons.home, 'title': 'Hybrids', 'index': 5},
+    {'icon': Icons.format_list_numbered, 'title': 'Questionnaires', 'index': 9},
+    {'icon': Icons.home, 'title': 'Hybrids', 'index': 10},
   ];
 
   List<Widget> _screens = [];
-  int _selectedIndex = 1;
+  int _selectedIndex = 6;
   TextEditingController _textFieldController = TextEditingController();
   FocusNode _textFieldFocusNode = FocusNode();
   final search = ValueNotifier('');
@@ -37,12 +45,36 @@ class _DoctorHomeState extends State<DoctorHome> {
   String _appBarTitle = 'Troubles';
   bool _isSearching = false;
 
+  Questionnaire _addQuestionnaireQuesionnaire;
+  Trouble _troubleDetailTrouble;
+  String _quizLanguage;
+  int _backIndex;
+  String _backAppbarTitle;
+
   @override
   void dispose() {
     _textFieldController.dispose();
     // Clean up the focus node when the Form is disposed.
     _textFieldFocusNode.dispose();
     super.dispose();
+  }
+
+  void changePage({
+    @required int index,
+    int backIndex,
+    Questionnaire questionnaire,
+    Trouble trouble,
+    String language,
+    String backAppbarTitle,
+  }) {
+    _addQuestionnaireQuesionnaire = questionnaire ?? null;
+    _troubleDetailTrouble = trouble ?? null;
+    _quizLanguage = language ?? null;
+    _backIndex = backIndex ?? 6;
+    _appBarTitle = backAppbarTitle;
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
@@ -53,18 +85,60 @@ class _DoctorHomeState extends State<DoctorHome> {
       updatedLastSignIn = true;
     }
     _screens = [
-      Setting(userData: userData),
-      Troubles(search: search),
-      Questionnaires(search: search),
-      Hybrids(search: search),
-      QuestionnairesPersonal(search: search),
-      HybridsPersonal(search: search),
+      Setting(
+        userData: userData,
+        changeTab: changePage,
+        backIndex: _backIndex,
+        backappbarTitle: _backAppbarTitle,
+      ),
+      AddQuestionnaire(
+        userData: userData,
+        questionnaire: _addQuestionnaireQuesionnaire,
+        changeTab: changePage,
+      ),
+      AddHybrid(
+        userData: userData,
+        questionnaire: _addQuestionnaireQuesionnaire,
+        changeTab: changePage,
+      ),
+      QuizQuestionnaire(
+        questionnaire: _addQuestionnaireQuesionnaire,
+        languge: _quizLanguage,
+        changeTab: changePage,
+        backIndex: _backIndex,
+      ),
+      QuizHybrid(
+        questionnaire: _addQuestionnaireQuesionnaire,
+        languge: _quizLanguage,
+        changeTab: changePage,
+        backIndex: _backIndex,
+      ),
+      TroubleDetails(
+        trouble: _troubleDetailTrouble,
+        language: _quizLanguage,
+        changeTab: changePage,
+      ),
+      Troubles(changeTab: changePage, search: search),
+      Questionnaires(changeTab: changePage, search: search),
+      Hybrids(changeTab: changePage, search: search),
+      QuestionnairesPersonal(changeTab: changePage, search: search),
+      HybridsPersonal(changeTab: changePage, search: search),
     ];
 
-    return Responsive.isdesktop(context) ? desktopView() : mobileView();
+    return Responsive.isdesktop(context)
+        ? desktopView()
+        : Responsive.isMobile(context)
+            ? kIsWeb
+                ? unsupportedScreenSize(
+                    context,
+                    'The doctor interface is not supported on the web for this screen size',
+                    false,
+                  )
+                : mobileTabletView()
+            : mobileTabletView();
   }
 
-  Widget mobileView() {
+  Widget mobileTabletView() {
     return Scaffold(
       appBar: AppBar(
         title: !_isSearching
@@ -91,7 +165,7 @@ class _DoctorHomeState extends State<DoctorHome> {
               ),
         centerTitle: true,
         actions: [
-          ![0].contains(_selectedIndex)
+          ![0, 1, 2, 3, 4, 5].contains(_selectedIndex)
               ? !_isSearching
                   ? IconButton(
                       onPressed: () {
@@ -131,7 +205,9 @@ class _DoctorHomeState extends State<DoctorHome> {
               flex: 5,
               child: Column(
                 children: [
-                  ![0].contains(_selectedIndex) ? header() : SizedBox(),
+                  ![0, 1, 2, 3, 4, 5].contains(_selectedIndex)
+                      ? header()
+                      : SizedBox(),
                   Flexible(child: _screens[_selectedIndex]),
                 ],
               )),
@@ -182,6 +258,7 @@ class _DoctorHomeState extends State<DoctorHome> {
     int selectedIndex,
     Function(int) onTap,
   }) {
+    final userData = Provider.of<UserData>(context);
     return Drawer(
       child: Container(
         color: Theme.of(context).primaryColor,
@@ -275,14 +352,24 @@ class _DoctorHomeState extends State<DoctorHome> {
                       fontSize: selectedIndex == 0 ? 22.0 : 16.0),
                 ),
                 onTap: () {
-                  setState(() {
-                    _selectedIndex = 0;
-                    _appBarTitle = 'Setting';
-                    _isSearching = false;
-                    if (!Responsive.isdesktop(context)) {
-                      Navigator.pop(context);
-                    }
-                  });
+                  if (!Responsive.isdesktop(context)) {
+                    Navigator.pop(context);
+                  }
+                  Responsive.isMobile(context)
+                      ? setState(() {
+                          _backIndex = _selectedIndex;
+                          _backAppbarTitle = _appBarTitle;
+                          _selectedIndex = 0;
+                          _appBarTitle = 'Setting';
+                          _isSearching = false;
+                        })
+                      : createDialog(
+                          context,
+                          Container(
+                            width: 700,
+                            child: Setting(userData: userData),
+                          ),
+                          false);
                 },
               ),
             ],

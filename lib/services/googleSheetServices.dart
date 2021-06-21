@@ -25,7 +25,7 @@ class GoogleSheetApi {
     final spreadsheet = await gsheet.spreadsheet(spreadsheetId);
     userSheet =
         await _getWorkSheet(spreadsheet: spreadsheet, title: workSheetTitle);
-    insertType == 'first' ? addRow(items) : insertRow(items);
+    insertType == 'first' ? addQuestionsRow(items) : insertNewAnswers(items);
   }
 
   Future<Worksheet> _getWorkSheet(
@@ -61,15 +61,17 @@ class GoogleSheetApi {
     userSheet.values.appendRows(allRows);
   }
 
-  addRow(List<String> items) {
+  addQuestionsRow(List<String> items) {
     try {
-      userSheet.values.insertRow(1, items);
+      userSheet
+          .clearRow(1)
+          .whenComplete(() => userSheet.values.insertRow(1, items));
     } catch (e) {
       print('Init Error: $e');
     }
   }
 
-  insertRow(List<String> items) {
+  insertNewAnswers(List<String> items) {
     try {
       userSheet.values.appendRow(items);
     } catch (e) {

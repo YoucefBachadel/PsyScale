@@ -5,9 +5,9 @@ class Constants {
   static const Color myGrey = Colors.grey;
 
   static const int animationDuration = 1200;
+  static const int snackBarDuration = 5;
 
   static navigationFunc(BuildContext context, Widget widget) {
-    // Navigator.push(context, MaterialPageRoute(builder: (context) => widget));
     Navigator.of(context).push(PageRouteBuilder(
       fullscreenDialog: true,
       transitionDuration: Duration(milliseconds: animationDuration),

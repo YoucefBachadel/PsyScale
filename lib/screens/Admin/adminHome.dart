@@ -1,7 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
+import 'package:psyscale/screens/Admin/add_hybrid.dart';
+import 'package:psyscale/screens/Admin/add_questionnaire.dart';
 import 'package:psyscale/screens/Admin/dashboard.dart';
 import 'package:psyscale/screens/Admin/hybrid.dart';
 import 'package:psyscale/screens/Admin/questionnaires.dart';
@@ -20,18 +24,18 @@ class AdminHome extends StatefulWidget {
 class _AdminHomeState extends State<AdminHome> {
   List<Widget> _screens = [];
   List<Map<String, Object>> _tabs = [
-    {'icon': Icons.home, 'title': 'Dashboard', 'index': 1},
-    {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 2},
-    {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 3},
-    {'icon': Icons.home, 'title': 'Hybrids', 'index': 4},
+    {'icon': Icons.home, 'title': 'Dashboard', 'index': 2},
+    {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 3},
+    {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 4},
+    {'icon': Icons.home, 'title': 'Hybrids', 'index': 5},
     {
       'icon': Icons.supervised_user_circle_rounded,
       'title': 'Users',
-      'index': 5
+      'index': 6
     },
-    {'icon': MdiIcons.doctor, 'title': 'Doctors', 'index': 6},
+    {'icon': MdiIcons.doctor, 'title': 'Doctors', 'index': 7},
   ];
-  int _selectedIndex = 1;
+  int _selectedIndex = 2;
   TextEditingController _textFieldController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   FocusNode _textFieldFocusNode = FocusNode();
@@ -39,6 +43,8 @@ class _AdminHomeState extends State<AdminHome> {
   bool updatedLastSignIn = false;
   String _appBarTitle = 'Dashboard';
   bool _isSearching = false;
+
+  Questionnaire _addQuestionnaireQuesionnaire;
 
   @override
   void dispose() {
@@ -50,7 +56,8 @@ class _AdminHomeState extends State<AdminHome> {
     super.dispose();
   }
 
-  void changePage(int index) {
+  void changePage(int index, Questionnaire questionnaire) {
+    _addQuestionnaireQuesionnaire = questionnaire;
     setState(() {
       _selectedIndex = index;
     });
@@ -64,16 +71,27 @@ class _AdminHomeState extends State<AdminHome> {
       updatedLastSignIn = true;
     }
     _screens = [
-      Setting(userData: userData),
+      AddQuestionnaire(
+          changeTab: changePage,
+          userData: userData,
+          questionnaire: _addQuestionnaireQuesionnaire),
+      AddHybrid(
+          changeTab: changePage,
+          userData: userData,
+          questionnaire: _addQuestionnaireQuesionnaire),
       Dashboard(
         changeTab: changePage,
         userData: userData,
       ),
       Troubles(search: search),
       Questionnaires(
+        changeTab: changePage,
         search: search,
       ),
-      Hybrid(search: search),
+      Hybrid(
+        changeTab: changePage,
+        search: search,
+      ),
       Users(
         search: search,
         type: 'users',
@@ -94,18 +112,23 @@ class _AdminHomeState extends State<AdminHome> {
         Users(search: search, type: 'admins'),
       );
       _tabs.add(
-          {'icon': Icons.admin_panel_settings, 'title': 'Admins', 'index': 7});
+          {'icon': Icons.admin_panel_settings, 'title': 'Admins', 'index': 8});
     }
 
     return Responsive.isdesktop(context)
         ? desktopView()
         : Responsive.isMobile(context)
-            ? Scaffold(
-                body: Container(
-                  alignment: Alignment.center,
-                  child: Text('Not supported for mobile'),
-                ),
-              )
+            ? kIsWeb
+                ? unsupportedScreenSize(
+                    context,
+                    'The admin interface is not supported in this screen size',
+                    false,
+                  )
+                : unsupportedScreenSize(
+                    context,
+                    'The admin interface is not supported on mobile',
+                    true,
+                  )
             : tabletView();
   }
 
@@ -136,7 +159,7 @@ class _AdminHomeState extends State<AdminHome> {
               ),
         centerTitle: true,
         actions: [
-          ![0, 1].contains(_selectedIndex)
+          ![0, 1, 2].contains(_selectedIndex)
               ? !_isSearching
                   ? IconButton(
                       onPressed: () {
@@ -176,7 +199,7 @@ class _AdminHomeState extends State<AdminHome> {
               flex: 5,
               child: Column(
                 children: [
-                  ![0, 1].contains(_selectedIndex) ? header() : SizedBox(),
+                  ![0, 1, 2].contains(_selectedIndex) ? header() : SizedBox(),
                   Expanded(child: _screens[_selectedIndex]),
                 ],
               )),
@@ -192,7 +215,7 @@ class _AdminHomeState extends State<AdminHome> {
       child: Row(
         children: [
           Text(
-            _tabs[_selectedIndex - 1]['title'],
+            _appBarTitle,
             style: Theme.of(context).textTheme.headline6,
           ),
           Spacer(flex: 2),
@@ -227,6 +250,7 @@ class _AdminHomeState extends State<AdminHome> {
     int selectedIndex,
     Function(int) onTap,
   }) {
+    final userData = Provider.of<UserData>(context);
     return Drawer(
       child: Container(
         color: Theme.of(context).primaryColor,
@@ -257,7 +281,7 @@ class _AdminHomeState extends State<AdminHome> {
                           setState(() {
                             _selectedIndex = e['index'];
                             _appBarTitle = e['title'];
-                            if ([0, 1].contains(_selectedIndex)) {
+                            if ([2].contains(_selectedIndex)) {
                               _isSearching = false;
                             }
                             if (!Responsive.isdesktop(context)) {
@@ -270,27 +294,20 @@ class _AdminHomeState extends State<AdminHome> {
               ListTile(
                 leading: Icon(
                   Icons.settings,
-                  color: selectedIndex == 0
-                      ? Theme.of(context).accentColor
-                      : Colors.grey,
+                  color: Colors.grey,
                 ),
                 title: Text(
                   'Setting',
-                  style: TextStyle(
-                      color: selectedIndex == 0
-                          ? Theme.of(context).accentColor
-                          : Colors.grey,
-                      fontSize: selectedIndex == 0 ? 22.0 : 16.0),
+                  style: TextStyle(color: Colors.grey, fontSize: 16.0),
                 ),
                 onTap: () {
-                  setState(() {
-                    _selectedIndex = 0;
-                    _appBarTitle = 'Setting';
-                    _isSearching = false;
-                    if (!Responsive.isdesktop(context)) {
-                      Navigator.pop(context);
-                    }
-                  });
+                  if (!Responsive.isdesktop(context)) {
+                    Navigator.pop(context);
+                  }
+                  createDialog(
+                      context,
+                      Container(width: 700, child: Setting(userData: userData)),
+                      false);
                 },
               ),
             ],

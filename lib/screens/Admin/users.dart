@@ -20,7 +20,6 @@ class Users extends StatefulWidget {
 class _UsersState extends State<Users> {
   List<UserData> allUsers = [];
   List<UserData> users = [];
-  bool _isAddingAdmin = false;
   int _sortColumnIndex = 0;
   bool _isAscending = false;
   String _sortBy = '';
@@ -132,6 +131,14 @@ class _UsersState extends State<Users> {
     }
   }
 
+  void onSort(int columnIndex, bool ascending, String sortby) {
+    setState(() {
+      _sortBy = sortby;
+      _isAscending = ascending;
+      _sortColumnIndex = columnIndex;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,21 +148,16 @@ class _UsersState extends State<Users> {
             if (snapshot.hasData) {
               QuerySnapshot data = snapshot.data;
               getUsersList(data, widget.type);
-              return Stack(
-                children: [
-                  widget.type == 'users'
-                      ? usersList()
-                      : widget.type == 'psychiatrists'
-                          ? psychiatristsList()
-                          : adminsList(),
-                  _isAddingAdmin ? addAdmin() : SizedBox(),
-                ],
-              );
+              return widget.type == 'users'
+                  ? usersList()
+                  : widget.type == 'psychiatrists'
+                      ? psychiatristsList()
+                      : adminsList();
             } else {
               return loading(context);
             }
           }),
-      floatingActionButton: widget.type == 'admins' && !_isAddingAdmin
+      floatingActionButton: widget.type == 'admins'
           ? FloatingActionButton(
               heroTag: null,
               backgroundColor: Theme.of(context).accentColor,
@@ -163,102 +165,98 @@ class _UsersState extends State<Users> {
                 Icons.add,
                 color: Colors.white,
               ),
-              onPressed: () {
-                setState(() {
-                  _isAddingAdmin = true;
-                });
-              },
-            )
+              onPressed: () => createDialog(context, addAdmin(), false))
           : null,
     );
   }
 
   Widget addAdmin() {
+    final _formKey = GlobalKey<FormState>();
     String _newUserName = '';
     String _newEmail = '';
     String _newtype = '';
-    return Positioned(
-      bottom: 8.0,
-      right: 8.0,
-      child: Container(
-        height: 400.0,
-        width: 300,
-        decoration: BoxDecoration(
-          color: Theme.of(context).backgroundColor,
-          borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(
-            width: 0.5,
-            color: Constants.border,
-          ),
+
+    return Container(
+      height: 400.0,
+      width: 700,
+      decoration: BoxDecoration(
+        color: Theme.of(context).backgroundColor,
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          width: 0.5,
+          color: Constants.border,
         ),
-        child: Column(
-          children: [
-            Container(
-              color: Constants.border,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Add New Admin',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5
-                        .copyWith(color: Colors.white),
-                  ),
-                  IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _isAddingAdmin = false;
-                        });
-                      },
-                      icon: Icon(
-                        Icons.close_sharp,
-                        color: Colors.white,
-                        size: 30.0,
-                      ))
-                ],
-              ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            color: Constants.border,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Add New Admin',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline5
+                      .copyWith(color: Colors.white),
+                ),
+                IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(
+                      Icons.close_sharp,
+                      color: Colors.white,
+                      size: 30.0,
+                    ))
+              ],
             ),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.all(8.0),
-                child: Form(
-                  child: Column(
-                    children: [
-                      Spacer(),
-                      TextFormField(
-                        initialValue: _newUserName,
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter Admin Name' : null,
-                        decoration: textInputDecoration(context, 'Admin Name'),
-                        onChanged: (value) => _newUserName = value,
-                      ),
-                      SizedBox(height: 6.0),
-                      TextFormField(
-                        initialValue: _newEmail,
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter Email' : null,
-                        decoration: textInputDecoration(context, 'Email'),
-                        onChanged: (value) => _newEmail = value,
-                      ),
-                      SizedBox(height: 6.0),
-                      DropdownButtonFormField(
-                        decoration: textInputDecoration(context, 'Admin Type'),
-                        items: ['Super Admin', 'Admin'].map((item) {
-                          return DropdownMenuItem(
-                            value: item,
-                            child: Text(item),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          _newtype =
-                              value == 'Super Admin' ? 'superAdmin' : 'admin';
-                        },
-                      ),
-                      Spacer(),
-                      InkWell(
-                        onTap: () async {
+          ),
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.all(8.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Spacer(),
+                    TextFormField(
+                      initialValue: _newUserName,
+                      validator: (value) =>
+                          value.isEmpty ? 'Enter Admin Name' : null,
+                      decoration: textInputDecoration(context, 'Admin Name'),
+                      onChanged: (value) => _newUserName = value,
+                    ),
+                    SizedBox(height: 6.0),
+                    TextFormField(
+                      initialValue: _newEmail,
+                      validator: (value) =>
+                          value.isEmpty ? 'Enter Email' : null,
+                      decoration: textInputDecoration(context, 'Email'),
+                      onChanged: (value) => _newEmail = value,
+                    ),
+                    SizedBox(height: 6.0),
+                    DropdownButtonFormField(
+                      decoration: textInputDecoration(context, 'Admin Type'),
+                      validator: (value) =>
+                          _newtype.isEmpty ? 'Chois the type' : null,
+                      items: ['Super Admin', 'Admin'].map((item) {
+                        return DropdownMenuItem(
+                          value: item,
+                          child: Text(item),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        _newtype =
+                            value == 'Super Admin' ? 'superAdmin' : 'admin';
+                      },
+                    ),
+                    Spacer(),
+                    InkWell(
+                      onTap: () async {
+                        if (_formKey.currentState.validate()) {
                           UserData userData = UserData(
                             name: _newUserName,
                             email: _newEmail,
@@ -268,31 +266,33 @@ class _UsersState extends State<Users> {
 
                           await UsersServices(useruid: userData.uid)
                               .addUserData(userData, _newtype);
-                          setState(() {
-                            _isAddingAdmin = false;
-                          });
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 18.0),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).accentColor,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Save',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
+
+                          Navigator.pop(context);
+                          snackBar(
+                              context, 'New admin account added successfully');
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 18.0),
+                        width: 300,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).accentColor,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Add',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
                       ),
-                      Spacer(),
-                    ],
-                  ),
+                    ),
+                    Spacer(),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -333,8 +333,9 @@ class _UsersState extends State<Users> {
           DataCell(Text(
               DateFormat('yyyy-MM-dd H:mm').format(e.lastSignIn.toDate()))),
           DataCell(Text(e.language)),
-          DataCell(deleteButton(context, () {},
-              text: 'Delete', color: Colors.red, icon: Icons.delete)),
+          DataCell(deleteButton(context, () {
+            createDialog(context, delteAccount(e.uid), true);
+          }, text: 'Delete', color: Colors.red, icon: Icons.delete)),
         ],
       );
     }).toList();
@@ -397,8 +398,9 @@ class _UsersState extends State<Users> {
                 },
                   text: 'Validate', color: Colors.green, icon: Icons.cloud_done)
               : Icon(Icons.done)),
-          DataCell(deleteButton(context, () {},
-              text: 'Delete', color: Colors.red, icon: Icons.delete)),
+          DataCell(deleteButton(context, () {
+            createDialog(context, delteAccount(e.uid), true);
+          }, text: 'Delete', color: Colors.red, icon: Icons.delete)),
         ],
       );
     }).toList();
@@ -447,8 +449,9 @@ class _UsersState extends State<Users> {
           DataCell(Text(
               DateFormat('yyyy-MM-dd H:mm').format(e.lastSignIn.toDate()))),
           DataCell(Text(e.language)),
-          DataCell(deleteButton(context, () {},
-              text: 'Delete', color: Colors.red, icon: Icons.delete)),
+          DataCell(deleteButton(context, () {
+            createDialog(context, delteAccount(e.uid), true);
+          }, text: 'Delete', color: Colors.red, icon: Icons.delete)),
         ],
       );
     }).toList();
@@ -484,14 +487,6 @@ class _UsersState extends State<Users> {
               );
   }
 
-  void onSort(int columnIndex, bool ascending, String sortby) {
-    setState(() {
-      _sortBy = sortby;
-      _isAscending = ascending;
-      _sortColumnIndex = columnIndex;
-    });
-  }
-
   Widget culomnItem(String text) {
     return Text(
       text,
@@ -499,6 +494,60 @@ class _UsersState extends State<Users> {
         fontSize: 14.0,
       ),
       textAlign: TextAlign.center,
+    );
+  }
+
+  Widget delteAccount(String userUid) {
+    return Container(
+      padding: EdgeInsets.all(8.0),
+      width: 300,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: 12.0),
+          Text(
+            'Confirm Delete Account',
+            textAlign: TextAlign.center,
+            style: Theme.of(context)
+                .textTheme
+                .headline6
+                .copyWith(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 12.0),
+          Text(
+            'Are you sure you want to delete this account? once you delete it the user will lose all his data and he will not be able to access this account anymore.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.subtitle2,
+          ),
+          SizedBox(height: 12.0),
+          Container(
+            width: 100,
+            child: InkWell(
+              onTap: () {
+                UsersServices().deleteUser(userUid);
+                Navigator.pop(context);
+                snackBar(context, 'The account has been deleted successfully');
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                width: 100,
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.circular(18.0),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'Confirm',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 12.0),
+        ],
+      ),
     );
   }
 }

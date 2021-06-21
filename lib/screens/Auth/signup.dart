@@ -41,17 +41,14 @@ class _SignUpFormState extends State<SignUpForm> {
             setState(() {
               _isLoading = false;
             });
+            Navigator.pop(context);
             Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (context) => Wrapper()));
           } else {
             setState(() {
               _isLoading = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              elevation: 1.0,
-              content: Text((value as String).split(':')[1].split(']')[1]),
-              duration: Duration(seconds: 5),
-            ));
+            snackBar(context, (value as String).split(':')[1].split(']')[1]);
           }
         });
       } else {
@@ -63,17 +60,16 @@ class _SignUpFormState extends State<SignUpForm> {
             setState(() {
               _isLoading = false;
             });
+            if (Responsive.isMobile(context)) {
+              Navigator.pop(context);
+            }
             Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (context) => Wrapper()));
           } else {
             setState(() {
               _isLoading = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              elevation: 1.0,
-              content: Text((value as String).split(':')[1].split(']')[1]),
-              duration: Duration(seconds: 5),
-            ));
+            snackBar(context, (value as String).split(':')[1].split(']')[1]);
           }
         });
       }

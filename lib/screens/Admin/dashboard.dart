@@ -235,13 +235,13 @@ class _DashboardState extends State<Dashboard> {
                   SizedBox(height: 16.0),
                   chart(context),
                   userCardInfo(Icons.supervised_user_circle_rounded, 'Users',
-                      _usersCount, Constants.border, 5),
+                      _usersCount, Constants.border, 6),
                   userCardInfo(MdiIcons.doctor, 'Doctors', _psychiatristsCount,
-                      Color(0xFF26E5FF), 6),
+                      Color(0xFF26E5FF), 7),
                   userCardInfo(Icons.admin_panel_settings, 'Admins',
-                      _adminsCount, Color(0xFFFFCF26), 7),
+                      _adminsCount, Color(0xFFFFCF26), 8),
                   userCardInfo(Icons.add_moderator_outlined, 'Super Admins',
-                      _superAdminsCount, Color(0xFFEE2727), 7),
+                      _superAdminsCount, Color(0xFFEE2727), 8),
                 ],
               ),
             );
@@ -257,19 +257,19 @@ class _DashboardState extends State<Dashboard> {
         'title': 'Troubles',
         'icon': MdiIcons.brain,
         'count': _troublesCount.toString(),
-        'index': 2,
+        'index': 3,
       },
       {
         'title': 'Questionnaires',
         'icon': Icons.format_list_bulleted,
         'count': _questionnairesCount.toString(),
-        'index': 3,
+        'index': 4,
       },
       {
         'title': 'Hybrides',
         'icon': Icons.home,
         'count': _hybridsCount.toString(),
-        'index': 4,
+        'index': 5,
       }
     ];
     return Container(
@@ -280,7 +280,7 @@ class _DashboardState extends State<Dashboard> {
         children: items
             .map((e) => InkWell(
                   onTap: () {
-                    widget.changeTab(e['index']);
+                    widget.changeTab(e['index'], null);
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -502,7 +502,7 @@ class _DashboardState extends State<Dashboard> {
       IconData icon, String title, int numOfUsers, Color color, int tapIndex) {
     return InkWell(
       onTap: () {
-        widget.changeTab(tapIndex);
+        widget.changeTab(tapIndex, null);
       },
       child: Container(
         margin: EdgeInsets.only(top: 8.0),

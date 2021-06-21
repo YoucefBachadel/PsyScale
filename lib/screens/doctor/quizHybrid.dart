@@ -8,13 +8,15 @@ import 'package:psyscale/shared/widgets.dart';
 class QuizHybrid extends StatefulWidget {
   final Questionnaire questionnaire;
   final String languge;
-  final List<Map<String, Object>> history;
+  final Function changeTab;
+  final int backIndex;
 
   const QuizHybrid({
     Key key,
     this.questionnaire,
     this.languge,
-    this.history,
+    this.changeTab,
+    this.backIndex,
   }) : super(key: key);
   @override
   _QuizHybridState createState() => _QuizHybridState();
@@ -23,6 +25,7 @@ class QuizHybrid extends StatefulWidget {
 class _QuizHybridState extends State<QuizHybrid> {
   int _currentQuestionIndex = 0;
   List<int> _choises;
+  String _choisedClass;
   bool isLoading = false;
   GoogleSheetApi _googleSheetApi = GoogleSheetApi();
 
@@ -35,13 +38,23 @@ class _QuizHybridState extends State<QuizHybrid> {
   }
 
   savedataCollected() {
+    List<String> items = [];
+    items.add(_choisedClass);
+    for (int i = 1; i < _choises.length; i++) {
+      items.add(_choises[i].toString());
+    }
     _googleSheetApi
-        .init(widget.questionnaire.stockageUrl, widget.questionnaire.nameEn,
-            _choises.map((e) => e.toString()).toList(), 'items')
+        .init(
+      widget.questionnaire.stockageUrl,
+      widget.questionnaire.nameEn,
+      items,
+      'items',
+    )
         .then((value) {
-      if (value != null) {
-        Navigator.pop(context);
-      }
+      setState(() {
+        isLoading = true;
+      });
+      widget.changeTab(index: widget.backIndex);
     });
   }
 
@@ -196,6 +209,9 @@ class _QuizHybridState extends State<QuizHybrid> {
                 (answer) => InkWell(
                   onTap: () {
                     setState(() {
+                      if (_currentQuestionIndex == 0) {
+                        _choisedClass = answer['answer'];
+                      }
                       _choises[_currentQuestionIndex] = answer['score'];
                     });
                   },
@@ -271,37 +287,38 @@ class _QuizHybridState extends State<QuizHybrid> {
   }
 
   Widget score() {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            'Thank you so much for your time!!',
-            style: Theme.of(context)
-                .textTheme
-                .headline3
-                .copyWith(color: Constants.myGrey),
-          ),
-          SizedBox(height: MediaQuery.of(context).size.height / 5),
-          InkWell(
-            onTap: () async {
-              savedataCollected();
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 18.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).accentColor,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
-              child: Text(
-                'Done',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
+    return Column(
+      children: [
+        Text(
+          'Thank you so much for your time!!',
+          style: Theme.of(context)
+              .textTheme
+              .headline3
+              .copyWith(color: Constants.myGrey),
+        ),
+        SizedBox(height: MediaQuery.of(context).size.height / 5),
+        InkWell(
+          onTap: () {
+            setState(() {
+              isLoading = true;
+            });
+            savedataCollected();
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 18.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).accentColor,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            alignment: Alignment.center,
+            width: MediaQuery.of(context).size.width,
+            child: Text(
+              'Done',
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

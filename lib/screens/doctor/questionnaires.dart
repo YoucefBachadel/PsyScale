@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/screens/Psychiatrist/quizQuesionnaire.dart';
 import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/customSplashFactory.dart';
@@ -13,8 +12,10 @@ import 'package:psyscale/shared/widgets.dart';
 
 class Questionnaires extends StatefulWidget {
   final ValueListenable<String> search;
+  final Function changeTab;
 
-  const Questionnaires({Key key, this.search}) : super(key: key);
+  const Questionnaires({Key key, this.search, this.changeTab})
+      : super(key: key);
   @override
   _QuestionnairesState createState() => _QuestionnairesState();
 }
@@ -157,13 +158,12 @@ class _QuestionnairesState extends State<Questionnaires> {
                                           vertical: 8.0, horizontal: 50.0),
                                       child: InkWell(
                                         onTap: () {
-                                          Constants.navigationFunc(
-                                              context,
-                                              QuizQuestionnaire(
-                                                questionnaire: questionnaire,
-                                                languge: userData.language,
-                                                history: userData.history,
-                                              ));
+                                          widget.changeTab(
+                                            index: 3,
+                                            questionnaire: questionnaire,
+                                            language: userData.language,
+                                            backIndex: 7,
+                                          );
                                         },
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
