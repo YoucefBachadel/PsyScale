@@ -112,7 +112,7 @@ class _AddHybridState extends State<AddHybrid> {
     setState(() {
       isLoading = false;
     });
-    widget.changeTab(index: 10);
+    widget.changeTab(index: 9, backAppbarTitle: 'Hybrid');
   }
 
   createGoogleSheet() {
@@ -526,7 +526,6 @@ class _AddHybridState extends State<AddHybrid> {
     String _answerEn = '';
     String _answerFr = '';
     String _answerAr = '';
-    String _score = '';
     return Container(
       padding: const EdgeInsets.all(8.0),
       color: Theme.of(context).backgroundColor,
@@ -571,8 +570,6 @@ class _AddHybridState extends State<AddHybrid> {
                                               width: 1.0)),
                                       child: ListTile(
                                         title: Text(answer['answerEn']),
-                                        subtitle:
-                                            Text('score: ${answer['score']}'),
                                         trailing: IconButton(
                                           onPressed: () {
                                             setState(() {
@@ -651,7 +648,6 @@ class _AddHybridState extends State<AddHybrid> {
                         side: BorderSide(color: Constants.myGrey, width: 1.0)),
                     child: ListTile(
                       title: Text(answer['answerEn']),
-                      subtitle: Text('score: ${answer['score']}'),
                       trailing: IconButton(
                         onPressed: () {
                           setState(() {
@@ -704,20 +700,6 @@ class _AddHybridState extends State<AddHybrid> {
                     onChanged: (value) => _answerAr = value,
                   ),
                   const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _score,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    decoration: textInputDecoration(context, 'Score'),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly
-                    ],
-                    onChanged: (value) {
-                      return _score = value;
-                    },
-                  ),
-                  const SizedBox(height: 6.0),
                 ],
               ),
             ),
@@ -729,12 +711,10 @@ class _AddHybridState extends State<AddHybrid> {
                   'answerEn': _answerEn,
                   'answerFr': _answerFr,
                   'answerAr': _answerAr,
-                  'score': int.parse(_score),
                 });
                 _answerEn = '';
                 _answerFr = '';
                 _answerAr = '';
-                _score = '';
               });
             }
           }),
@@ -862,7 +842,7 @@ class _AddHybridState extends State<AddHybrid> {
                 widget.userData.personalHybrids.remove(widget.questionnaire);
                 await UsersServices(useruid: widget.userData.uid)
                     .updatePersonnalHybrids(widget.userData.personalHybrids);
-                widget.changeTab(index: 10);
+                widget.changeTab(index: 9, backAppbarTitle: 'Hybrid');
                 snackBar(context,
                     'The questionnaire hybrid has been deleted successfully');
               },

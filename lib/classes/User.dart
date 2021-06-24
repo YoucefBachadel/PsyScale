@@ -22,7 +22,7 @@ class UserData {
   final String theme;
   final Timestamp creationDate;
   final Timestamp lastSignIn;
-  final bool validated;
+  bool validated;
   List<Map<String, Object>> history;
   List<Questionnaire> personalQuestionnaires;
   List<Questionnaire> personalHybrids;

@@ -27,17 +27,17 @@ class DoctorHome extends StatefulWidget {
 
 class _DoctorHomeState extends State<DoctorHome> {
   List<Map<String, Object>> _tabs = [
-    {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 6},
-    {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 7},
-    {'icon': Icons.home, 'title': 'Hybrids', 'index': 8},
+    {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 5},
+    {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 6},
+    {'icon': Icons.home, 'title': 'Hybrid', 'index': 7},
   ];
   List<Map<String, Object>> _tabsPerosnal = [
-    {'icon': Icons.format_list_numbered, 'title': 'Questionnaires', 'index': 9},
-    {'icon': Icons.home, 'title': 'Hybrids', 'index': 10},
+    {'icon': Icons.format_list_numbered, 'title': 'Questionnaires', 'index': 8},
+    {'icon': Icons.home, 'title': 'Hybrid', 'index': 9},
   ];
 
   List<Widget> _screens = [];
-  int _selectedIndex = 6;
+  int _selectedIndex = 5;
   TextEditingController _textFieldController = TextEditingController();
   FocusNode _textFieldFocusNode = FocusNode();
   final search = ValueNotifier('');
@@ -49,7 +49,6 @@ class _DoctorHomeState extends State<DoctorHome> {
   Trouble _troubleDetailTrouble;
   String _quizLanguage;
   int _backIndex;
-  String _backAppbarTitle;
 
   @override
   void dispose() {
@@ -70,8 +69,8 @@ class _DoctorHomeState extends State<DoctorHome> {
     _addQuestionnaireQuesionnaire = questionnaire ?? null;
     _troubleDetailTrouble = trouble ?? null;
     _quizLanguage = language ?? null;
-    _backIndex = backIndex ?? 6;
-    _appBarTitle = backAppbarTitle;
+    _backIndex = backIndex ?? 5;
+    _appBarTitle = backAppbarTitle ?? '';
     setState(() {
       _selectedIndex = index;
     });
@@ -85,12 +84,6 @@ class _DoctorHomeState extends State<DoctorHome> {
       updatedLastSignIn = true;
     }
     _screens = [
-      Setting(
-        userData: userData,
-        changeTab: changePage,
-        backIndex: _backIndex,
-        backappbarTitle: _backAppbarTitle,
-      ),
       AddQuestionnaire(
         userData: userData,
         questionnaire: _addQuestionnaireQuesionnaire,
@@ -165,7 +158,7 @@ class _DoctorHomeState extends State<DoctorHome> {
               ),
         centerTitle: true,
         actions: [
-          ![0, 1, 2, 3, 4, 5].contains(_selectedIndex)
+          ![0, 1, 2, 3, 4].contains(_selectedIndex)
               ? !_isSearching
                   ? IconButton(
                       onPressed: () {
@@ -205,7 +198,7 @@ class _DoctorHomeState extends State<DoctorHome> {
               flex: 5,
               child: Column(
                 children: [
-                  ![0, 1, 2, 3, 4, 5].contains(_selectedIndex)
+                  ![0, 1, 2, 3, 4].contains(_selectedIndex)
                       ? header()
                       : SizedBox(),
                   Flexible(child: _screens[_selectedIndex]),
@@ -339,37 +332,21 @@ class _DoctorHomeState extends State<DoctorHome> {
               ListTile(
                 leading: Icon(
                   Icons.settings,
-                  color: selectedIndex == 0
-                      ? Theme.of(context).accentColor
-                      : Colors.grey,
+                  color: Colors.grey,
                 ),
                 title: Text(
                   'Setting',
-                  style: TextStyle(
-                      color: selectedIndex == 0
-                          ? Theme.of(context).accentColor
-                          : Colors.grey,
-                      fontSize: selectedIndex == 0 ? 22.0 : 16.0),
+                  style: TextStyle(color: Colors.grey, fontSize: 16.0),
                 ),
                 onTap: () {
                   if (!Responsive.isdesktop(context)) {
                     Navigator.pop(context);
                   }
-                  Responsive.isMobile(context)
-                      ? setState(() {
-                          _backIndex = _selectedIndex;
-                          _backAppbarTitle = _appBarTitle;
-                          _selectedIndex = 0;
-                          _appBarTitle = 'Setting';
-                          _isSearching = false;
-                        })
-                      : createDialog(
-                          context,
-                          Container(
-                            width: 700,
-                            child: Setting(userData: userData),
-                          ),
-                          false);
+                  createDialog(
+                    context,
+                    Container(child: Setting(userData: userData)),
+                    false,
+                  );
                 },
               ),
             ],

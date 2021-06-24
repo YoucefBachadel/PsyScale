@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
+import 'package:psyscale/screens/Admin/hybridData.dart';
+import 'package:psyscale/screens/doctor/quizHybrid.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
@@ -56,7 +58,7 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  widget.changeTab(index: 2);
+                  widget.changeTab(index: 1);
                 },
               )
             : null);
@@ -113,12 +115,22 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                                     vertical: 8.0, horizontal: 50.0),
                                 child: InkWell(
                                   onTap: () {
-                                    widget.changeTab(
-                                      index: 4,
-                                      questionnaire: questionnaire,
-                                      language: userData.language,
-                                      backIndex: 10,
-                                    );
+                                    if (Responsive.isMobile(context)) {
+                                      Constants.navigationFunc(
+                                        context,
+                                        QuizHybrid(
+                                          questionnaire: questionnaire,
+                                          languge: userData.language,
+                                        ),
+                                      );
+                                    } else {
+                                      widget.changeTab(
+                                        index: 3,
+                                        questionnaire: questionnaire,
+                                        language: userData.language,
+                                        backIndex: 9,
+                                      );
+                                    }
                                   },
                                   child: Container(
                                     padding:
@@ -144,7 +156,7 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                                       child: InkWell(
                                         onTap: () {
                                           widget.changeTab(
-                                            index: 2,
+                                            index: 1,
                                             questionnaire: questionnaire,
                                           );
                                         },
@@ -162,6 +174,40 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                                               MediaQuery.of(context).size.width,
                                           child: Text(
                                             'Update Questionnaire',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : SizedBox(),
+                              Responsive.isdesktop(context)
+                                  ? Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 50.0),
+                                      child: InkWell(
+                                        onTap: () {
+                                          Constants.navigationFunc(
+                                            context,
+                                            HybridData(
+                                                questionnaire: questionnaire),
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 16.0),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Theme.of(context).accentColor,
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                          ),
+                                          alignment: Alignment.center,
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: Text(
+                                            'Show Collected Data',
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 16),

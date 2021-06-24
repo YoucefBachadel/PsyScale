@@ -56,15 +56,6 @@ Widget loadingImage(BuildContext context, String image) {
   );
 }
 
-Widget checkYourNetwork(BuildContext context) {
-  return Container(
-    color: Colors.transparent,
-    child: Center(
-      child: Text('Check Your Network'),
-    ),
-  );
-}
-
 Widget error() {
   return Container(
     child: Column(
@@ -104,7 +95,7 @@ InputDecoration searchTextInputDecoration(
     BuildContext context, Function onPressed) {
   return InputDecoration(
     filled: true,
-    hintText: 'Search',
+    hintText: 'Search By Name',
     labelText: 'Search',
     labelStyle: TextStyle(color: Constants.myGrey),
     prefixIcon: Icon(
@@ -274,10 +265,6 @@ Widget unsupportedScreenSize(
                 width: 200,
               ),
             ),
-            // CircleAvatar(
-            //   backgroundImage: AssetImage('assets/oops.jpg'),
-            //   radius: 100,
-            // ),
             SizedBox(height: 8.0),
             Text(
               'Oops!',

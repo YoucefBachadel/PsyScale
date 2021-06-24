@@ -190,18 +190,12 @@ class _UsersState extends State<Users> {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            height: 50.0,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
             color: Constants.border,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Add New Admin',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline5
-                      .copyWith(color: Colors.white),
-                ),
                 IconButton(
                     onPressed: () {
                       Navigator.pop(context);
@@ -210,7 +204,17 @@ class _UsersState extends State<Users> {
                       Icons.close_sharp,
                       color: Colors.white,
                       size: 30.0,
-                    ))
+                    )),
+                Expanded(
+                  child: Text(
+                    'Add New Admin',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline5
+                        .copyWith(color: Colors.white),
+                  ),
+                ),
               ],
             ),
           ),
@@ -320,11 +324,11 @@ class _UsersState extends State<Users> {
             onSort(index, ascending, 'Last SignIn');
           }),
       DataColumn(label: culomnItem('Language')),
-      DataColumn(label: culomnItem('')),
     ];
     List<DataRow> rows = users.map((e) {
       return DataRow(
-        color: MaterialStateProperty.all(Colors.white),
+        onSelectChanged: (value) =>
+            createDialog(context, userCardInfo(e), true),
         cells: [
           DataCell(Text(e.name)),
           DataCell(Text(e.email)),
@@ -333,9 +337,6 @@ class _UsersState extends State<Users> {
           DataCell(Text(
               DateFormat('yyyy-MM-dd H:mm').format(e.lastSignIn.toDate()))),
           DataCell(Text(e.language)),
-          DataCell(deleteButton(context, () {
-            createDialog(context, delteAccount(e.uid), true);
-          }, text: 'Delete', color: Colors.red, icon: Icons.delete)),
         ],
       );
     }).toList();
@@ -376,11 +377,11 @@ class _UsersState extends State<Users> {
           onSort: (int index, bool ascending) {
             onSort(index, ascending, 'Validation');
           }),
-      DataColumn(label: culomnItem('')),
     ];
     List<DataRow> rows = users.map((e) {
       return DataRow(
-        color: MaterialStateProperty.all(Colors.white),
+        onSelectChanged: (value) =>
+            createDialog(context, userCardInfo(e), true),
         cells: [
           DataCell(Text(e.name)),
           DataCell(Text(e.clinicName)),
@@ -398,9 +399,6 @@ class _UsersState extends State<Users> {
                 },
                   text: 'Validate', color: Colors.green, icon: Icons.cloud_done)
               : Icon(Icons.done)),
-          DataCell(deleteButton(context, () {
-            createDialog(context, delteAccount(e.uid), true);
-          }, text: 'Delete', color: Colors.red, icon: Icons.delete)),
         ],
       );
     }).toList();
@@ -435,11 +433,11 @@ class _UsersState extends State<Users> {
             onSort(index, ascending, 'Last SignIn');
           }),
       DataColumn(label: culomnItem('Language')),
-      DataColumn(label: culomnItem('')),
     ];
     List<DataRow> rows = users.map((e) {
       return DataRow(
-        color: MaterialStateProperty.all(Colors.white),
+        onSelectChanged: (value) =>
+            createDialog(context, userCardInfo(e), true),
         cells: [
           DataCell(Text(e.name)),
           DataCell(Text(e.type)),
@@ -449,9 +447,6 @@ class _UsersState extends State<Users> {
           DataCell(Text(
               DateFormat('yyyy-MM-dd H:mm').format(e.lastSignIn.toDate()))),
           DataCell(Text(e.language)),
-          DataCell(deleteButton(context, () {
-            createDialog(context, delteAccount(e.uid), true);
-          }, text: 'Delete', color: Colors.red, icon: Icons.delete)),
         ],
       );
     }).toList();
@@ -472,10 +467,9 @@ class _UsersState extends State<Users> {
                       color: Theme.of(context).backgroundColor,
                       height: double.infinity,
                       child: DataTable(
+                        showCheckboxColumn: false,
                         sortAscending: _isAscending,
                         sortColumnIndex: _sortColumnIndex,
-                        columnSpacing: 22.0,
-                        dataRowHeight: 40.0,
                         headingRowColor: MaterialStateColor.resolveWith(
                             (states) => Theme.of(context).accentColor),
                         columns: columns,
@@ -528,6 +522,7 @@ class _UsersState extends State<Users> {
               onTap: () {
                 UsersServices().deleteUser(userUid);
                 Navigator.pop(context);
+                Navigator.pop(context);
                 snackBar(context, 'The account has been deleted successfully');
               },
               child: Container(
@@ -546,6 +541,130 @@ class _UsersState extends State<Users> {
             ),
           ),
           SizedBox(height: 12.0),
+        ],
+      ),
+    );
+  }
+
+  Widget userCardInfo(UserData userData) {
+    String type = '';
+    switch (userData.type) {
+      case 'user':
+        type = 'Simple User';
+        break;
+      case 'doctor':
+        type = 'Doctor';
+        break;
+      case 'admin':
+        type = 'Admin';
+        break;
+      case 'superAdmin':
+        type = 'Super Admin';
+        break;
+    }
+    return Container(
+      width: 500,
+      height: 300,
+      decoration: BoxDecoration(
+        color: Theme.of(context).backgroundColor,
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          width: 0.5,
+          color: Constants.border,
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            color: Constants.border,
+            height: 50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(
+                      Icons.close_sharp,
+                      color: Colors.white,
+                      size: 30.0,
+                    )),
+                Expanded(
+                  child: Text(
+                    'User Card',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline5
+                        .copyWith(color: Colors.white),
+                  ),
+                ),
+                userData.type == 'doctor' && !userData.validated
+                    ? deleteButton(context, () {
+                        UsersServices().validateDoctor(userData.uid);
+                        Navigator.pop(context);
+                        userData.validated = true;
+                        createDialog(context, userCardInfo(userData), false);
+                      },
+                        text: 'Validate',
+                        color: Colors.green,
+                        icon: Icons.cloud_done)
+                    : SizedBox(),
+                SizedBox(width: 8.0),
+                deleteButton(context, () {
+                  createDialog(context, delteAccount(userData.uid), true);
+                }, text: 'Delete User', color: Colors.red, icon: Icons.delete)
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  'User Name : ${userData.name}',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                Text(
+                  'User Email : ${userData.email}',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                userData.type == 'doctor'
+                    ? Text(
+                        'Clinic Name : ${userData.clinicName}',
+                        style: Theme.of(context).textTheme.headline6,
+                      )
+                    : SizedBox(),
+                Text(
+                  'Account Type : $type',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                userData.type == 'doctor'
+                    ? Text(
+                        'Account Validated : ${userData.validated}',
+                        style: Theme.of(context).textTheme.headline6,
+                      )
+                    : SizedBox(),
+                Text(
+                  'Creation Data : ${DateFormat('yyyy-MM-dd').format(userData.creationDate.toDate())}',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                Text(
+                  'Last Sign In : ${DateFormat('yyyy-MM-dd H:mm').format(userData.lastSignIn.toDate())}',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                Text(
+                  'Used Language : ${userData.language}',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );

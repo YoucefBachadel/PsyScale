@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
@@ -25,7 +23,6 @@ class UsersServices {
           'theme': userData.theme,
           'creationDate': Timestamp.now(),
           'lastSignIn': Timestamp.now(),
-          'imageUrl': 'avatar.png',
         });
       case 'doctor':
         return await usersCollection.doc(useruid).set({
@@ -39,7 +36,6 @@ class UsersServices {
           'creationDate': Timestamp.now(),
           'lastSignIn': Timestamp.now(),
           'validated': false,
-          'imageUrl': 'avatar.png',
         });
       case 'admin':
       case 'superAdmin':
@@ -51,7 +47,6 @@ class UsersServices {
           'theme': userData.theme,
           'creationDate': Timestamp.now(),
           'lastSignIn': Timestamp.now(),
-          'imageUrl': 'avatar.png',
         });
       default:
         return null;
@@ -67,7 +62,6 @@ class UsersServices {
           'email': userData.email,
           'language': userData.language,
           'theme': userData.theme,
-          'imageUrl': userData.imageUrl,
         });
       case 'doctor':
         return await usersCollection.doc(useruid).update({
@@ -77,7 +71,6 @@ class UsersServices {
           'language': userData.language,
           'theme': userData.theme,
           'phone': userData.phone,
-          'imageUrl': userData.imageUrl,
         });
       case 'admin':
         return await usersCollection.doc(useruid).update({
@@ -85,7 +78,6 @@ class UsersServices {
           'email': userData.email,
           'language': userData.language,
           'theme': userData.theme,
-          'imageUrl': userData.imageUrl,
         });
       default:
         return null;
@@ -207,7 +199,6 @@ class UsersServices {
       type: snapshot.data()['type'],
       language: snapshot.data()['language'],
       theme: snapshot.data()['theme'],
-      imageUrl: snapshot.data()['imageUrl'],
       creationDate: snapshot.data()['creationDate'],
       lastSignIn: snapshot.data()['lastSignIn'],
       clinicName: snapshot.data().containsKey('clinicName')
@@ -233,27 +224,27 @@ class UsersServices {
     );
   }
 
-  static Future<Widget> getUserImage(BuildContext context, String path) async {
-    try {
-      return await FirebaseStorage.instance
-          .ref()
-          .child(path)
-          .getDownloadURL()
-          .then((value) => Image.network(
-                value.toString(),
-                fit: BoxFit.cover,
-              ));
-    } catch (e) {
-      return await FirebaseStorage.instance
-          .ref()
-          .child('avatar.png')
-          .getDownloadURL()
-          .then((value) => Image.network(
-                value.toString(),
-                fit: BoxFit.cover,
-              ));
-    }
-  }
+  // static Future<Widget> getUserImage(BuildContext context, String path) async {
+  //   try {
+  //     return await FirebaseStorage.instance
+  //         .ref()
+  //         .child(path)
+  //         .getDownloadURL()
+  //         .then((value) => Image.network(
+  //               value.toString(),
+  //               fit: BoxFit.cover,
+  //             ));
+  //   } catch (e) {
+  //     return await FirebaseStorage.instance
+  //         .ref()
+  //         .child('avatar.png')
+  //         .getDownloadURL()
+  //         .then((value) => Image.network(
+  //               value.toString(),
+  //               fit: BoxFit.cover,
+  //             ));
+  //   }
+  // }
 
   //  delete trouble data
   Future deleteUser(String uid) {

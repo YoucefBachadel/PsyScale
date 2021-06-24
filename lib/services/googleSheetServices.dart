@@ -37,30 +37,6 @@ class GoogleSheetApi {
     }
   }
 
-  Future fillStudentsSheets() async {
-    final spreadsheet = await gsheet
-        .spreadsheet('1ToixrUhL3HeP0XOR5F-9AoStsOFAlDx4u88B8DMs8pk');
-    userSheet =
-        await _getWorkSheet(spreadsheet: spreadsheet, title: 'Origin Students');
-
-    final json = await userSheet.values.map.allRows();
-    print(json.length);
-    userSheet = await _getWorkSheet(
-        spreadsheet: spreadsheet,
-        title: 'Anxiety disorder in college students');
-
-    List<List<String>> allRows = [];
-    json.forEach((element) async {
-      List<String> row = [];
-      element.values.forEach((element) {
-        row.add(transferToInt(element));
-      });
-      allRows.add(row);
-    });
-
-    userSheet.values.appendRows(allRows);
-  }
-
   addQuestionsRow(List<String> items) {
     try {
       userSheet
@@ -77,6 +53,37 @@ class GoogleSheetApi {
     } catch (e) {
       print('Init Error: $e');
     }
+  }
+
+  Future<List<Map<String, String>>> getHybridData(
+      String spreadsheetId, String workSheetTitle) async {
+    final spreadsheet = await gsheet.spreadsheet(spreadsheetId);
+    userSheet =
+        await _getWorkSheet(spreadsheet: spreadsheet, title: workSheetTitle);
+    return await userSheet.values.map.allRows();
+  }
+
+  Future fillStudentsSheets() async {
+    final spreadsheet = await gsheet
+        .spreadsheet('1ToixrUhL3HeP0XOR5F-9AoStsOFAlDx4u88B8DMs8pk');
+    userSheet =
+        await _getWorkSheet(spreadsheet: spreadsheet, title: 'Origin Students');
+
+    final json = await userSheet.values.map.allRows();
+    userSheet = await _getWorkSheet(
+        spreadsheet: spreadsheet,
+        title: 'Anxiety disorder in college students');
+
+    List<List<String>> allRows = [];
+    json.forEach((element) {
+      List<String> row = [];
+      element.values.forEach((element) {
+        row.add(transferToInt(element));
+      });
+      allRows.add(row);
+    });
+
+    userSheet.values.appendRows(allRows);
   }
 
   String transferToInt(String value) {

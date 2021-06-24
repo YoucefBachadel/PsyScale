@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
+import 'package:psyscale/screens/doctor/quizQuesionnaire.dart';
 import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/customSplashFactory.dart';
@@ -158,12 +159,22 @@ class _QuestionnairesState extends State<Questionnaires> {
                                           vertical: 8.0, horizontal: 50.0),
                                       child: InkWell(
                                         onTap: () {
-                                          widget.changeTab(
-                                            index: 3,
-                                            questionnaire: questionnaire,
-                                            language: userData.language,
-                                            backIndex: 7,
-                                          );
+                                          if (Responsive.isMobile(context)) {
+                                            Constants.navigationFunc(
+                                              context,
+                                              QuizQuestionnaire(
+                                                questionnaire: questionnaire,
+                                                languge: userData.language,
+                                              ),
+                                            );
+                                          } else {
+                                            widget.changeTab(
+                                              index: 2,
+                                              questionnaire: questionnaire,
+                                              language: userData.language,
+                                              backIndex: 6,
+                                            );
+                                          }
                                         },
                                         child: Container(
                                           padding: EdgeInsets.symmetric(

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
+import 'package:psyscale/screens/Admin/hybridData.dart';
 import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
 import 'package:psyscale/shared/constants.dart';
@@ -131,14 +132,7 @@ class _HybridState extends State<Hybrid> {
             color: Colors.white,
           ),
           onPressed: () {
-            widget.changeTab(1, null);
-            // Constants.navigationFunc(
-            //   context,
-            //   AddHybrid(
-            //     questionnaire: null,
-            //     userData: userData,
-            //   ),
-            // );
+            widget.changeTab(index: 1);
           },
         ));
   }
@@ -163,14 +157,10 @@ class _HybridState extends State<Hybrid> {
                     elevation: 2.0,
                     child: InkWell(
                       onTap: () {
-                        widget.changeTab(1, questionnaire);
-                        // Constants.navigationFunc(
-                        //   context,
-                        //   AddHybrid(
-                        //     questionnaire: questionnaire,
-                        //     userData: userData,
-                        //   ),
-                        // );
+                        Constants.navigationFunc(
+                          context,
+                          HybridData(questionnaire: questionnaire),
+                        );
                       },
                       child: ListTile(
                         title: Padding(
@@ -181,6 +171,13 @@ class _HybridState extends State<Hybrid> {
                           questionnaire.getDescreption(userData.language),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 3,
+                        ),
+                        trailing: IconButton(
+                          onPressed: () {
+                            widget.changeTab(
+                                index: 1, questionnaire: questionnaire);
+                          },
+                          icon: Icon(Icons.edit),
                         ),
                       ),
                     ),
@@ -233,14 +230,10 @@ class _HybridState extends State<Hybrid> {
                                 elevation: 2.0,
                                 child: InkWell(
                                   onTap: () {
-                                    widget.changeTab(1, questionnaire);
-                                    // Constants.navigationFunc(
-                                    //   context,
-                                    //   AddHybrid(
-                                    //     questionnaire: questionnaire,
-                                    //     userData: userData,
-                                    //   ),
-                                    // );
+                                    Constants.navigationFunc(
+                                      context,
+                                      HybridData(questionnaire: questionnaire),
+                                    );
                                   },
                                   child: ListTile(
                                     title: Padding(
@@ -253,6 +246,14 @@ class _HybridState extends State<Hybrid> {
                                           .getDescreption(userData.language),
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 3,
+                                    ),
+                                    trailing: IconButton(
+                                      onPressed: () {
+                                        widget.changeTab(
+                                            index: 1,
+                                            questionnaire: questionnaire);
+                                      },
+                                      icon: Icon(Icons.edit),
                                     ),
                                   ),
                                 ),

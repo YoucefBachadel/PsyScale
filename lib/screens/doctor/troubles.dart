@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
+import 'package:psyscale/screens/doctor/trouble_details.dart';
 import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
@@ -184,11 +185,21 @@ class _TroublesState extends State<Troubles> {
                             trouble.hybrids.add(hybrid);
                           }
                         });
-                        widget.changeTab(
-                          index: 5,
-                          trouble: trouble,
-                          language: userData.language,
-                        );
+                        if (Responsive.isMobile(context)) {
+                          Constants.navigationFunc(
+                            context,
+                            TroubleDetails(
+                              trouble: trouble,
+                              language: userData.language,
+                            ),
+                          );
+                        } else {
+                          widget.changeTab(
+                            index: 4,
+                            trouble: trouble,
+                            language: userData.language,
+                          );
+                        }
                       },
                       child: Stack(
                         children: [

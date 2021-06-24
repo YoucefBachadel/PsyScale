@@ -166,32 +166,46 @@ class Questionnaire {
     return answers;
   }
 
-  List<Map<String, Object>> getClassesList(String language) {
-    List<Map<String, Object>> _list = this.classes;
-    List<Map<String, Object>> classes = [];
-    int _score = 1;
-    String classLanguage = 'classEn';
-
-    switch (language) {
-      case 'English':
-        classLanguage = 'classEn';
-        break;
-      case 'Français':
-        classLanguage = 'classFr';
-        break;
-      case 'العربية':
-        classLanguage = 'classAr';
-        break;
+  List<Map<String, Object>> getHybridsAnswersList(String language, int index) {
+    List<Map<String, Object>> _list;
+    List<Map<String, Object>> answers = [];
+    String answerLanguage;
+    if (index == 0) {
+      _list = this.classes;
+      answerLanguage = 'classEn';
+      switch (language) {
+        case 'English':
+          answerLanguage = 'classEn';
+          break;
+        case 'Français':
+          answerLanguage = 'classFr';
+          break;
+        case 'العربية':
+          answerLanguage = 'classAr';
+          break;
+      }
+    } else {
+      _list = this.questionsAnswers[index - 1].answers;
+      answerLanguage = 'answerEn';
+      switch (language) {
+        case 'English':
+          answerLanguage = 'answerEn';
+          break;
+        case 'Français':
+          answerLanguage = 'answerFr';
+          break;
+        case 'العربية':
+          answerLanguage = 'answerAr';
+          break;
+      }
     }
-    _list.forEach((element) {
-      classes.add({
-        'answer': element[classLanguage],
-        'score': _score,
-      });
-      _score++;
-    });
 
-    return classes;
+    _list.forEach((element) {
+      answers.add({
+        'answer': element[answerLanguage],
+      });
+    });
+    return answers;
   }
 
   List<Map<String, Object>> getEvaluationList(String language) {

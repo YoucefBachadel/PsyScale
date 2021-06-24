@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
+import 'package:psyscale/screens/doctor/quizQuesionnaire.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/customSplashFactory.dart';
 import 'package:psyscale/shared/responsive.dart';
@@ -61,7 +62,7 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  widget.changeTab(index: 1);
+                  widget.changeTab(index: 0);
                 },
               )
             : null);
@@ -136,12 +137,22 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
                                           vertical: 8.0, horizontal: 50.0),
                                       child: InkWell(
                                         onTap: () {
-                                          widget.changeTab(
-                                            index: 3,
-                                            questionnaire: questionnaire,
-                                            language: userData.language,
-                                            backIndex: 9,
-                                          );
+                                          if (Responsive.isMobile(context)) {
+                                            Constants.navigationFunc(
+                                              context,
+                                              QuizQuestionnaire(
+                                                questionnaire: questionnaire,
+                                                languge: userData.language,
+                                              ),
+                                            );
+                                          } else {
+                                            widget.changeTab(
+                                              index: 2,
+                                              questionnaire: questionnaire,
+                                              language: userData.language,
+                                              backIndex: 8,
+                                            );
+                                          }
                                         },
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
@@ -173,7 +184,7 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
                                       child: InkWell(
                                         onTap: () {
                                           widget.changeTab(
-                                            index: 1,
+                                            index: 0,
                                             questionnaire: questionnaire,
                                           );
                                         },

@@ -112,7 +112,7 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
     setState(() {
       isLoading = false;
     });
-    widget.changeTab(index: 9);
+    widget.changeTab(index: 8, backAppbarTitle: 'Questionnaires');
   }
 
   @override
@@ -1214,7 +1214,7 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                 await UsersServices(useruid: widget.userData.uid)
                     .updatePersonnalQuestionnaires(
                         widget.userData.personalHybrids);
-                widget.changeTab(index: 9);
+                widget.changeTab(index: 8, backAppbarTitle: 'Questionnaires');
                 snackBar(
                     context, 'The questionnaire has been deleted successfully');
               },

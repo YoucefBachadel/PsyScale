@@ -139,14 +139,7 @@ class _QuestionnairesState extends State<Questionnaires> {
             color: Colors.white,
           ),
           onPressed: () {
-            widget.changeTab(0, null);
-            // Constants.navigationFunc(
-            //   context,
-            //   AddQuestionnaire(
-            //     questionnaire: null,
-            //     userData: userData,
-            //   ),
-            // );
+            widget.changeTab(index: 0);
           },
         ));
   }
@@ -171,14 +164,8 @@ class _QuestionnairesState extends State<Questionnaires> {
                     elevation: 2.0,
                     child: InkWell(
                       onTap: () {
-                        widget.changeTab(0, questionnaire);
-                        // Constants.navigationFunc(
-                        //   context,
-                        //   AddQuestionnaire(
-                        //     questionnaire: questionnaire,
-                        //     userData: userData,
-                        //   ),
-                        // );
+                        widget.changeTab(
+                            index: 0, questionnaire: questionnaire);
                       },
                       child: ListTile(
                         title: Padding(
@@ -241,14 +228,8 @@ class _QuestionnairesState extends State<Questionnaires> {
                                 elevation: 2.0,
                                 child: InkWell(
                                   onTap: () {
-                                    widget.changeTab(0, questionnaire);
-                                    // Constants.navigationFunc(
-                                    //   context,
-                                    //   AddQuestionnaire(
-                                    //     questionnaire: questionnaire,
-                                    //     userData: userData,
-                                    //   ),
-                                    // );
+                                    widget.changeTab(
+                                        index: 0, questionnaire: questionnaire);
                                   },
                                   child: ListTile(
                                     title: Padding(

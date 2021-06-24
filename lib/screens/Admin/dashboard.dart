@@ -10,6 +10,7 @@ import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
 import 'package:psyscale/services/userServices.dart';
 import 'package:psyscale/shared/constants.dart';
+import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
 class Dashboard extends StatefulWidget {
@@ -114,7 +115,7 @@ class _DashboardState extends State<Dashboard> {
                   .compareTo(trouble1.questionnaresCount);
         });
         break;
-      case 'Hybrides':
+      case 'Hybrid':
         troubles.sort((trouble1, trouble2) {
           return !_isAscending
               ? trouble1.hybridesCount.compareTo(trouble2.hybridesCount)
@@ -131,47 +132,67 @@ class _DashboardState extends State<Dashboard> {
     _hybridsCount = 0;
 
     return Scaffold(
-      body: Row(
-        children: [
-          Flexible(
-            flex: 2,
-            child: StreamBuilder(
-                stream: TroublesServices().troubleData,
+      body: Responsive.isdesktop(context)
+          ? Row(
+              children: [
+                Flexible(
+                  flex: 2,
+                  child: psychologyRessources(),
+                ),
+                Flexible(
+                  child: allUsers(),
+                ),
+              ],
+            )
+          : SingleChildScrollView(
+              child: Column(children: [psychologyRessources(), allUsers()])),
+    );
+  }
+
+  Widget psychologyRessources() {
+    return StreamBuilder(
+        stream: TroublesServices().troubleData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            QuerySnapshot data = snapshot.data;
+            _troublesCount = data.docs.length;
+            getTroublesList(data);
+            return StreamBuilder(
+                stream: QuestionnairesServices().questionnaireData,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     QuerySnapshot data = snapshot.data;
-                    _troublesCount = data.docs.length;
-                    getTroublesList(data);
+                    _questionnairesCount = data.docs.length;
+                    getQuestionnairesList(data);
                     return StreamBuilder(
-                        stream: QuestionnairesServices().questionnaireData,
+                        stream: HybridServices().hybridData,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             QuerySnapshot data = snapshot.data;
-                            _questionnairesCount = data.docs.length;
-                            getQuestionnairesList(data);
-                            return StreamBuilder(
-                                stream: HybridServices().hybridData,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    QuerySnapshot data = snapshot.data;
-                                    _hybridsCount = data.docs.length;
-                                    getHybridsList(data);
-                                    return Column(
-                                      children: [
-                                        Flexible(
-                                          flex: 2,
-                                          child: ressources(),
-                                        ),
-                                        Flexible(
-                                          flex: 5,
-                                          child: troublesDetailes(),
-                                        ),
-                                      ],
-                                    );
-                                  } else {
-                                    return loading(context);
-                                  }
-                                });
+                            _hybridsCount = data.docs.length;
+                            getHybridsList(data);
+                            return Responsive.isdesktop(context)
+                                ? Column(
+                                    children: [
+                                      Flexible(
+                                        flex: 2,
+                                        child: ressources(),
+                                      ),
+                                      Flexible(
+                                        flex: 5,
+                                        child: troublesDetailes(),
+                                      ),
+                                    ],
+                                  )
+                                : Column(
+                                    children: [
+                                      Container(
+                                        height: 230,
+                                        child: ressources(),
+                                      ),
+                                      troublesDetailes(),
+                                    ],
+                                  );
                           } else {
                             return loading(context);
                           }
@@ -179,14 +200,11 @@ class _DashboardState extends State<Dashboard> {
                   } else {
                     return loading(context);
                   }
-                }),
-          ),
-          Flexible(
-            child: allUsers(),
-          ),
-        ],
-      ),
-    );
+                });
+          } else {
+            return loading(context);
+          }
+        });
   }
 
   Widget allUsers() {
@@ -266,7 +284,7 @@ class _DashboardState extends State<Dashboard> {
         'index': 4,
       },
       {
-        'title': 'Hybrides',
+        'title': 'Hybrid',
         'icon': Icons.home,
         'count': _hybridsCount.toString(),
         'index': 5,
@@ -280,7 +298,10 @@ class _DashboardState extends State<Dashboard> {
         children: items
             .map((e) => InkWell(
                   onTap: () {
-                    widget.changeTab(e['index'], null);
+                    widget.changeTab(
+                      index: e['index'],
+                      backAppbarTitle: e['title'],
+                    );
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -297,7 +318,6 @@ class _DashboardState extends State<Dashboard> {
                           leading: Icon(
                             e['icon'],
                             size: 30.0,
-                            color: Colors.black,
                           ),
                           title: Text(e['title'],
                               overflow: TextOverflow.ellipsis,
@@ -376,11 +396,11 @@ class _DashboardState extends State<Dashboard> {
                   setState(() {
                     _sortColumnIndex = columnIndex;
                     _isAscending = ascending;
-                    _sortBy = 'Hybrides';
+                    _sortBy = 'Hybrid';
                   });
                 },
                 label: Text(
-                  'Hybrides',
+                  'Hybrid',
                   style: Theme.of(context)
                       .textTheme
                       .subtitle1
@@ -402,7 +422,8 @@ class _DashboardState extends State<Dashboard> {
                 }
               });
               return DataRow(
-                  color: MaterialStateProperty.all(Colors.white),
+                  color:
+                      MaterialStateProperty.all(Theme.of(context).primaryColor),
                   cells: [
                     DataCell(
                       Row(
@@ -485,7 +506,6 @@ class _DashboardState extends State<Dashboard> {
                 Text(
                   'of ${_usersCount + _psychiatristsCount + _adminsCount + _superAdminsCount}',
                   style: Theme.of(context).textTheme.headline4.copyWith(
-                        color: Colors.black,
                         fontWeight: FontWeight.w600,
                         height: 0.5,
                       ),
@@ -499,10 +519,13 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget userCardInfo(
-      IconData icon, String title, int numOfUsers, Color color, int tapIndex) {
+      IconData icon, String title, int numOfUsers, Color color, int tabIndex) {
     return InkWell(
       onTap: () {
-        widget.changeTab(tapIndex, null);
+        widget.changeTab(
+          index: tabIndex,
+          backAppbarTitle: tabIndex == 8 ? 'Admins' : title,
+        );
       },
       child: Container(
         margin: EdgeInsets.only(top: 8.0),

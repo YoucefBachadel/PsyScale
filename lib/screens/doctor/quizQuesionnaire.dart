@@ -314,7 +314,15 @@ class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
         SizedBox(height: MediaQuery.of(context).size.height / 5),
         InkWell(
           onTap: () {
-            widget.changeTab(index: widget.backIndex);
+            if (Responsive.isMobile(context)) {
+              Navigator.pop(context);
+            } else {
+              widget.changeTab(
+                index: widget.backIndex,
+                backAppbarTitle:
+                    widget.backIndex == 5 ? 'Troubles' : 'Questionnaires',
+              );
+            }
           },
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 18.0),

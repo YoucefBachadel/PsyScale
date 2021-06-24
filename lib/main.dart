@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
     return StreamProvider<CurrentUser>.value(
       initialData: null,
       value: AuthService().user,
-      child: ChangeNotifierProvider(
+      child: ChangeNotifierProvider<ThemeProvider>(
           create: (context) => ThemeProvider(),
           builder: (context, _) {
             final themeProvider = Provider.of<ThemeProvider>(context);
@@ -111,7 +111,12 @@ class Wrapper extends StatelessWidget {
                                   'It looks like you haven\'t activated your account yet, please check your email box and activate it!!',
                                   false,
                                 )
-                  : Scaffold(body: checkYourNetwork(context)),
+                  : Scaffold(
+                      body: unsupportedScreenSize(
+                      context,
+                      'Check Your Network Connection !!',
+                      false,
+                    )),
             );
           } else if (snapshot.connectionState == ConnectionState.waiting) {
             return loading(context);

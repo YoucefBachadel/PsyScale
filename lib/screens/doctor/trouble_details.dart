@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
+import 'package:psyscale/screens/doctor/quizHybrid.dart';
+import 'package:psyscale/screens/doctor/quizQuesionnaire.dart';
 import 'package:psyscale/shared/customSplashFactory.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
@@ -118,8 +120,8 @@ class _TroubleDetailsState extends State<TroubleDetails>
                     unselectedLabelColor: Colors.white,
                     tabs: <Tab>[
                       Tab(text: "About"),
-                      Tab(text: "Tests"),
-                      Tab(text: "Hybrids"),
+                      Tab(text: "Questionnaires"),
+                      Tab(text: "Hybrid"),
                     ],
                     controller: _tabController,
                   ),
@@ -219,12 +221,22 @@ class _TroubleDetailsState extends State<TroubleDetails>
                                       vertical: 8.0, horizontal: 50.0),
                                   child: InkWell(
                                     onTap: () {
-                                      widget.changeTab(
-                                        index: 3,
-                                        questionnaire: questionnaire,
-                                        language: widget.language,
-                                        backIndex: 6,
-                                      );
+                                      if (Responsive.isMobile(context)) {
+                                        Constants.navigationFunc(
+                                          context,
+                                          QuizQuestionnaire(
+                                            questionnaire: questionnaire,
+                                            languge: widget.language,
+                                          ),
+                                        );
+                                      } else {
+                                        widget.changeTab(
+                                          index: 2,
+                                          questionnaire: questionnaire,
+                                          language: widget.language,
+                                          backIndex: 5,
+                                        );
+                                      }
                                     },
                                     child: Container(
                                       padding:
@@ -304,12 +316,22 @@ class _TroubleDetailsState extends State<TroubleDetails>
                                     vertical: 8.0, horizontal: 50.0),
                                 child: InkWell(
                                   onTap: () {
-                                    widget.changeTab(
-                                      index: 4,
-                                      questionnaire: questionnaire,
-                                      language: widget.language,
-                                      backIndex: 6,
-                                    );
+                                    if (Responsive.isMobile(context)) {
+                                      Constants.navigationFunc(
+                                        context,
+                                        QuizHybrid(
+                                          questionnaire: questionnaire,
+                                          languge: widget.language,
+                                        ),
+                                      );
+                                    } else {
+                                      widget.changeTab(
+                                        index: 3,
+                                        questionnaire: questionnaire,
+                                        language: widget.language,
+                                        backIndex: 5,
+                                      );
+                                    }
                                   },
                                   child: Container(
                                     padding:

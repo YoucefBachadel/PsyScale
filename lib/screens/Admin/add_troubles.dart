@@ -100,10 +100,15 @@ class _AddTroublesState extends State<AddTroubles> {
           title: appBar(context,
               widget.trouble == null ? 'Add Trouble' : 'Update Trouble', ''),
           centerTitle: true,
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.close)),
           actions: [
             widget.trouble != null
                 ? Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.only(right: 8.0),
                     child: deleteButton(context, () {
                       createDialog(
                           context, delteTrouble(widget.trouble.uid), true);

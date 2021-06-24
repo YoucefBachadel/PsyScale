@@ -27,7 +27,7 @@ class _AdminHomeState extends State<AdminHome> {
     {'icon': Icons.home, 'title': 'Dashboard', 'index': 2},
     {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 3},
     {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 4},
-    {'icon': Icons.home, 'title': 'Hybrids', 'index': 5},
+    {'icon': Icons.home, 'title': 'Hybrid', 'index': 5},
     {
       'icon': Icons.supervised_user_circle_rounded,
       'title': 'Users',
@@ -41,6 +41,7 @@ class _AdminHomeState extends State<AdminHome> {
   FocusNode _textFieldFocusNode = FocusNode();
   final search = ValueNotifier('');
   bool updatedLastSignIn = false;
+  bool themeChanged = false;
   String _appBarTitle = 'Dashboard';
   bool _isSearching = false;
 
@@ -56,8 +57,13 @@ class _AdminHomeState extends State<AdminHome> {
     super.dispose();
   }
 
-  void changePage(int index, Questionnaire questionnaire) {
+  void changePage({
+    int index,
+    Questionnaire questionnaire,
+    String backAppbarTitle,
+  }) {
     _addQuestionnaireQuesionnaire = questionnaire;
+    _appBarTitle = backAppbarTitle;
     setState(() {
       _selectedIndex = index;
     });
@@ -66,6 +72,7 @@ class _AdminHomeState extends State<AdminHome> {
   @override
   Widget build(BuildContext context) {
     final userData = Provider.of<UserData>(context);
+
     if (userData != null && !updatedLastSignIn) {
       UsersServices(useruid: userData.uid).updatelastSignIn();
       updatedLastSignIn = true;
@@ -305,9 +312,10 @@ class _AdminHomeState extends State<AdminHome> {
                     Navigator.pop(context);
                   }
                   createDialog(
-                      context,
-                      Container(width: 700, child: Setting(userData: userData)),
-                      false);
+                    context,
+                    Container(child: Setting(userData: userData)),
+                    false,
+                  );
                 },
               ),
             ],

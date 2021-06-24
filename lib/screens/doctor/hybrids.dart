@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
+import 'package:psyscale/screens/doctor/quizHybrid.dart';
 import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
@@ -129,12 +130,22 @@ class _HybridsState extends State<Hybrids> {
                                     vertical: 8.0, horizontal: 50.0),
                                 child: InkWell(
                                   onTap: () {
-                                    widget.changeTab(
-                                      index: 4,
-                                      questionnaire: questionnaire,
-                                      language: userData.language,
-                                      backIndex: 8,
-                                    );
+                                    if (Responsive.isMobile(context)) {
+                                      Constants.navigationFunc(
+                                        context,
+                                        QuizHybrid(
+                                          questionnaire: questionnaire,
+                                          languge: userData.language,
+                                        ),
+                                      );
+                                    } else {
+                                      widget.changeTab(
+                                        index: 3,
+                                        questionnaire: questionnaire,
+                                        language: userData.language,
+                                        backIndex: 7,
+                                      );
+                                    }
                                   },
                                   child: Container(
                                     padding:

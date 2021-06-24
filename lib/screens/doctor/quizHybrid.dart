@@ -24,37 +24,38 @@ class QuizHybrid extends StatefulWidget {
 
 class _QuizHybridState extends State<QuizHybrid> {
   int _currentQuestionIndex = 0;
-  List<int> _choises;
-  String _choisedClass;
+  List<String> _choises;
   bool isLoading = false;
   GoogleSheetApi _googleSheetApi = GoogleSheetApi();
 
   @override
   void initState() {
     _choises =
-        List<int>.filled(widget.questionnaire.getQuestionsCount() + 1, -1);
+        List<String>.filled(widget.questionnaire.getQuestionsCount() + 1, '');
 
     super.initState();
   }
 
   savedataCollected() {
-    List<String> items = [];
-    items.add(_choisedClass);
-    for (int i = 1; i < _choises.length; i++) {
-      items.add(_choises[i].toString());
-    }
     _googleSheetApi
         .init(
       widget.questionnaire.stockageUrl,
       widget.questionnaire.nameEn,
-      items,
+      _choises,
       'items',
     )
         .then((value) {
       setState(() {
         isLoading = true;
       });
-      widget.changeTab(index: widget.backIndex);
+      if (Responsive.isMobile(context)) {
+        Navigator.pop(context);
+      } else {
+        widget.changeTab(
+          index: widget.backIndex,
+          backAppbarTitle: widget.backIndex == 5 ? 'Troubles' : 'Hybrid',
+        );
+      }
     });
   }
 
@@ -184,13 +185,12 @@ class _QuizHybridState extends State<QuizHybrid> {
           _question = 'اختر الفئة التي ينتمي إليها مريضك';
           break;
       }
-      _answers = widget.questionnaire.getClassesList(widget.languge);
     } else {
       _question = widget.questionnaire
           .getQuesAnsQuestion(widget.languge, _currentQuestionIndex - 1);
-      _answers = widget.questionnaire
-          .getAnswersList(widget.languge, _currentQuestionIndex - 1);
     }
+    _answers = widget.questionnaire
+        .getHybridsAnswersList(widget.languge, _currentQuestionIndex);
 
     return Column(
       children: [
@@ -209,10 +209,7 @@ class _QuizHybridState extends State<QuizHybrid> {
                 (answer) => InkWell(
                   onTap: () {
                     setState(() {
-                      if (_currentQuestionIndex == 0) {
-                        _choisedClass = answer['answer'];
-                      }
-                      _choises[_currentQuestionIndex] = answer['score'];
+                      _choises[_currentQuestionIndex] = answer['answer'];
                     });
                   },
                   child: Container(
@@ -223,7 +220,7 @@ class _QuizHybridState extends State<QuizHybrid> {
                         border: Border.all(
                             width: 2.0,
                             color: _choises[_currentQuestionIndex] ==
-                                    answer['score']
+                                    answer['answer']
                                 ? Theme.of(context).accentColor
                                 : Constants.myGrey),
                         borderRadius: BorderRadius.circular(15.0),
@@ -269,7 +266,7 @@ class _QuizHybridState extends State<QuizHybrid> {
                       ? Icons.done
                       : Icons.arrow_forward_ios_outlined),
                   onPressed: () {
-                    _choises[_currentQuestionIndex] != -1
+                    _choises[_currentQuestionIndex] != ''
                         ? setState(() {
                             _currentQuestionIndex++;
                           })

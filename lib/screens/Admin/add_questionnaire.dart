@@ -91,7 +91,10 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
         setState(() {
           isLoading = false;
         });
-        widget.changeTab(4, null);
+        widget.changeTab(
+          index: 4,
+          backAppbarTitle: 'Questionnaires',
+        );
       }
     });
   }
@@ -116,7 +119,10 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
     setState(() {
       isLoading = false;
     });
-    widget.changeTab(4, null);
+    widget.changeTab(
+      index: 4,
+      backAppbarTitle: 'Questionnaires',
+    );
   }
 
   @override
@@ -1218,7 +1224,10 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
               onTap: () {
                 QuestionnairesServices().deleteQuestionnaire(questionnaireUid);
                 Navigator.pop(context);
-                widget.changeTab(4, null);
+                widget.changeTab(
+                  index: 4,
+                  backAppbarTitle: 'Questionnaires',
+                );
                 snackBar(
                     context, 'The questionnaire has been deleted successfully');
               },
