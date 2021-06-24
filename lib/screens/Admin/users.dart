@@ -35,7 +35,6 @@ class _UsersState extends State<Users> {
             type: doc['type'],
             name: doc['name'],
             email: doc['email'],
-            imageUrl: doc['imageUrl'],
             language: doc['language'],
             creationDate: doc['creationDate'],
             lastSignIn: doc['lastSignIn'],
@@ -48,7 +47,6 @@ class _UsersState extends State<Users> {
             clinicName: doc['clinicName'],
             email: doc['email'],
             phone: doc['phone'],
-            imageUrl: doc['imageUrl'],
             language: doc['language'],
             creationDate: doc['creationDate'],
             lastSignIn: doc['lastSignIn'],
@@ -61,7 +59,6 @@ class _UsersState extends State<Users> {
             type: doc['type'],
             name: doc['name'],
             email: doc['email'],
-            imageUrl: doc['imageUrl'],
             language: doc['language'],
             creationDate: doc['creationDate'],
             lastSignIn: doc['lastSignIn'],
@@ -265,7 +262,6 @@ class _UsersState extends State<Users> {
                             name: _newUserName,
                             email: _newEmail,
                             language: 'English',
-                            theme: 'System',
                           );
 
                           await UsersServices(useruid: userData.uid)

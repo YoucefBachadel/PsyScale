@@ -21,14 +21,13 @@ class Setting extends StatefulWidget {
 
 class _SettingState extends State<Setting> {
   final List<String> themes = ['System', 'Light', 'Dark'];
-  String _userName, _language, _theme;
+  String _userName, _language;
   AuthService _auth = AuthService();
   bool isLoading = false;
   bool changeUserName = false;
   save(UserData userData) async {
     if (_userName != widget.userData.name ||
-        _language != widget.userData.language ||
-        _theme != widget.userData.theme) {
+        _language != widget.userData.language) {
       setState(() {
         isLoading = true;
       });
@@ -42,7 +41,6 @@ class _SettingState extends State<Setting> {
                 type: widget.userData.type,
                 language:
                     _language == null ? widget.userData.language : _language,
-                theme: _theme == null ? widget.userData.theme : _theme,
                 history: widget.userData.history,
               ),
               'user');
@@ -56,7 +54,6 @@ class _SettingState extends State<Setting> {
                 type: widget.userData.type,
                 language:
                     _language == null ? widget.userData.language : _language,
-                theme: _theme == null ? widget.userData.theme : _theme,
                 history: widget.userData.history,
               ),
               'doctor');
@@ -71,7 +68,6 @@ class _SettingState extends State<Setting> {
                 type: widget.userData.type,
                 language:
                     _language == null ? widget.userData.language : _language,
-                theme: _theme == null ? widget.userData.theme : _theme,
                 history: widget.userData.history,
               ),
               'admin');
@@ -97,7 +93,6 @@ class _SettingState extends State<Setting> {
   void initState() {
     _userName = widget.userData.name;
     _language = widget.userData.language;
-    _theme = widget.userData.theme;
 
     super.initState();
   }
@@ -170,7 +165,6 @@ class _SettingState extends State<Setting> {
                       );
                     }).toList(),
                     onChanged: (value) {
-                      _theme = value;
                       themeProvider.toggleTheme(value);
                     },
                   ),

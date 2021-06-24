@@ -46,7 +46,6 @@ class AuthService {
           name: name,
           email: email,
           language: 'English',
-          theme: 'System',
         );
       } else {
         userData = UserData(
@@ -55,7 +54,6 @@ class AuthService {
           email: email,
           phone: phone,
           language: 'English',
-          theme: 'System',
         );
       }
 

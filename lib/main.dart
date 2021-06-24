@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -55,77 +56,86 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Wrapper extends StatelessWidget {
+class Wrapper extends StatefulWidget {
+  @override
+  _WrapperState createState() => _WrapperState();
+}
+
+class _WrapperState extends State<Wrapper> {
+  bool networkConnected = false;
+
+  checkNetworkConnection() async {
+    networkConnected =
+        await Connectivity().checkConnectivity() != ConnectivityResult.none;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CurrentUser>(context);
-    // GoogleSheetApi().fillStudentsSheets();
+    checkNetworkConnection();
+    if (networkConnected) {
+      final user = Provider.of<CurrentUser>(context);
+      // GoogleSheetApi().fillStudentsSheets();
 
-    // return either HomePages or Authenticate widget
-    if (user == null) {
-      return Responsive.isMobile(context)
-          ? !kIsWeb
-              ? UserHome(
-                  userData: UserData(
-                      uid: 'gest',
-                      name: '',
-                      language: 'English',
-                      theme: 'System',
-                      imageUrl: 'avatar.png',
-                      history: null),
-                )
-              : Material(
-                  child: unsupportedScreenSize(
-                  context,
-                  'The visitor interface is not supported for the web',
-                  false,
-                ))
-          : SignIn();
-    } else {
-      return StreamBuilder<UserData>(
-        stream: UsersServices(useruid: user.uid).userData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            UserData userData = snapshot.data;
+      // return either HomePages or Authenticate widget
+      if (user == null) {
+        return Responsive.isMobile(context)
+            ? !kIsWeb
+                ? UserHome(
+                    userData: UserData(
+                        uid: 'gest',
+                        name: '',
+                        language: 'English',
+                        history: null),
+                  )
+                : Material(
+                    child: unsupportedScreenSize(
+                    context,
+                    'The visitor interface is not supported for the web',
+                    false,
+                  ))
+            : SignIn();
+      } else {
+        return StreamBuilder<UserData>(
+          stream: UsersServices(useruid: user.uid).userData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.active) {
+              UserData userData = snapshot.data;
 
-            return StreamProvider<UserData>.value(
-              initialData: null,
-              value: UsersServices(useruid: user.uid).userData,
-              child: userData != null
-                  ? userData.type == 'admin' || userData.type == 'superAdmin'
-                      ? AdminHome()
-                      : userData.type == 'doctor'
-                          ? userData.validated
-                              ? DoctorHome()
-                              : unsupportedScreenSize(
-                                  context,
-                                  'It looks like your account hasn\'t been validated yet, please be patient!!',
-                                  false,
-                                )
-                          : userData.user.emailVerified
-                              ? UserHome(
-                                  userData: userData,
-                                )
-                              : unsupportedScreenSize(
-                                  context,
-                                  'It looks like you haven\'t activated your account yet, please check your email box and activate it!!',
-                                  false,
-                                )
-                  : Scaffold(
-                      body: unsupportedScreenSize(
-                      context,
-                      'Check Your Network Connection !!',
-                      false,
-                    )),
-            );
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return loading(context);
-          } else {
-            return error();
-          }
-        },
-      );
+              return StreamProvider<UserData>.value(
+                  initialData: null,
+                  value: UsersServices(useruid: user.uid).userData,
+                  child: userData != null
+                      ? userData.type == 'admin' ||
+                              userData.type == 'superAdmin'
+                          ? AdminHome()
+                          : userData.type == 'doctor'
+                              ? userData.validated
+                                  ? DoctorHome()
+                                  : unsupportedScreenSize(
+                                      context,
+                                      'It looks like your account hasn\'t been validated yet, please be patient!!',
+                                      false,
+                                    )
+                              : userData.user.emailVerified
+                                  ? UserHome(
+                                      userData: userData,
+                                    )
+                                  : unsupportedScreenSize(
+                                      context,
+                                      'It looks like you haven\'t activated your account yet, please check your email box and activate it!!',
+                                      false,
+                                    )
+                      : checkNetwork(context));
+            } else if (snapshot.connectionState == ConnectionState.waiting) {
+              return loading(context);
+            } else {
+              return error();
+            }
+          },
+        );
+      }
     }
+    return checkNetwork(context);
   }
 }
 // class MyApp extends StatelessWidget {

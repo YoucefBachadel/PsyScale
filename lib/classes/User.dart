@@ -15,11 +15,9 @@ class UserData {
   final String name;
   final String clinicName;
   final String email;
-  final String imageUrl;
   final String phone;
   final String type;
   final String language;
-  final String theme;
   final Timestamp creationDate;
   final Timestamp lastSignIn;
   bool validated;
@@ -31,13 +29,11 @@ class UserData {
       {this.uid,
       this.name,
       this.user,
-      this.imageUrl,
       this.clinicName,
       this.email,
       this.phone,
       this.type,
       this.language,
-      this.theme,
       this.creationDate,
       this.lastSignIn,
       this.validated,

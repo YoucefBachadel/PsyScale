@@ -20,7 +20,6 @@ class UsersServices {
           'email': userData.email,
           'type': type,
           'language': userData.language,
-          'theme': userData.theme,
           'creationDate': Timestamp.now(),
           'lastSignIn': Timestamp.now(),
         });
@@ -31,7 +30,6 @@ class UsersServices {
           'email': userData.email,
           'type': type,
           'language': userData.language,
-          'theme': userData.theme,
           'phone': userData.phone,
           'creationDate': Timestamp.now(),
           'lastSignIn': Timestamp.now(),
@@ -44,7 +42,6 @@ class UsersServices {
           'email': userData.email,
           'type': type,
           'language': userData.language,
-          'theme': userData.theme,
           'creationDate': Timestamp.now(),
           'lastSignIn': Timestamp.now(),
         });
@@ -61,7 +58,6 @@ class UsersServices {
           'name': userData.name,
           'email': userData.email,
           'language': userData.language,
-          'theme': userData.theme,
         });
       case 'doctor':
         return await usersCollection.doc(useruid).update({
@@ -69,7 +65,6 @@ class UsersServices {
           'clinicName': userData.clinicName,
           'email': userData.email,
           'language': userData.language,
-          'theme': userData.theme,
           'phone': userData.phone,
         });
       case 'admin':
@@ -77,7 +72,6 @@ class UsersServices {
           'name': userData.name,
           'email': userData.email,
           'language': userData.language,
-          'theme': userData.theme,
         });
       default:
         return null;
@@ -198,7 +192,6 @@ class UsersServices {
       email: snapshot.data()['email'],
       type: snapshot.data()['type'],
       language: snapshot.data()['language'],
-      theme: snapshot.data()['theme'],
       creationDate: snapshot.data()['creationDate'],
       lastSignIn: snapshot.data()['lastSignIn'],
       clinicName: snapshot.data().containsKey('clinicName')
@@ -223,28 +216,6 @@ class UsersServices {
           : null,
     );
   }
-
-  // static Future<Widget> getUserImage(BuildContext context, String path) async {
-  //   try {
-  //     return await FirebaseStorage.instance
-  //         .ref()
-  //         .child(path)
-  //         .getDownloadURL()
-  //         .then((value) => Image.network(
-  //               value.toString(),
-  //               fit: BoxFit.cover,
-  //             ));
-  //   } catch (e) {
-  //     return await FirebaseStorage.instance
-  //         .ref()
-  //         .child('avatar.png')
-  //         .getDownloadURL()
-  //         .then((value) => Image.network(
-  //               value.toString(),
-  //               fit: BoxFit.cover,
-  //             ));
-  //   }
-  // }
 
   //  delete trouble data
   Future deleteUser(String uid) {

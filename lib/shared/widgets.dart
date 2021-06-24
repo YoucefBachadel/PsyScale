@@ -309,3 +309,74 @@ Widget unsupportedScreenSize(
     ),
   );
 }
+
+Widget checkNetwork(BuildContext context) {
+  return Scaffold(
+    body: Center(
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        width: 300,
+        height: 450,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          border: Border.all(color: Constants.border, width: 1.0),
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3), // changes position of shadow
+            )
+          ],
+        ),
+        child: Column(
+          children: [
+            ClipOval(
+              child: Image(
+                image: AssetImage('assets/oops.jpg'),
+                fit: BoxFit.fill,
+                height: 200,
+                width: 200,
+              ),
+            ),
+            SizedBox(height: 8.0),
+            Text(
+              'Oops!',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline2
+                  .copyWith(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 12.0),
+            Text(
+              'Check Your Network Connection !!',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headline6,
+            ),
+            SizedBox(height: 12.0),
+            InkWell(
+              onTap: () {
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => MyApp()));
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).accentColor,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'Try Again',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}

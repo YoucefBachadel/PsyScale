@@ -35,6 +35,7 @@ dependencies:
   intl: ^0.17.0
   material_design_icons_flutter: ^4.0.5955
   provider: ^5.0.0
+  shared_preferences: ^2.0.6
   syncfusion_flutter_xlsio: ^19.1.69-beta
   universal_html: ^2.0.8
 
