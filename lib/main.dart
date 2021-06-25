@@ -62,7 +62,7 @@ class Wrapper extends StatefulWidget {
 }
 
 class _WrapperState extends State<Wrapper> {
-  bool networkConnected = false;
+  bool networkConnected = true;
 
   checkNetworkConnection() async {
     networkConnected =
@@ -70,8 +70,13 @@ class _WrapperState extends State<Wrapper> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
     checkNetworkConnection();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     if (networkConnected) {
       final user = Provider.of<CurrentUser>(context);
       // GoogleSheetApi().fillStudentsSheets();
