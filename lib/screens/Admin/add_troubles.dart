@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/services/troubleServices.dart';
+import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
@@ -92,169 +93,189 @@ class _AddTroublesState extends State<AddTroubles> {
 
   @override
   Widget build(BuildContext context) {
-    if (Responsive.isMobile(context)) {
-      Navigator.pop(context);
-    }
-    return Scaffold(
-        appBar: AppBar(
-          title: appBar(context,
-              widget.trouble == null ? 'Add Trouble' : 'Update Trouble', ''),
-          centerTitle: true,
-          leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(Icons.close)),
-          actions: [
-            widget.trouble != null
-                ? Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: deleteButton(context, () {
-                      createDialog(
-                          context, delteTrouble(widget.trouble.uid), true);
-                    }, text: 'Delete', color: Colors.red, icon: Icons.delete),
-                  )
-                : SizedBox(),
-          ],
-        ),
-        body: addTroublesForm());
-  }
-
-  Widget addTroublesForm() {
     final double screenWidth = MediaQuery.of(context).size.width;
-    return isLoading
-        ? loading(context)
-        : Container(
-            color: Theme.of(context).backgroundColor,
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Form(
-                      key: _formKey,
-                      child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 24.0),
-                        child: Column(children: [
-                          SizedBox(height: 10.0),
-                          TextFormField(
-                            initialValue: widget.trouble == null
-                                ? ''
-                                : widget.trouble.nameEn,
-                            validator: (value) =>
-                                value.isEmpty ? 'Enter the Name' : null,
-                            decoration:
-                                textInputDecoration(context, 'English Name'),
-                            onChanged: (value) => _nameEn = value,
+    return Scaffold(
+      body: isLoading
+          ? loading(context)
+          : Container(
+              color: Theme.of(context).backgroundColor,
+              child: Column(
+                children: [
+                  Container(
+                    height: 50.0,
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    color: Constants.border,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(
+                              Icons.close_sharp,
+                              color: Colors.white,
+                              size: 30.0,
+                            )),
+                        Expanded(
+                          child: Text(
+                            widget.trouble == null
+                                ? 'Add Trouble'
+                                : 'Update Trouble',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline5
+                                .copyWith(color: Colors.white),
                           ),
-                          SizedBox(height: 10.0),
-                          TextFormField(
-                            initialValue: widget.trouble == null
-                                ? ''
-                                : widget.trouble.nameFr,
-                            validator: (value) =>
-                                value.isEmpty ? 'Enter the Name' : null,
-                            decoration:
-                                textInputDecoration(context, 'Frensh Name'),
-                            onChanged: (value) => _nameFr = value,
-                          ),
-                          SizedBox(height: 10.0),
-                          TextFormField(
-                            initialValue: widget.trouble == null
-                                ? ''
-                                : widget.trouble.nameAr,
-                            validator: (value) =>
-                                value.isEmpty ? 'Enter the Name' : null,
-                            decoration:
-                                textInputDecoration(context, 'Arabic Name'),
-                            onChanged: (value) => _nameAr = value,
-                          ),
-                          SizedBox(height: 10.0),
-                          TextFormField(
-                            initialValue: widget.trouble == null
-                                ? ''
-                                : widget.trouble.imageUrl,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            validator: (value) =>
-                                value.isEmpty ? 'Enter the image Url' : null,
-                            decoration:
-                                textInputDecoration(context, 'Image Url'),
-                            onChanged: (value) => _imageUrl = value,
-                          ),
-                          SizedBox(height: 10.0),
-                          SizedBox(height: 10.0),
-                          TextFormField(
-                            initialValue: widget.trouble == null
-                                ? ''
-                                : widget.trouble.descreptionEn,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            validator: (value) =>
-                                value.isEmpty ? 'Enter the Descreption' : null,
-                            decoration: textInputDecoration(
-                                context, 'English Descreption'),
-                            onChanged: (value) => _descreptionEn = value,
-                          ),
-                          SizedBox(height: 10.0),
-                          TextFormField(
-                            initialValue: widget.trouble == null
-                                ? ''
-                                : widget.trouble.descreptionFr,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            validator: (value) =>
-                                value.isEmpty ? 'Enter the Descreption' : null,
-                            decoration: textInputDecoration(
-                                context, 'Frensh Descreption'),
-                            onChanged: (value) => _descreptionFr = value,
-                          ),
-                          SizedBox(height: 10.0),
-                          TextFormField(
-                            initialValue: widget.trouble == null
-                                ? ''
-                                : widget.trouble.descreptionAr,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            validator: (value) =>
-                                value.isEmpty ? 'Enter the Descreption' : null,
-                            decoration: textInputDecoration(
-                                context, 'Arabic Descreption'),
-                            onChanged: (value) => _descreptionAr = value,
-                          ),
-                          SizedBox(height: 10.0),
-                        ]),
+                        ),
+                        widget.trouble != null
+                            ? Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: deleteButton(context, () {
+                                  createDialog(context,
+                                      delteTrouble(widget.trouble.uid), true);
+                                },
+                                    text: 'Delete',
+                                    color: Colors.red,
+                                    icon: Icons.delete),
+                              )
+                            : SizedBox(),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: _formKey,
+                        child: Container(
+                          margin: EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Column(children: [
+                            SizedBox(height: 10.0),
+                            TextFormField(
+                              initialValue: widget.trouble == null
+                                  ? ''
+                                  : widget.trouble.nameEn,
+                              validator: (value) =>
+                                  value.isEmpty ? 'Enter the Name' : null,
+                              decoration:
+                                  textInputDecoration(context, 'English Name'),
+                              onChanged: (value) => _nameEn = value,
+                            ),
+                            SizedBox(height: 10.0),
+                            TextFormField(
+                              initialValue: widget.trouble == null
+                                  ? ''
+                                  : widget.trouble.nameFr,
+                              validator: (value) =>
+                                  value.isEmpty ? 'Enter the Name' : null,
+                              decoration:
+                                  textInputDecoration(context, 'Frensh Name'),
+                              onChanged: (value) => _nameFr = value,
+                            ),
+                            SizedBox(height: 10.0),
+                            TextFormField(
+                              initialValue: widget.trouble == null
+                                  ? ''
+                                  : widget.trouble.nameAr,
+                              validator: (value) =>
+                                  value.isEmpty ? 'Enter the Name' : null,
+                              decoration:
+                                  textInputDecoration(context, 'Arabic Name'),
+                              onChanged: (value) => _nameAr = value,
+                            ),
+                            SizedBox(height: 10.0),
+                            TextFormField(
+                              initialValue: widget.trouble == null
+                                  ? ''
+                                  : widget.trouble.imageUrl,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              validator: (value) =>
+                                  value.isEmpty ? 'Enter the image Url' : null,
+                              decoration:
+                                  textInputDecoration(context, 'Image Url'),
+                              onChanged: (value) => _imageUrl = value,
+                            ),
+                            SizedBox(height: 10.0),
+                            TextFormField(
+                              initialValue: widget.trouble == null
+                                  ? ''
+                                  : widget.trouble.descreptionEn,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              validator: (value) => value.isEmpty
+                                  ? 'Enter the Descreption'
+                                  : null,
+                              decoration: textInputDecoration(
+                                  context, 'English Descreption'),
+                              onChanged: (value) => _descreptionEn = value,
+                            ),
+                            SizedBox(height: 10.0),
+                            TextFormField(
+                              initialValue: widget.trouble == null
+                                  ? ''
+                                  : widget.trouble.descreptionFr,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              validator: (value) => value.isEmpty
+                                  ? 'Enter the Descreption'
+                                  : null,
+                              decoration: textInputDecoration(
+                                  context, 'Frensh Descreption'),
+                              onChanged: (value) => _descreptionFr = value,
+                            ),
+                            SizedBox(height: 10.0),
+                            TextFormField(
+                              initialValue: widget.trouble == null
+                                  ? ''
+                                  : widget.trouble.descreptionAr,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              validator: (value) => value.isEmpty
+                                  ? 'Enter the Descreption'
+                                  : null,
+                              decoration: textInputDecoration(
+                                  context, 'Arabic Descreption'),
+                              onChanged: (value) => _descreptionAr = value,
+                            ),
+                            SizedBox(height: 10.0),
+                          ]),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: InkWell(
-                    onTap: () {
-                      widget.trouble == null ? addTroubles() : updateTroubles();
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 18.0),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).accentColor,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      alignment: Alignment.center,
-                      width: Responsive.isMobile(context)
-                          ? MediaQuery.of(context).size.width
-                          : screenWidth * 0.2,
-                      child: Text(
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: InkWell(
+                      onTap: () {
                         widget.trouble == null
-                            ? 'Add Trouble'
-                            : 'Update Trouble',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                            ? addTroubles()
+                            : updateTroubles();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 18.0),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).accentColor,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        alignment: Alignment.center,
+                        width: Responsive.isMobile(context)
+                            ? MediaQuery.of(context).size.width
+                            : screenWidth * 0.2,
+                        child: Text(
+                          widget.trouble == null
+                              ? 'Add Trouble'
+                              : 'Update Trouble',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                       ),
                     ),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
-          );
+    );
   }
 
   Widget delteTrouble(String troubleUid) {
