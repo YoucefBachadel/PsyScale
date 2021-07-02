@@ -8,6 +8,7 @@ import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/screens/doctor/add_hybrid.dart';
 import 'package:psyscale/screens/doctor/add_questionnaire.dart';
 import 'package:psyscale/screens/doctor/hybridsPersonal.dart';
+import 'package:psyscale/screens/doctor/profileDoctor.dart';
 import 'package:psyscale/screens/doctor/questionnairesPersonal.dart';
 import 'package:psyscale/screens/doctor/quizHybrid.dart';
 import 'package:psyscale/screens/doctor/quizQuesionnaire.dart';
@@ -15,7 +16,6 @@ import 'package:psyscale/screens/doctor/trouble_details.dart';
 import 'package:psyscale/screens/doctor/troubles.dart';
 import 'package:psyscale/screens/doctor/questionnaires.dart';
 import 'package:psyscale/screens/doctor/hybrids.dart';
-import 'package:psyscale/screens/settings.dart';
 import 'package:psyscale/services/userServices.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
@@ -96,13 +96,11 @@ class _DoctorHomeState extends State<DoctorHome> {
       ),
       QuizQuestionnaire(
         questionnaire: _addQuestionnaireQuesionnaire,
-        languge: _quizLanguage,
         changeTab: changePage,
         backIndex: _backIndex,
       ),
       QuizHybrid(
         questionnaire: _addQuestionnaireQuesionnaire,
-        languge: _quizLanguage,
         changeTab: changePage,
         backIndex: _backIndex,
       ),
@@ -134,28 +132,32 @@ class _DoctorHomeState extends State<DoctorHome> {
   Widget mobileTabletView() {
     return Scaffold(
       appBar: AppBar(
-        title: !_isSearching
-            ? Text(_appBarTitle)
-            : ValueListenableBuilder(
-                valueListenable: search,
-                builder: (context, value, child) => TextField(
-                  controller: _textFieldController,
-                  focusNode: _textFieldFocusNode,
-                  decoration: searchTextInputDecoration(context, () {
-                    _textFieldController.clear();
-                    FocusScope.of(context).requestFocus(new FocusNode());
-                    setState(() {
-                      search.value = '';
-                      _isSearching = false;
-                    });
-                  }),
-                  onChanged: (value) {
-                    setState(() {
-                      search.value = value;
-                    });
-                  },
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(_isSearching ? 60.0 : 0.0),
+          child: !_isSearching
+              ? SizedBox()
+              : ValueListenableBuilder(
+                  valueListenable: search,
+                  builder: (context, value, child) => TextField(
+                    controller: _textFieldController,
+                    focusNode: _textFieldFocusNode,
+                    decoration: searchTextInputDecoration(context, () {
+                      _textFieldController.clear();
+                      FocusScope.of(context).requestFocus(new FocusNode());
+                      setState(() {
+                        search.value = '';
+                        _isSearching = false;
+                      });
+                    }).copyWith(),
+                    onChanged: (value) {
+                      setState(() {
+                        search.value = value;
+                      });
+                    },
+                  ),
                 ),
-              ),
+        ),
+        title: Text(_appBarTitle),
         centerTitle: true,
         actions: [
           ![0, 1, 2, 3, 4].contains(_selectedIndex)
@@ -344,7 +346,15 @@ class _DoctorHomeState extends State<DoctorHome> {
                   }
                   createDialog(
                     context,
-                    Container(child: Setting(userData: userData)),
+                    SingleChildScrollView(
+                      child: Container(
+                        height: 700,
+                        width: Responsive.isMobile(context)
+                            ? double.infinity
+                            : 700,
+                        child: ProfileDoctor(userData: userData),
+                      ),
+                    ),
                     false,
                   );
                 },

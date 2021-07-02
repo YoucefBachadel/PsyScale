@@ -78,6 +78,8 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
       nameEn: _nameEn,
       nameFr: _nameFr,
       nameAr: _nameAr,
+      defaultLanguage: 'English',
+      supportedLanguages: ['English', 'Français', 'العربية'],
       descreptionEn: _descreptionEn,
       descreptionFr: _descreptionFr,
       descreptionAr: _descreptionAr,

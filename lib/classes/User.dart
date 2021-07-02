@@ -57,6 +57,9 @@ class UserData {
           nameEn: item['nameEn'],
           nameFr: item['nameFr'],
           nameAr: item['nameAr'],
+          defaultLanguage: item['defaultLanguage'],
+          supportedLanguages:
+              Questionnaire.getStringList(item['supportedLanguages']),
           descreptionEn: item['descreptionEn'],
           descreptionFr: item['descreptionFr'],
           descreptionAr: item['descreptionAr'],
@@ -85,6 +88,9 @@ class UserData {
             nameEn: item['nameEn'],
             nameFr: item['nameFr'],
             nameAr: item['nameAr'],
+            defaultLanguage: item['defaultLanguage'],
+            supportedLanguages:
+                Questionnaire.getStringList(item['supportedLanguages']),
             descreptionEn: item['descreptionEn'],
             descreptionFr: item['descreptionFr'],
             descreptionAr: item['descreptionAr'],

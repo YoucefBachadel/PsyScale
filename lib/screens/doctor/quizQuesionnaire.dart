@@ -6,14 +6,12 @@ import 'package:psyscale/shared/widgets.dart';
 
 class QuizQuestionnaire extends StatefulWidget {
   final Questionnaire questionnaire;
-  final String languge;
   final Function changeTab;
   final int backIndex;
 
   const QuizQuestionnaire({
     Key key,
     this.questionnaire,
-    this.languge,
     this.changeTab,
     this.backIndex,
   }) : super(key: key);
@@ -22,11 +20,12 @@ class QuizQuestionnaire extends StatefulWidget {
 }
 
 class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
-  int _currentQuestionIndex = 1;
+  int _currentQuestionIndex = 0;
   List<int> _choises;
   int _maxScore = 0;
   int _totalScore = 0;
   bool isLoading = false;
+  String selectedLanguage = '';
 
   @override
   void initState() {
@@ -81,75 +80,85 @@ class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
               color: Constants.border,
               child: Column(
                 children: [
-                  Text(
-                    widget.questionnaire.getName(widget.languge),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 30.0,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 8.0),
-                  Container(
-                    width: double.infinity,
-                    height: 35,
-                    decoration: BoxDecoration(
-                        border: Border.all(color: Color(0xff3f4768), width: 3),
-                        borderRadius: BorderRadius.circular(50)),
-                    child: Stack(
-                      children: [
-                        LayoutBuilder(
-                          builder: (context, constraints) => Container(
-                            width: constraints.maxWidth *
-                                ((_currentQuestionIndex - 1) /
-                                    widget.questionnaire
-                                        .getQuestionsCount()), //cover 50%
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Theme.of(context).accentColor,
-                                  Colors.white
-                                ],
-                                stops: [0.6, 1],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                tileMode: TileMode.repeated,
-                              ),
-                              borderRadius: BorderRadius.circular(50),
+                  _currentQuestionIndex > 0
+                      ? Column(children: [
+                          Text(
+                            widget.questionnaire.getName(widget
+                                    .questionnaire.supportedLanguages
+                                    .contains(selectedLanguage)
+                                ? selectedLanguage
+                                : widget.questionnaire.defaultLanguage),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 30.0,
+                              color: Colors.white,
                             ),
                           ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Text.rich(
-                    _currentQuestionIndex <=
-                            widget.questionnaire.getQuestionsCount()
-                        ? TextSpan(
-                            text: 'Question $_currentQuestionIndex',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline4
-                                .copyWith(color: Constants.myGrey),
-                            children: [
-                                TextSpan(
-                                    text:
-                                        '/${widget.questionnaire.getQuestionsCount()}',
+                          SizedBox(height: 8.0),
+                          Container(
+                            width: double.infinity,
+                            height: 35,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Color(0xff3f4768), width: 3),
+                                borderRadius: BorderRadius.circular(50)),
+                            child: Stack(
+                              children: [
+                                LayoutBuilder(
+                                  builder: (context, constraints) => Container(
+                                    width: constraints.maxWidth *
+                                        ((_currentQuestionIndex - 1) /
+                                            widget.questionnaire
+                                                .getQuestionsCount()), //cover 50%
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Theme.of(context).accentColor,
+                                          Colors.white
+                                        ],
+                                        stops: [0.6, 1],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                        tileMode: TileMode.repeated,
+                                      ),
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Text.rich(
+                            _currentQuestionIndex <=
+                                    widget.questionnaire.getQuestionsCount()
+                                ? TextSpan(
+                                    text: 'Question $_currentQuestionIndex',
                                     style: Theme.of(context)
                                         .textTheme
-                                        .headline5
-                                        .copyWith(color: Constants.myGrey))
-                              ])
-                        : TextSpan(
-                            text: 'Done!!',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline4
-                                .copyWith(color: Constants.myGrey),
+                                        .headline4
+                                        .copyWith(color: Constants.myGrey),
+                                    children: [
+                                        TextSpan(
+                                            text:
+                                                '/${widget.questionnaire.getQuestionsCount()}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline5
+                                                .copyWith(
+                                                    color: Constants.myGrey))
+                                      ])
+                                : TextSpan(
+                                    text: 'Done!!',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline4
+                                        .copyWith(color: Constants.myGrey),
+                                  ),
                           ),
-                  ),
+                        ])
+                      : SizedBox(),
                   Spacer(flex: 1),
-                  divider(),
+                  _currentQuestionIndex > 0 ? divider() : SizedBox(),
                   Spacer(flex: 2),
                   Container(
                     padding: EdgeInsets.all(16.0),
@@ -157,10 +166,12 @@ class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(25),
                     ),
-                    child: _currentQuestionIndex <=
-                            widget.questionnaire.getQuestionsCount()
-                        ? questionsQuiz()
-                        : score(),
+                    child: _currentQuestionIndex == 0
+                        ? selectLanguage()
+                        : _currentQuestionIndex <=
+                                widget.questionnaire.getQuestionsCount()
+                            ? questionsQuiz()
+                            : score(),
                   ),
                   Spacer(flex: 2),
                 ],
@@ -169,19 +180,76 @@ class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
     );
   }
 
+  Widget selectLanguage() {
+    return Column(
+      children: [
+        Text(
+          'Select a language',
+          textAlign: TextAlign.center,
+          style: Theme.of(context)
+              .textTheme
+              .headline6
+              .copyWith(color: Colors.black, fontWeight: FontWeight.w700),
+        ),
+        SizedBox(height: 10.0),
+        Column(
+          children: widget.questionnaire.supportedLanguages
+              .map(
+                (language) => InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedLanguage = language;
+                      _currentQuestionIndex++;
+                    });
+                  },
+                  child: Container(
+                      width: MediaQuery.of(context).size.width - 100,
+                      margin: EdgeInsets.only(top: 10.0),
+                      padding: EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 2.0, color: Constants.myGrey),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: Text(
+                        language,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headline6.copyWith(
+                            color: Constants.myGrey,
+                            fontWeight: FontWeight.w400),
+                      )),
+                ),
+              )
+              .toList(),
+        ),
+      ],
+    );
+  }
+
   Widget questionsQuiz() {
     String _question = '';
     List<Map<String, Object>> _answers = [];
-
     if (widget.questionnaire.type == '1') {
-      _question = widget.questionnaire
-          .getQuesionsList(widget.languge)[_currentQuestionIndex - 1];
-      _answers = widget.questionnaire.getAnswersList(widget.languge, 0);
+      _question = widget.questionnaire.getQuesionsList(widget
+              .questionnaire.supportedLanguages
+              .contains(selectedLanguage)
+          ? selectedLanguage
+          : widget.questionnaire.defaultLanguage)[_currentQuestionIndex - 1];
+      _answers = widget.questionnaire.getAnswersList(
+          widget.questionnaire.supportedLanguages.contains(selectedLanguage)
+              ? selectedLanguage
+              : widget.questionnaire.defaultLanguage,
+          0);
     } else {
-      _question = widget.questionnaire
-          .getQuesAnsQuestion(widget.languge, _currentQuestionIndex - 1);
-      _answers = widget.questionnaire
-          .getAnswersList(widget.languge, _currentQuestionIndex - 1);
+      _question = widget.questionnaire.getQuesAnsQuestion(
+          widget.questionnaire.supportedLanguages.contains(selectedLanguage)
+              ? selectedLanguage
+              : widget.questionnaire.defaultLanguage,
+          _currentQuestionIndex - 1);
+      _answers = widget.questionnaire.getAnswersList(
+          widget.questionnaire.supportedLanguages.contains(selectedLanguage)
+              ? selectedLanguage
+              : widget.questionnaire.defaultLanguage,
+          _currentQuestionIndex - 1);
     }
 
     return Column(
@@ -285,7 +353,12 @@ class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
     });
 
     // get the right message for the total score
-    widget.questionnaire.getEvaluationList(widget.languge).forEach((element) {
+    widget.questionnaire
+        .getEvaluationList(
+            widget.questionnaire.supportedLanguages.contains(selectedLanguage)
+                ? selectedLanguage
+                : widget.questionnaire.defaultLanguage)
+        .forEach((element) {
       if (_totalScore >= element['from'] && _totalScore <= element['to']) {
         _message = element['message'];
       }

@@ -97,7 +97,7 @@ InputDecoration searchTextInputDecoration(
     filled: true,
     hintText: 'Search By Name',
     labelText: 'Search',
-    labelStyle: TextStyle(color: Constants.myGrey),
+    labelStyle: TextStyle(color: Constants.border),
     prefixIcon: Icon(
       Icons.search,
       size: 30.0,
@@ -105,7 +105,10 @@ InputDecoration searchTextInputDecoration(
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10.0),
-      borderSide: BorderSide.none,
+      borderSide: BorderSide(
+        color: Constants.myGrey,
+        width: 0.5,
+      ),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10.0),
@@ -376,6 +379,37 @@ Widget checkNetwork(BuildContext context) {
             ),
           ],
         ),
+      ),
+    ),
+  );
+}
+
+Widget customButton(
+    {BuildContext context,
+    double width,
+    Function onTap,
+    IconData icon,
+    String text}) {
+  return InkWell(
+    onTap: onTap,
+    child: Container(
+      padding: EdgeInsets.symmetric(vertical: 18.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).accentColor,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      alignment: Alignment.center,
+      width: width,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.white),
+          SizedBox(width: 6.0),
+          Text(
+            text,
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ],
       ),
     ),
   );

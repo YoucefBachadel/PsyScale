@@ -8,10 +8,10 @@ import 'package:psyscale/screens/Admin/add_hybrid.dart';
 import 'package:psyscale/screens/Admin/add_questionnaire.dart';
 import 'package:psyscale/screens/Admin/dashboard.dart';
 import 'package:psyscale/screens/Admin/hybrid.dart';
+import 'package:psyscale/screens/Admin/profileAdmin.dart';
 import 'package:psyscale/screens/Admin/questionnaires.dart';
 import 'package:psyscale/screens/Admin/troubles.dart';
 import 'package:psyscale/screens/Admin/users.dart';
-import 'package:psyscale/screens/settings.dart';
 import 'package:psyscale/services/userServices.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
@@ -313,7 +313,11 @@ class _AdminHomeState extends State<AdminHome> {
                   }
                   createDialog(
                     context,
-                    Container(child: Setting(userData: userData)),
+                    Container(
+                      height: 500,
+                      width: 700,
+                      child: ProfileAdmin(userData: userData),
+                    ),
                     false,
                   );
                 },

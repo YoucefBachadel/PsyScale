@@ -125,26 +125,16 @@ class _SignInState extends State<SignIn> {
                         ],
                       ),
                       SizedBox(height: 14.0),
-                      InkWell(
-                        onTap: () {
-                          signIn();
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 18.0),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).accentColor,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          alignment: Alignment.center,
+                      customButton(
+                          context: context,
+                          text: 'Sign In',
+                          icon: Icons.login,
                           width: Responsive.isMobile(context)
                               ? MediaQuery.of(context).size.width
                               : screenWidth * 0.2,
-                          child: Text(
-                            'Sign In',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                        ),
-                      ),
+                          onTap: () {
+                            signIn();
+                          }),
                       SizedBox(
                         height: 18.0,
                       ),

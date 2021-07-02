@@ -50,6 +50,11 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
   List<QuestionAnswer> _questionsAnswers = [];
   List<Map<String, Object>> _localAnswers = [];
   List<Map<String, Object>> _evaluations = [];
+  String _defaultLanguage = '';
+  List<String> _supportedLanguages = [];
+  bool _isEnglishSupported = true;
+  bool _isFrenchSupported = true;
+  bool _isArabicSupported = true;
 
   getTroublesList(QuerySnapshot data) async {
     troubles.clear();
@@ -73,6 +78,17 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
     if (widget.userData.personalQuestionnaires == null) {
       widget.userData.personalQuestionnaires = [];
     }
+
+    _supportedLanguages = [];
+    if (_isEnglishSupported)
+      _defaultLanguage = 'English';
+    else if (_isFrenchSupported)
+      _defaultLanguage = 'Français';
+    else if (_isArabicSupported) _defaultLanguage = 'العربية';
+
+    if (_isEnglishSupported) _supportedLanguages.add('English');
+    if (_isFrenchSupported) _supportedLanguages.add('Français');
+    if (_isArabicSupported) _supportedLanguages.add('العربية');
     Questionnaire questionnaire;
     if (widget.questionnaire == null) {
       questionnaire = Questionnaire(
@@ -81,6 +97,8 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
         nameEn: _nameEn,
         nameFr: _nameFr,
         nameAr: _nameAr,
+        defaultLanguage: _defaultLanguage,
+        supportedLanguages: _supportedLanguages,
         descreptionEn: _descreptionEn,
         descreptionFr: _descreptionFr,
         descreptionAr: _descreptionAr,
@@ -96,6 +114,8 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
         nameEn: _nameEn,
         nameFr: _nameFr,
         nameAr: _nameAr,
+        defaultLanguage: _defaultLanguage,
+        supportedLanguages: _supportedLanguages,
         descreptionEn: _descreptionEn,
         descreptionFr: _descreptionFr,
         descreptionAr: _descreptionAr,
@@ -123,6 +143,11 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
       _nameEn = widget.questionnaire.nameEn;
       _nameFr = widget.questionnaire.nameFr;
       _nameAr = widget.questionnaire.nameAr;
+      _defaultLanguage = widget.questionnaire.defaultLanguage;
+      _supportedLanguages = widget.questionnaire.supportedLanguages;
+      _isEnglishSupported = _supportedLanguages.contains('English');
+      _isFrenchSupported = _supportedLanguages.contains('Français');
+      _isArabicSupported = _supportedLanguages.contains('العربية');
       _descreptionEn = widget.questionnaire.descreptionEn;
       _descreptionFr = widget.questionnaire.descreptionFr;
       _descreptionAr = widget.questionnaire.descreptionAr;
@@ -362,61 +387,152 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                           }
                         })
                     : SizedBox(),
-                SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _nameEn,
-                  validator: (value) => value.isEmpty ? 'Enter the Name' : null,
-                  decoration: textInputDecoration(context, 'English Name'),
+                const SizedBox(height: 10.0),
+                Text('Supported Languages:'),
+                const SizedBox(height: 6.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: ListTile(
+                        title: Text('English'),
+                        leading: Checkbox(
+                          value: _isEnglishSupported,
+                          onChanged: (value) {
+                            if (!(_isEnglishSupported &&
+                                    !_isFrenchSupported &&
+                                    !_isArabicSupported) &&
+                                (widget.questionnaire == null ||
+                                    !widget.questionnaire.supportedLanguages
+                                        .contains('English'))) {
+                              setState(() {
+                                _isEnglishSupported = !_isEnglishSupported;
+                              });
+                            }
+                          },
+                        ),
+                        onTap: () {
+                          if (!(_isEnglishSupported &&
+                                  !_isFrenchSupported &&
+                                  !_isArabicSupported) &&
+                              (widget.questionnaire == null ||
+                                  !widget.questionnaire.supportedLanguages
+                                      .contains('English'))) {
+                            setState(() {
+                              _isEnglishSupported = !_isEnglishSupported;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: ListTile(
+                        title: Text('Français'),
+                        leading: Checkbox(
+                          value: _isFrenchSupported,
+                          onChanged: (value) {
+                            if (!(_isFrenchSupported &&
+                                    !_isEnglishSupported &&
+                                    !_isArabicSupported) &&
+                                (widget.questionnaire == null ||
+                                    !widget.questionnaire.supportedLanguages
+                                        .contains('Français'))) {
+                              setState(() {
+                                _isFrenchSupported = !_isFrenchSupported;
+                              });
+                            }
+                          },
+                        ),
+                        onTap: () {
+                          if (!(_isFrenchSupported &&
+                                  !_isEnglishSupported &&
+                                  !_isArabicSupported) &&
+                              (widget.questionnaire == null ||
+                                  !widget.questionnaire.supportedLanguages
+                                      .contains('Français'))) {
+                            setState(() {
+                              _isFrenchSupported = !_isFrenchSupported;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: ListTile(
+                        title: Text('العربية'),
+                        leading: Checkbox(
+                          value: _isArabicSupported,
+                          onChanged: (value) {
+                            if (!(_isArabicSupported &&
+                                    !_isFrenchSupported &&
+                                    !_isEnglishSupported) &&
+                                (widget.questionnaire == null ||
+                                    !widget.questionnaire.supportedLanguages
+                                        .contains('العربية'))) {
+                              setState(() {
+                                _isArabicSupported = !_isArabicSupported;
+                              });
+                            }
+                          },
+                        ),
+                        onTap: () {
+                          if (!(_isArabicSupported &&
+                                  !_isFrenchSupported &&
+                                  !_isEnglishSupported) &&
+                              (widget.questionnaire == null ||
+                                  !widget.questionnaire.supportedLanguages
+                                      .contains('العربية'))) {
+                            setState(() {
+                              _isArabicSupported = !_isArabicSupported;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                formItem(
+                  supportedLanguage: _isEnglishSupported,
+                  initialVlue: _nameEn,
                   onChanged: (value) => _nameEn = value,
+                  hint: 'English Name',
+                  validatorMessage: 'Enter the Name',
                 ),
-                SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _nameFr,
-                  validator: (value) => value.isEmpty ? 'Enter the Name' : null,
-                  decoration: textInputDecoration(context, 'Frensh Name'),
+                formItem(
+                  supportedLanguage: _isFrenchSupported,
+                  initialVlue: _nameFr,
                   onChanged: (value) => _nameFr = value,
+                  hint: 'Frensh Name',
+                  validatorMessage: 'Enter the Name',
                 ),
-                SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _nameAr,
-                  validator: (value) => value.isEmpty ? 'Enter the Name' : null,
-                  decoration: textInputDecoration(context, 'Arabic Name'),
+                formItem(
+                  supportedLanguage: _isArabicSupported,
+                  initialVlue: _nameAr,
                   onChanged: (value) => _nameAr = value,
+                  hint: 'Arabic Name',
+                  validatorMessage: 'Enter the Name',
                 ),
-                SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _descreptionEn,
-                  validator: (value) =>
-                      value.isEmpty ? 'Enter the Descreption' : null,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration:
-                      textInputDecoration(context, 'English Descreption'),
+                formItem(
+                  supportedLanguage: _isEnglishSupported,
+                  initialVlue: _descreptionEn,
                   onChanged: (value) => _descreptionEn = value,
+                  hint: 'English Descreption',
+                  validatorMessage: 'Enter the Descreption',
                 ),
-                SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _descreptionFr,
-                  validator: (value) =>
-                      value.isEmpty ? 'Enter the Descreption' : null,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration:
-                      textInputDecoration(context, 'Frensh Descreption'),
+                formItem(
+                  supportedLanguage: _isFrenchSupported,
+                  initialVlue: _descreptionFr,
                   onChanged: (value) => _descreptionFr = value,
+                  hint: 'Frensh Descreption',
+                  validatorMessage: 'Enter the Descreption',
                 ),
-                SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _descreptionAr,
-                  validator: (value) =>
-                      value.isEmpty ? 'Enter the Descreption' : null,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration:
-                      textInputDecoration(context, 'Arabic Descreption'),
+                formItem(
+                  supportedLanguage: _isArabicSupported,
+                  initialVlue: _descreptionAr,
                   onChanged: (value) => _descreptionAr = value,
-                ),
-                SizedBox(height: 6.0),
+                  hint: 'Arabic Descreption',
+                  validatorMessage: 'Enter the Descreption',
+                )
               ]),
             ),
           ),
@@ -453,7 +569,11 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                     shape: RoundedRectangleBorder(
                         side: BorderSide(color: Constants.myGrey, width: 1.0)),
                     child: ListTile(
-                      title: Text(question['questionEn']),
+                      title: Text(_isEnglishSupported
+                          ? question['questionEn']
+                          : _isFrenchSupported
+                              ? question['questionFr']
+                              : question['questionAr']),
                       trailing: IconButton(
                         onPressed: () {
                           setState(() {
@@ -474,38 +594,27 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
               margin: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Column(
                 children: [
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _questionEn,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration:
-                        textInputDecoration(context, 'English Question'),
+                  formItem(
+                    supportedLanguage: _isEnglishSupported,
+                    initialVlue: _questionEn,
                     onChanged: (value) => _questionEn = value,
+                    hint: 'English Question',
+                    validatorMessage: 'Enter the Question',
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _questionFr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Frensh Question'),
+                  formItem(
+                    supportedLanguage: _isFrenchSupported,
+                    initialVlue: _questionFr,
                     onChanged: (value) => _questionFr = value,
+                    hint: 'Frensh Question',
+                    validatorMessage: 'Enter the Question',
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _questionAr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Arabic Question'),
+                  formItem(
+                    supportedLanguage: _isArabicSupported,
+                    initialVlue: _questionAr,
                     onChanged: (value) => _questionAr = value,
+                    hint: 'Arabic Question',
+                    validatorMessage: 'Enter the Question',
                   ),
-                  SizedBox(height: 6.0),
                 ],
               ),
             ),
@@ -581,7 +690,11 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                     shape: RoundedRectangleBorder(
                         side: BorderSide(color: Constants.myGrey, width: 1.0)),
                     child: ListTile(
-                      title: Text(answer['answerEn']),
+                      title: Text(_isEnglishSupported
+                          ? answer['answerEn']
+                          : _isFrenchSupported
+                              ? answer['answerFr']
+                              : answer['answerAr']),
                       subtitle: Text('score: ${answer['score']}'),
                       trailing: IconButton(
                         onPressed: () {
@@ -603,35 +716,26 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
               margin: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Column(
                 children: [
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _answerEn,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'English Answer'),
+                  formItem(
+                    supportedLanguage: _isEnglishSupported,
+                    initialVlue: _answerEn,
                     onChanged: (value) => _answerEn = value,
+                    hint: 'English Answer',
+                    validatorMessage: 'Enter the Answer',
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _answerFr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Frensh Answer'),
+                  formItem(
+                    supportedLanguage: _isFrenchSupported,
+                    initialVlue: _answerFr,
                     onChanged: (value) => _answerFr = value,
+                    hint: 'Frensh Answer',
+                    validatorMessage: 'Enter the Answer',
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _answerAr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Arabic Answer'),
+                  formItem(
+                    supportedLanguage: _isArabicSupported,
+                    initialVlue: _answerAr,
                     onChanged: (value) => _answerAr = value,
+                    hint: 'Arabic Answer',
+                    validatorMessage: 'Enter the Answer',
                   ),
                   SizedBox(height: 6.0),
                   TextFormField(
@@ -732,7 +836,11 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                       shape: RoundedRectangleBorder(
                           side:
                               BorderSide(color: Constants.myGrey, width: 1.0)),
-                      title: Text(questionAnswer.questionEn),
+                      title: Text(_isEnglishSupported
+                          ? questionAnswer.questionEn
+                          : _isFrenchSupported
+                              ? questionAnswer.questionFr
+                              : questionAnswer.questionAr),
                       trailing: IconButton(
                         onPressed: () {
                           setState(() {
@@ -758,7 +866,11 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                                               color: Constants.myGrey,
                                               width: 1.0)),
                                       child: ListTile(
-                                        title: Text(answer['answerEn']),
+                                        title: Text(_isEnglishSupported
+                                            ? answer['answerEn']
+                                            : _isFrenchSupported
+                                                ? answer['answerFr']
+                                                : answer['answerAr']),
                                         subtitle:
                                             Text('score: ${answer['score']}'),
                                         trailing: IconButton(
@@ -791,38 +903,27 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
               margin: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Column(
                 children: [
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localQuestionEn,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration:
-                        textInputDecoration(context, 'English Question'),
+                  formItem(
+                    supportedLanguage: _isEnglishSupported,
+                    initialVlue: _localQuestionEn,
                     onChanged: (value) => _localQuestionEn = value,
+                    hint: 'English Question',
+                    validatorMessage: 'Enter the Question',
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localQuestionFr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Frensh Question'),
+                  formItem(
+                    supportedLanguage: _isFrenchSupported,
+                    initialVlue: _localQuestionFr,
                     onChanged: (value) => _localQuestionFr = value,
+                    hint: 'Frensh Question',
+                    validatorMessage: 'Enter the Question',
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localQuestionAr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Arabic Question'),
+                  formItem(
+                    supportedLanguage: _isArabicSupported,
+                    initialVlue: _localQuestionAr,
                     onChanged: (value) => _localQuestionAr = value,
+                    hint: 'Arabic Question',
+                    validatorMessage: 'Enter the Question',
                   ),
-                  SizedBox(height: 6.0),
                 ],
               ),
             ),
@@ -837,7 +938,11 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                     shape: RoundedRectangleBorder(
                         side: BorderSide(color: Constants.myGrey, width: 1.0)),
                     child: ListTile(
-                      title: Text(answer['answerEn']),
+                      title: Text(_isEnglishSupported
+                          ? answer['answerEn']
+                          : _isFrenchSupported
+                              ? answer['answerFr']
+                              : answer['answerAr']),
                       subtitle: Text('score: ${answer['score']}'),
                       trailing: IconButton(
                         onPressed: () {
@@ -859,35 +964,26 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
               margin: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Column(
                 children: [
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _answerEn,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'English Answer'),
+                  formItem(
+                    supportedLanguage: _isEnglishSupported,
+                    initialVlue: _answerEn,
                     onChanged: (value) => _answerEn = value,
+                    hint: 'English Answer',
+                    validatorMessage: 'Enter the Answer',
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _answerFr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Frensh Answer'),
+                  formItem(
+                    supportedLanguage: _isFrenchSupported,
+                    initialVlue: _answerFr,
                     onChanged: (value) => _answerFr = value,
+                    hint: 'Frensh Answer',
+                    validatorMessage: 'Enter the Answer',
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _answerAr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Arabic Answer'),
+                  formItem(
+                    supportedLanguage: _isArabicSupported,
+                    initialVlue: _answerAr,
                     onChanged: (value) => _answerAr = value,
+                    hint: 'Arabic Answer',
+                    validatorMessage: 'Enter the Answer',
                   ),
                   SizedBox(height: 6.0),
                   TextFormField(
@@ -1011,27 +1107,32 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
       child: Column(
         children: [
           Column(
-            children: _evaluations
-                .map((evaluation) => Card(
-                    shape: RoundedRectangleBorder(
-                        side: BorderSide(color: Constants.myGrey, width: 1.0)),
-                    child: ListTile(
-                      title: Text(
-                          'From: ${evaluation['from']}, To: ${evaluation['to']}'),
-                      subtitle: Text('message: ${evaluation['messageEn']}'),
-                      trailing: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _evaluations.remove(evaluation);
-                          });
-                        },
-                        icon: Icon(
-                          Icons.delete,
-                          color: Constants.border,
-                        ),
+            children: _evaluations.map((evaluation) {
+              String message = _isEnglishSupported
+                  ? evaluation['messageEn']
+                  : _isFrenchSupported
+                      ? evaluation['messageFr']
+                      : evaluation['messageAr'];
+              return Card(
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: Constants.myGrey, width: 1.0)),
+                  child: ListTile(
+                    title: Text(
+                        'From: ${evaluation['from']}, To: ${evaluation['to']}'),
+                    subtitle: Text('message: $message'),
+                    trailing: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _evaluations.remove(evaluation);
+                        });
+                      },
+                      icon: Icon(
+                        Icons.delete,
+                        color: Constants.border,
                       ),
-                    )))
-                .toList(),
+                    ),
+                  ));
+            }).toList(),
           ),
           Form(
             key: _evaluationsformKey,
@@ -1068,37 +1169,27 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                       return _to = value;
                     },
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _messageEn,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'English Message'),
+                  formItem(
+                    supportedLanguage: _isEnglishSupported,
+                    initialVlue: _messageEn,
                     onChanged: (value) => _messageEn = value,
+                    hint: 'English Message',
+                    validatorMessage: 'Enter the Message',
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _messageFr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Frensh Message'),
+                  formItem(
+                    supportedLanguage: _isFrenchSupported,
+                    initialVlue: _messageFr,
                     onChanged: (value) => _messageFr = value,
+                    hint: 'Frensh Message',
+                    validatorMessage: 'Enter the Message',
                   ),
-                  SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _messageAr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Arabic Message'),
+                  formItem(
+                    supportedLanguage: _isArabicSupported,
+                    initialVlue: _messageAr,
                     onChanged: (value) => _messageAr = value,
+                    hint: 'Arabic Message',
+                    validatorMessage: 'Enter the Message',
                   ),
-                  SizedBox(height: 6.0),
                 ],
               ),
             ),
@@ -1161,6 +1252,27 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
     );
   }
 
+  Widget formItem(
+      {bool supportedLanguage,
+      String initialVlue,
+      Function onChanged,
+      String validatorMessage,
+      String hint}) {
+    return supportedLanguage
+        ? Column(children: [
+            const SizedBox(height: 6.0),
+            TextFormField(
+              initialValue: initialVlue,
+              validator: (value) => value.isEmpty ? validatorMessage : null,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              decoration: textInputDecoration(context, hint),
+              onChanged: onChanged,
+            ),
+          ])
+        : SizedBox();
+  }
+
   Widget button(String text, Function onTap) {
     return InkWell(
       onTap: onTap,
@@ -1213,7 +1325,9 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                     .remove(widget.questionnaire);
                 await UsersServices(useruid: widget.userData.uid)
                     .updatePersonnalQuestionnaires(
-                        widget.userData.personalHybrids);
+                        widget.userData.personalQuestionnaires);
+
+                Navigator.pop(context);
                 widget.changeTab(index: 8, backAppbarTitle: 'Questionnaires');
                 snackBar(
                     context, 'The questionnaire has been deleted successfully');

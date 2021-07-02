@@ -105,7 +105,6 @@ class _WrapperState extends State<Wrapper> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.active) {
               UserData userData = snapshot.data;
-
               return StreamProvider<UserData>.value(
                   initialData: null,
                   value: UsersServices(useruid: user.uid).userData,
@@ -130,7 +129,11 @@ class _WrapperState extends State<Wrapper> {
                                       'It looks like you haven\'t activated your account yet, please check your email box and activate it!!',
                                       false,
                                     )
-                      : checkNetwork(context));
+                      : unsupportedScreenSize(
+                          context,
+                          'Something is wrong!!',
+                          true,
+                        ));
             } else if (snapshot.connectionState == ConnectionState.waiting) {
               return loading(context);
             } else {

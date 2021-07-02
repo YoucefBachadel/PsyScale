@@ -49,6 +49,14 @@ class _UsersState extends State<Users> {
             phone: doc['phone'],
             language: doc['language'],
             creationDate: doc['creationDate'],
+            personalQuestionnaires:
+                doc.data().containsKey('personalQuestionnaires')
+                    ? UserData.getPersonalQuestionnaires(
+                        doc['personalQuestionnaires'])
+                    : [],
+            personalHybrids: doc.data().containsKey('personalHybrids')
+                ? UserData.getPersonalHybrids(doc['personalHybrids'])
+                : [],
             lastSignIn: doc['lastSignIn'],
             validated: doc['validated'],
           ));
@@ -560,7 +568,7 @@ class _UsersState extends State<Users> {
     }
     return Container(
       width: 500,
-      height: 300,
+      height: userData.type == 'doctor' ? 530 : 350,
       decoration: BoxDecoration(
         color: Theme.of(context).backgroundColor,
         borderRadius: BorderRadius.circular(12.0),
@@ -589,7 +597,11 @@ class _UsersState extends State<Users> {
                     )),
                 Expanded(
                   child: Text(
-                    'User Card',
+                    userData.type == 'user'
+                        ? 'User Card'
+                        : userData.type == 'doctor'
+                            ? 'Doctor Card'
+                            : 'Admin Card',
                     textAlign: TextAlign.center,
                     style: Theme.of(context)
                         .textTheme
@@ -615,52 +627,72 @@ class _UsersState extends State<Users> {
               ],
             ),
           ),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Text(
-                  'User Name : ${userData.name}',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                Text(
-                  'User Email : ${userData.email}',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                userData.type == 'doctor'
-                    ? Text(
-                        'Clinic Name : ${userData.clinicName}',
-                        style: Theme.of(context).textTheme.headline6,
-                      )
-                    : SizedBox(),
-                Text(
-                  'Account Type : $type',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                userData.type == 'doctor'
-                    ? Text(
-                        'Account Validated : ${userData.validated}',
-                        style: Theme.of(context).textTheme.headline6,
-                      )
-                    : SizedBox(),
-                Text(
-                  'Creation Data : ${DateFormat('yyyy-MM-dd').format(userData.creationDate.toDate())}',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                Text(
-                  'Last Sign In : ${DateFormat('yyyy-MM-dd H:mm').format(userData.lastSignIn.toDate())}',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                Text(
-                  'Used Language : ${userData.language}',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-              ],
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  userCardInfoItem('User Name :', userData.name),
+                  userCardInfoItem('User Email :', userData.email),
+                  userData.type == 'doctor'
+                      ? userCardInfoItem('Clinic Name :', userData.clinicName)
+                      : SizedBox(),
+                  userCardInfoItem('Account Type :', type),
+                  userData.type == 'doctor'
+                      ? userCardInfoItem(
+                          'Account Validated :', userData.validated.toString())
+                      : SizedBox(),
+                  userData.type == 'doctor'
+                      ? userCardInfoItem('Phone Number :', userData.phone)
+                      : SizedBox(),
+                  userCardInfoItem(
+                      'Creation Data :',
+                      DateFormat('yyyy-MM-dd')
+                          .format(userData.creationDate.toDate())),
+                  userCardInfoItem(
+                      'Last Sign In :',
+                      DateFormat('yyyy-MM-dd H:mm')
+                          .format(userData.lastSignIn.toDate())),
+                  userData.type == 'doctor'
+                      ? userCardInfoItem('Personal Questionnaire :',
+                          userData.personalQuestionnaires.length.toString())
+                      : SizedBox(),
+                  userData.type == 'doctor'
+                      ? userCardInfoItem('Personal Hybrid :',
+                          userData.personalHybrids.length.toString())
+                      : SizedBox(),
+                  userCardInfoItem('Used Language :', userData.language),
+                ],
+              ),
             ),
           )
+        ],
+      ),
+    );
+  }
+
+  Widget userCardInfoItem(String title, String value) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          ),
+          Expanded(
+            flex: 5,
+            child: Text(
+              value,
+              style: Theme.of(context).textTheme.headline6.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ),
         ],
       ),
     );

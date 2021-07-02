@@ -7,9 +7,9 @@ import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:psyscale/screens/Auth/signin.dart';
+import 'package:psyscale/screens/User/profileUser.dart';
 import 'package:psyscale/screens/User/quiz.dart';
 import 'package:psyscale/screens/User/trouble_details.dart';
-import 'package:psyscale/screens/settings.dart';
 import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
 import 'package:psyscale/services/userServices.dart';
@@ -231,9 +231,12 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                               ? Constants.navigationFunc(context, SignIn())
                               : createDialog(
                                   context,
-                                  Container(
-                                      child:
-                                          Setting(userData: widget.userData)),
+                                  SingleChildScrollView(
+                                    child: Container(
+                                        height: 510,
+                                        child: ProfileUser(
+                                            userData: widget.userData)),
+                                  ),
                                   false,
                                 );
                         },
@@ -453,8 +456,12 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                                                         questionnaire,
                                                     languge: widget
                                                         .userData.language,
-                                                    history:
-                                                        widget.userData.history,
+                                                    history: widget.userData
+                                                                .history ==
+                                                            null
+                                                        ? []
+                                                        : widget
+                                                            .userData.history,
                                                     userUid:
                                                         widget.userData.uid,
                                                   ));

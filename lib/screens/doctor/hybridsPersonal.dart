@@ -88,11 +88,15 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                         headerBuilder: (BuildContext context, bool isExpanded) {
                           return ListTile(
                             title: Text(
-                              questionnaire.getName(userData.language),
+                              questionnaire.getName(questionnaire
+                                      .supportedLanguages
+                                      .contains(userData.language)
+                                  ? userData.language
+                                  : questionnaire.defaultLanguage),
                               style: Theme.of(context).textTheme.headline6,
                             ),
                             subtitle: Text(
-                              '${questionnaire.getQuestionsCount() + 1} questions',
+                              '${questionnaire.getQuestionsCount()} questions',
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle1
@@ -107,7 +111,11 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                           child: Column(
                             children: [
                               Text(
-                                questionnaire.getDescreption(userData.language),
+                                questionnaire.getDescreption(questionnaire
+                                        .supportedLanguages
+                                        .contains(userData.language)
+                                    ? userData.language
+                                    : questionnaire.defaultLanguage),
                                 style: Theme.of(context).textTheme.subtitle1,
                               ),
                               Padding(
@@ -120,7 +128,6 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
                                         context,
                                         QuizHybrid(
                                           questionnaire: questionnaire,
-                                          languge: userData.language,
                                         ),
                                       );
                                     } else {

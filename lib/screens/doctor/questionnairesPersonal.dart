@@ -32,7 +32,8 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
             .getName(userData.language)
             .toLowerCase()
             .contains(widget.search.value)) {
-          if (element.nameEn == clickedQuestionnaire) {
+          if (element.getName(element.defaultLanguage) ==
+              clickedQuestionnaire) {
             element.isExpanded = true;
           } else {
             element.isExpanded = false;
@@ -89,11 +90,15 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
                           onTap: () {
                             setState(() {
                               clickedQuestionnaire == ''
-                                  ? clickedQuestionnaire = questionnaire.nameEn
-                                  : clickedQuestionnaire == questionnaire.nameEn
+                                  ? clickedQuestionnaire = questionnaire
+                                      .getName(questionnaire.defaultLanguage)
+                                  : clickedQuestionnaire ==
+                                          questionnaire.getName(
+                                              questionnaire.defaultLanguage)
                                       ? clickedQuestionnaire = ''
                                       : clickedQuestionnaire =
-                                          questionnaire.nameEn;
+                                          questionnaire.getName(
+                                              questionnaire.defaultLanguage);
                             });
                           },
                           splashColor: Theme.of(context).accentColor,
@@ -102,7 +107,11 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
                             children: [
                               ListTile(
                                 title: Text(
-                                  questionnaire.getName(userData.language),
+                                  questionnaire.getName(questionnaire
+                                          .supportedLanguages
+                                          .contains(userData.language)
+                                      ? userData.language
+                                      : questionnaire.defaultLanguage),
                                   style: Theme.of(context)
                                       .textTheme
                                       .headline6
@@ -122,8 +131,12 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
                                   ? Container(
                                       padding: EdgeInsets.all(16.0),
                                       child: Text(
-                                        questionnaire
-                                            .getDescreption(userData.language),
+                                        questionnaire.getDescreption(
+                                            questionnaire.supportedLanguages
+                                                    .contains(userData.language)
+                                                ? userData.language
+                                                : questionnaire
+                                                    .defaultLanguage),
                                         style: Theme.of(context)
                                             .textTheme
                                             .subtitle1
@@ -142,7 +155,6 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
                                               context,
                                               QuizQuestionnaire(
                                                 questionnaire: questionnaire,
-                                                languge: userData.language,
                                               ),
                                             );
                                           } else {

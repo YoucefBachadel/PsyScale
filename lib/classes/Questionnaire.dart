@@ -6,6 +6,8 @@ class Questionnaire {
   String nameEn;
   String nameFr;
   String nameAr;
+  String defaultLanguage;
+  List<String> supportedLanguages;
   String descreptionEn;
   String descreptionFr;
   String descreptionAr;
@@ -24,6 +26,8 @@ class Questionnaire {
     this.nameEn,
     this.nameFr,
     this.nameAr,
+    this.defaultLanguage,
+    this.supportedLanguages,
     this.descreptionEn,
     this.descreptionFr,
     this.descreptionAr,
@@ -39,6 +43,10 @@ class Questionnaire {
 
   static List<Map<String, Object>> getList(List<dynamic> list) {
     return list.map((item) => Map<String, Object>.from(item)).toList();
+  }
+
+  static List<String> getStringList(List<dynamic> list) {
+    return list.map((item) => item.toString()).toList();
   }
 
   static List<QuestionAnswer> getQuestionAnswerList(List<dynamic> list) {
@@ -166,38 +174,48 @@ class Questionnaire {
     return answers;
   }
 
+  List<Map<String, Object>> getHybridsClasses(String language) {
+    List<Map<String, Object>> _list;
+    List<Map<String, Object>> answers = [];
+    String answerLanguage;
+    _list = this.classes;
+    answerLanguage = 'classEn';
+    switch (language) {
+      case 'English':
+        answerLanguage = 'classEn';
+        break;
+      case 'Français':
+        answerLanguage = 'classFr';
+        break;
+      case 'العربية':
+        answerLanguage = 'classAr';
+        break;
+    }
+    _list.forEach((element) {
+      answers.add({
+        'classe': element[answerLanguage],
+      });
+    });
+    return answers;
+  }
+
   List<Map<String, Object>> getHybridsAnswersList(String language, int index) {
     List<Map<String, Object>> _list;
     List<Map<String, Object>> answers = [];
     String answerLanguage;
-    if (index == 0) {
-      _list = this.classes;
-      answerLanguage = 'classEn';
-      switch (language) {
-        case 'English':
-          answerLanguage = 'classEn';
-          break;
-        case 'Français':
-          answerLanguage = 'classFr';
-          break;
-        case 'العربية':
-          answerLanguage = 'classAr';
-          break;
-      }
-    } else {
-      _list = this.questionsAnswers[index - 1].answers;
-      answerLanguage = 'answerEn';
-      switch (language) {
-        case 'English':
-          answerLanguage = 'answerEn';
-          break;
-        case 'Français':
-          answerLanguage = 'answerFr';
-          break;
-        case 'العربية':
-          answerLanguage = 'answerAr';
-          break;
-      }
+
+    _list = this.questionsAnswers[index - 1].answers;
+    answerLanguage = 'answerEn';
+    switch (language) {
+      case 'English':
+        answerLanguage = 'answerEn';
+        break;
+      case 'Français':
+        answerLanguage = 'answerFr';
+        break;
+      case 'العربية':
+        answerLanguage = 'answerAr';
+        break;
     }
 
     _list.forEach((element) {

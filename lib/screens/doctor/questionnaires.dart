@@ -38,6 +38,9 @@ class _QuestionnairesState extends State<Questionnaires> {
           nameEn: doc['nameEn'],
           nameFr: doc['nameFr'],
           nameAr: doc['nameAr'],
+          defaultLanguage: doc['defaultLanguage'],
+          supportedLanguages:
+              Questionnaire.getStringList(doc['supportedLanguages']),
           descreptionEn: doc['descreptionEn'],
           descreptionFr: doc['descreptionFr'],
           descreptionAr: doc['descreptionAr'],
@@ -164,7 +167,6 @@ class _QuestionnairesState extends State<Questionnaires> {
                                               context,
                                               QuizQuestionnaire(
                                                 questionnaire: questionnaire,
-                                                languge: userData.language,
                                               ),
                                             );
                                           } else {

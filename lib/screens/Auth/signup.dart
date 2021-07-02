@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:psyscale/main.dart';
 import 'package:psyscale/screens/Auth/signin.dart';
 import 'package:psyscale/services/authenticationServices%20.dart';
@@ -79,7 +80,9 @@ class _SignUpFormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-
+    if (!Responsive.isMobile(context)) {
+      _isDoctor = true;
+    }
     return Scaffold(
       appBar: Responsive.isMobile(context)
           ? AppBar(
@@ -100,6 +103,11 @@ class _SignUpFormState extends State<SignUpForm> {
                       const Spacer(flex: 1),
                       appBar(context, 'Sign', 'Up'),
                       const Spacer(flex: 5),
+                      Text(
+                        _isDoctor ? 'Sign Up as Doctor' : 'Sign Up as User',
+                        style: Theme.of(context).textTheme.headline6,
+                      ),
+                      const SizedBox(height: 6.0),
                       TextFormField(
                         initialValue: name,
                         validator: (value) =>
@@ -157,54 +165,46 @@ class _SignUpFormState extends State<SignUpForm> {
                         onChanged: (value) => password = value,
                       ),
                       const SizedBox(height: 14.0),
-                      InkWell(
-                        onTap: () {
-                          signUp();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 18.0),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).accentColor,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          alignment: Alignment.center,
+                      customButton(
+                          context: context,
+                          text: 'Sign Up',
+                          icon: MdiIcons.account,
                           width: Responsive.isMobile(context)
                               ? MediaQuery.of(context).size.width
                               : screenWidth * 0.2,
-                          child: Text(
-                            'Sign Up',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                        ),
-                      ),
+                          onTap: () {
+                            signUp();
+                          }),
                       const SizedBox(height: 18.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _isDoctor
-                                ? 'You are a user ? '
-                                : 'You are a doctor ? ',
-                            style: TextStyle(fontSize: 15.5),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isDoctor = !_isDoctor;
-                              });
-                            },
-                            child: Text(
-                              _isDoctor
-                                  ? 'Create a user account'
-                                  : 'Create a doctor account',
-                              style: TextStyle(
-                                fontSize: 15.5,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
+                      Responsive.isMobile(context)
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _isDoctor
+                                      ? 'You are a user ? '
+                                      : 'You are a doctor ? ',
+                                  style: TextStyle(fontSize: 15.5),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _isDoctor = !_isDoctor;
+                                    });
+                                  },
+                                  child: Text(
+                                    _isDoctor
+                                        ? 'Create a user account'
+                                        : 'Create a doctor account',
+                                    style: TextStyle(
+                                      fontSize: 15.5,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            )
+                          : const SizedBox(),
                       const SizedBox(height: 6.0),
                       Text(
                         'or',

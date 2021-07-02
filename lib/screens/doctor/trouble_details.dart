@@ -226,7 +226,6 @@ class _TroubleDetailsState extends State<TroubleDetails>
                                           context,
                                           QuizQuestionnaire(
                                             questionnaire: questionnaire,
-                                            languge: widget.language,
                                           ),
                                         );
                                       } else {
@@ -321,7 +320,6 @@ class _TroubleDetailsState extends State<TroubleDetails>
                                         context,
                                         QuizHybrid(
                                           questionnaire: questionnaire,
-                                          languge: widget.language,
                                         ),
                                       );
                                     } else {

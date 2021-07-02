@@ -58,7 +58,6 @@ class _QuizState extends State<Quiz> {
       setState(() {
         isLoading = true;
       });
-
       widget.history.add({
         'name': widget.questionnaire.getName(widget.languge),
         'date': Timestamp.now(),

@@ -210,7 +210,10 @@ class _TroubleDetailsState extends State<TroubleDetails>
                                           Quiz(
                                             questionnaire: questionnaire,
                                             languge: widget.userData.language,
-                                            history: widget.userData.history,
+                                            history:
+                                                widget.userData.history == null
+                                                    ? []
+                                                    : widget.userData.history,
                                             userUid: widget.userData.uid,
                                           ));
                                     },

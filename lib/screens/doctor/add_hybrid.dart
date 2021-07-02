@@ -49,6 +49,11 @@ class _AddHybridState extends State<AddHybrid> {
   List<QuestionAnswer> _questionsAnswers = [];
   List<Map<String, Object>> _classes = [];
   List<Map<String, Object>> _localAnswers = [];
+  String _defaultLanguage = '';
+  List<String> _supportedLanguages = [];
+  bool _isEnglishSupported = true;
+  bool _isFrenchSupported = true;
+  bool _isArabicSupported = true;
   GoogleSheetApi _googleSheetApi = GoogleSheetApi();
 
   getTroublesList(QuerySnapshot data) async {
@@ -74,6 +79,18 @@ class _AddHybridState extends State<AddHybrid> {
     if (widget.userData.personalHybrids != null) {
       _personalHybrids.addAll(widget.userData.personalHybrids);
     }
+
+    _supportedLanguages = [];
+    if (_isEnglishSupported)
+      _defaultLanguage = 'English';
+    else if (_isFrenchSupported)
+      _defaultLanguage = 'Français';
+    else if (_isArabicSupported) _defaultLanguage = 'العربية';
+
+    if (_isEnglishSupported) _supportedLanguages.add('English');
+    if (_isFrenchSupported) _supportedLanguages.add('Français');
+    if (_isArabicSupported) _supportedLanguages.add('العربية');
+
     Questionnaire questionnaire = Questionnaire();
     if (widget.questionnaire == null) {
       questionnaire = Questionnaire(
@@ -81,6 +98,8 @@ class _AddHybridState extends State<AddHybrid> {
         nameEn: _nameEn,
         nameFr: _nameFr,
         nameAr: _nameAr,
+        defaultLanguage: _defaultLanguage,
+        supportedLanguages: _supportedLanguages,
         descreptionEn: _descreptionEn,
         descreptionFr: _descreptionFr,
         descreptionAr: _descreptionAr,
@@ -95,6 +114,8 @@ class _AddHybridState extends State<AddHybrid> {
         nameEn: _nameEn,
         nameFr: _nameFr,
         nameAr: _nameAr,
+        defaultLanguage: _defaultLanguage,
+        supportedLanguages: _supportedLanguages,
         descreptionEn: _descreptionEn,
         descreptionFr: _descreptionFr,
         descreptionAr: _descreptionAr,
@@ -135,6 +156,11 @@ class _AddHybridState extends State<AddHybrid> {
       _nameEn = widget.questionnaire.nameEn;
       _nameFr = widget.questionnaire.nameFr;
       _nameAr = widget.questionnaire.nameAr;
+      _defaultLanguage = widget.questionnaire.defaultLanguage;
+      _supportedLanguages = widget.questionnaire.supportedLanguages;
+      _isEnglishSupported = _supportedLanguages.contains('English');
+      _isFrenchSupported = _supportedLanguages.contains('Français');
+      _isArabicSupported = _supportedLanguages.contains('العربية');
       _descreptionEn = widget.questionnaire.descreptionEn;
       _descreptionFr = widget.questionnaire.descreptionFr;
       _descreptionAr = widget.questionnaire.descreptionAr;
@@ -271,115 +297,209 @@ class _AddHybridState extends State<AddHybrid> {
             key: _infoFormKey,
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(children: [
-                const SizedBox(height: 6.0),
-                widget.questionnaire == null
-                    ? StreamBuilder(
-                        stream: TroublesServices().troubleData,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            QuerySnapshot data = snapshot.data;
-                            getTroublesList(data);
-                            return DropdownButtonFormField(
-                              decoration:
-                                  textInputDecoration(context, 'Trouble'),
-                              validator: (value) => _troubleUid == null
-                                  ? 'Chose a trouble'
-                                  : null,
-                              value: _troubleUid,
-                              items: troubles.map((trouble) {
-                                return DropdownMenuItem(
-                                  value: trouble.uid,
-                                  child: Text(trouble
-                                      .getName(widget.userData.language)),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 6.0),
+                    widget.questionnaire == null
+                        ? StreamBuilder(
+                            stream: TroublesServices().troubleData,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                QuerySnapshot data = snapshot.data;
+                                getTroublesList(data);
+                                return DropdownButtonFormField(
+                                  decoration:
+                                      textInputDecoration(context, 'Trouble'),
+                                  validator: (value) => _troubleUid == null
+                                      ? 'Chose a trouble'
+                                      : null,
+                                  value: _troubleUid,
+                                  items: troubles.map((trouble) {
+                                    return DropdownMenuItem(
+                                      value: trouble.uid,
+                                      child: Text(trouble
+                                          .getName(widget.userData.language)),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    _troubleUid = value;
+                                  },
                                 );
-                              }).toList(),
+                              } else {
+                                return loading(context);
+                              }
+                            })
+                        : const SizedBox(),
+                    const SizedBox(height: 10.0),
+                    Text('Supported Languages:'),
+                    const SizedBox(height: 6.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: ListTile(
+                            title: Text('English'),
+                            leading: Checkbox(
+                              value: _isEnglishSupported,
                               onChanged: (value) {
-                                _troubleUid = value;
+                                if (!(_isEnglishSupported &&
+                                        !_isFrenchSupported &&
+                                        !_isArabicSupported) &&
+                                    (widget.questionnaire == null ||
+                                        !widget.questionnaire.supportedLanguages
+                                            .contains('English'))) {
+                                  setState(() {
+                                    _isEnglishSupported = !_isEnglishSupported;
+                                  });
+                                }
                               },
-                            );
-                          } else {
-                            return loading(context);
-                          }
-                        })
-                    : const SizedBox(),
-                const SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _nameEn,
-                  validator: (value) => value.isEmpty ? 'Enter the Name' : null,
-                  decoration: textInputDecoration(context, 'English Name'),
-                  onChanged: (value) => _nameEn = value,
-                ),
-                const SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _nameFr,
-                  validator: (value) => value.isEmpty ? 'Enter the Name' : null,
-                  decoration: textInputDecoration(context, 'Frensh Name'),
-                  onChanged: (value) => _nameFr = value,
-                ),
-                const SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _nameAr,
-                  validator: (value) => value.isEmpty ? 'Enter the Name' : null,
-                  decoration: textInputDecoration(context, 'Arabic Name'),
-                  onChanged: (value) => _nameAr = value,
-                ),
-                const SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _descreptionEn,
-                  validator: (value) =>
-                      value.isEmpty ? 'Enter the Descreption' : null,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration:
-                      textInputDecoration(context, 'English Descreption'),
-                  onChanged: (value) => _descreptionEn = value,
-                ),
-                const SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _descreptionFr,
-                  validator: (value) =>
-                      value.isEmpty ? 'Enter the Descreption' : null,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration:
-                      textInputDecoration(context, 'Frensh Descreption'),
-                  onChanged: (value) => _descreptionFr = value,
-                ),
-                const SizedBox(height: 6.0),
-                TextFormField(
-                  initialValue: _descreptionAr,
-                  validator: (value) =>
-                      value.isEmpty ? 'Enter the Descreption' : null,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration:
-                      textInputDecoration(context, 'Arabic Descreption'),
-                  onChanged: (value) => _descreptionAr = value,
-                ),
-                const SizedBox(height: 6.0),
-                widget.questionnaire == null
-                    ? TextFormField(
-                        initialValue: _stockageUrl,
-                        validator: (value) => value.isEmpty
-                            ? 'Enter the link of stockage'
-                            : value.split('/').length < 6
-                                ? 'Enter valid url'
-                                : null,
-                        keyboardType: TextInputType.multiline,
-                        maxLines: null,
-                        decoration: textInputDecoration(
-                                context, 'Google sheet url')
-                            .copyWith(
-                                hintText:
-                                    'https://docs.google.com/spreadsheets/d/...'),
-                        onChanged: (value) {
-                          return _stockageUrl = value;
-                        },
-                      )
-                    : const SizedBox(),
-                const SizedBox(height: 6.0),
-              ]),
+                            ),
+                            onTap: () {
+                              if (!(_isEnglishSupported &&
+                                      !_isFrenchSupported &&
+                                      !_isArabicSupported) &&
+                                  (widget.questionnaire == null ||
+                                      !widget.questionnaire.supportedLanguages
+                                          .contains('English'))) {
+                                setState(() {
+                                  _isEnglishSupported = !_isEnglishSupported;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: ListTile(
+                            title: Text('Français'),
+                            leading: Checkbox(
+                              value: _isFrenchSupported,
+                              onChanged: (value) {
+                                if (!(_isFrenchSupported &&
+                                        !_isEnglishSupported &&
+                                        !_isArabicSupported) &&
+                                    (widget.questionnaire == null ||
+                                        !widget.questionnaire.supportedLanguages
+                                            .contains('Français'))) {
+                                  setState(() {
+                                    _isFrenchSupported = !_isFrenchSupported;
+                                  });
+                                }
+                              },
+                            ),
+                            onTap: () {
+                              if (!(_isFrenchSupported &&
+                                      !_isEnglishSupported &&
+                                      !_isArabicSupported) &&
+                                  (widget.questionnaire == null ||
+                                      !widget.questionnaire.supportedLanguages
+                                          .contains('Français'))) {
+                                setState(() {
+                                  _isFrenchSupported = !_isFrenchSupported;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: ListTile(
+                            title: Text('العربية'),
+                            leading: Checkbox(
+                              value: _isArabicSupported,
+                              onChanged: (value) {
+                                if (!(_isArabicSupported &&
+                                        !_isFrenchSupported &&
+                                        !_isEnglishSupported) &&
+                                    (widget.questionnaire == null ||
+                                        !widget.questionnaire.supportedLanguages
+                                            .contains('العربية'))) {
+                                  setState(() {
+                                    _isArabicSupported = !_isArabicSupported;
+                                  });
+                                }
+                              },
+                            ),
+                            onTap: () {
+                              if (!(_isArabicSupported &&
+                                      !_isFrenchSupported &&
+                                      !_isEnglishSupported) &&
+                                  (widget.questionnaire == null ||
+                                      !widget.questionnaire.supportedLanguages
+                                          .contains('العربية'))) {
+                                setState(() {
+                                  _isArabicSupported = !_isArabicSupported;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    formItem(
+                      supportedLanguage: _isEnglishSupported,
+                      initialVlue: _nameEn,
+                      onChanged: (value) => _nameEn = value,
+                      hint: 'English Name',
+                      validatorMessage: 'Enter the Name',
+                    ),
+                    formItem(
+                      supportedLanguage: _isFrenchSupported,
+                      initialVlue: _nameFr,
+                      onChanged: (value) => _nameFr = value,
+                      hint: 'Frensh Name',
+                      validatorMessage: 'Enter the Name',
+                    ),
+                    formItem(
+                      supportedLanguage: _isArabicSupported,
+                      initialVlue: _nameAr,
+                      onChanged: (value) => _nameAr = value,
+                      hint: 'Arabic Name',
+                      validatorMessage: 'Enter the Name',
+                    ),
+                    formItem(
+                      supportedLanguage: _isEnglishSupported,
+                      initialVlue: _descreptionEn,
+                      onChanged: (value) => _descreptionEn = value,
+                      hint: 'English Descreption',
+                      validatorMessage: 'Enter the Descreption',
+                    ),
+                    formItem(
+                      supportedLanguage: _isFrenchSupported,
+                      initialVlue: _descreptionFr,
+                      onChanged: (value) => _descreptionFr = value,
+                      hint: 'Frensh Descreption',
+                      validatorMessage: 'Enter the Descreption',
+                    ),
+                    formItem(
+                      supportedLanguage: _isArabicSupported,
+                      initialVlue: _descreptionAr,
+                      onChanged: (value) => _descreptionAr = value,
+                      hint: 'Arabic Descreption',
+                      validatorMessage: 'Enter the Descreption',
+                    ),
+                    const SizedBox(height: 6.0),
+                    widget.questionnaire == null
+                        ? TextFormField(
+                            initialValue: _stockageUrl,
+                            validator: (value) => value.isEmpty
+                                ? 'Enter the link of stockage'
+                                : value.split('/').length < 6
+                                    ? 'Enter valid url'
+                                    : null,
+                            keyboardType: TextInputType.multiline,
+                            maxLines: null,
+                            decoration: textInputDecoration(
+                                    context, 'Google sheet url')
+                                .copyWith(
+                                    hintText:
+                                        'https://docs.google.com/spreadsheets/d/...'),
+                            onChanged: (value) {
+                              return _stockageUrl = value;
+                            },
+                          )
+                        : const SizedBox(),
+                    const SizedBox(height: 6.0),
+                  ]),
             ),
           ),
           Row(
@@ -410,7 +530,11 @@ class _AddHybridState extends State<AddHybrid> {
                   shape: RoundedRectangleBorder(
                       side: BorderSide(color: Constants.myGrey, width: 1.0)),
                   child: ListTile(
-                    title: Text(classe['classEn']),
+                    title: Text(_isEnglishSupported
+                        ? classe['classEn']
+                        : _isFrenchSupported
+                            ? classe['classFr']
+                            : classe['classAr']),
                     trailing: IconButton(
                       onPressed: () {
                         setState(() {
@@ -431,37 +555,27 @@ class _AddHybridState extends State<AddHybrid> {
                   const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Column(
                 children: [
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localClasseEn,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'English Class'),
+                  formItem(
+                    supportedLanguage: _isEnglishSupported,
+                    initialVlue: _localClasseEn,
                     onChanged: (value) => _localClasseEn = value,
+                    hint: 'English Class',
+                    validatorMessage: 'Enter the Class',
                   ),
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localClasseFr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Frensh Class'),
+                  formItem(
+                    supportedLanguage: _isFrenchSupported,
+                    initialVlue: _localClasseFr,
                     onChanged: (value) => _localClasseFr = value,
+                    hint: 'Frensh Class',
+                    validatorMessage: 'Enter the Class',
                   ),
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localClasseAr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Arabic Class'),
+                  formItem(
+                    supportedLanguage: _isArabicSupported,
+                    initialVlue: _localClasseAr,
                     onChanged: (value) => _localClasseAr = value,
+                    hint: 'Arabic Class',
+                    validatorMessage: 'Enter the Class',
                   ),
-                  const SizedBox(height: 6.0),
                 ],
               ),
             ),
@@ -543,7 +657,11 @@ class _AddHybridState extends State<AddHybrid> {
                       shape: RoundedRectangleBorder(
                           side:
                               BorderSide(color: Constants.myGrey, width: 1.0)),
-                      title: Text(questionAnswer.questionEn),
+                      title: Text(_isEnglishSupported
+                          ? questionAnswer.questionEn
+                          : _isFrenchSupported
+                              ? questionAnswer.questionFr
+                              : questionAnswer.questionAr),
                       trailing: IconButton(
                         onPressed: () {
                           setState(() {
@@ -569,7 +687,11 @@ class _AddHybridState extends State<AddHybrid> {
                                               color: Constants.myGrey,
                                               width: 1.0)),
                                       child: ListTile(
-                                        title: Text(answer['answerEn']),
+                                        title: Text(_isEnglishSupported
+                                            ? answer['answerEn']
+                                            : _isFrenchSupported
+                                                ? answer['answerFr']
+                                                : answer['answerAr']),
                                         trailing: IconButton(
                                           onPressed: () {
                                             setState(() {
@@ -601,38 +723,27 @@ class _AddHybridState extends State<AddHybrid> {
                   const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Column(
                 children: [
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localQuestionEn,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration:
-                        textInputDecoration(context, 'English Question'),
+                  formItem(
+                    supportedLanguage: _isEnglishSupported,
+                    initialVlue: _localQuestionEn,
                     onChanged: (value) => _localQuestionEn = value,
+                    hint: 'English Question',
+                    validatorMessage: 'Enter the Question',
                   ),
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localQuestionFr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Frensh Question'),
+                  formItem(
+                    supportedLanguage: _isFrenchSupported,
+                    initialVlue: _localQuestionFr,
                     onChanged: (value) => _localQuestionFr = value,
+                    hint: 'Frensh Question',
+                    validatorMessage: 'Enter the Question',
                   ),
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _localQuestionAr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Arabic Question'),
+                  formItem(
+                    supportedLanguage: _isArabicSupported,
+                    initialVlue: _localQuestionAr,
                     onChanged: (value) => _localQuestionAr = value,
+                    hint: 'Arabic Question',
+                    validatorMessage: 'Enter the Question',
                   ),
-                  const SizedBox(height: 6.0),
                 ],
               ),
             ),
@@ -647,7 +758,11 @@ class _AddHybridState extends State<AddHybrid> {
                     shape: RoundedRectangleBorder(
                         side: BorderSide(color: Constants.myGrey, width: 1.0)),
                     child: ListTile(
-                      title: Text(answer['answerEn']),
+                      title: Text(_isEnglishSupported
+                          ? answer['answerEn']
+                          : _isFrenchSupported
+                              ? answer['answerFr']
+                              : answer['answerAr']),
                       trailing: IconButton(
                         onPressed: () {
                           setState(() {
@@ -669,37 +784,27 @@ class _AddHybridState extends State<AddHybrid> {
                   const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Column(
                 children: [
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _answerEn,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'English Answer'),
+                  formItem(
+                    supportedLanguage: _isEnglishSupported,
+                    initialVlue: _answerEn,
                     onChanged: (value) => _answerEn = value,
+                    hint: 'English Answer',
+                    validatorMessage: 'Enter the Answer',
                   ),
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _answerFr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Frensh Answer'),
+                  formItem(
+                    supportedLanguage: _isFrenchSupported,
+                    initialVlue: _answerFr,
                     onChanged: (value) => _answerFr = value,
+                    hint: 'Frensh Answer',
+                    validatorMessage: 'Enter the Answer',
                   ),
-                  const SizedBox(height: 6.0),
-                  TextFormField(
-                    initialValue: _answerAr,
-                    validator: (value) =>
-                        value.isEmpty ? 'Required field' : null,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: textInputDecoration(context, 'Arabic Answer'),
+                  formItem(
+                    supportedLanguage: _isArabicSupported,
+                    initialVlue: _answerAr,
                     onChanged: (value) => _answerAr = value,
+                    hint: 'Arabic Answer',
+                    validatorMessage: 'Enter the Answer',
                   ),
-                  const SizedBox(height: 6.0),
                 ],
               ),
             ),
@@ -791,6 +896,27 @@ class _AddHybridState extends State<AddHybrid> {
     );
   }
 
+  Widget formItem(
+      {bool supportedLanguage,
+      String initialVlue,
+      Function onChanged,
+      String validatorMessage,
+      String hint}) {
+    return supportedLanguage
+        ? Column(children: [
+            const SizedBox(height: 6.0),
+            TextFormField(
+              initialValue: initialVlue,
+              validator: (value) => value.isEmpty ? validatorMessage : null,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              decoration: textInputDecoration(context, hint),
+              onChanged: onChanged,
+            ),
+          ])
+        : SizedBox();
+  }
+
   Widget button(String text, Function onTap) {
     return InkWell(
       onTap: onTap,
@@ -842,6 +968,8 @@ class _AddHybridState extends State<AddHybrid> {
                 widget.userData.personalHybrids.remove(widget.questionnaire);
                 await UsersServices(useruid: widget.userData.uid)
                     .updatePersonnalHybrids(widget.userData.personalHybrids);
+
+                Navigator.pop(context);
                 widget.changeTab(index: 9, backAppbarTitle: 'Hybrid');
                 snackBar(context,
                     'The questionnaire hybrid has been deleted successfully');

@@ -35,6 +35,9 @@ class _HybridsState extends State<Hybrids> {
             nameEn: doc['nameEn'],
             nameFr: doc['nameFr'],
             nameAr: doc['nameAr'],
+            defaultLanguage: doc['defaultLanguage'],
+            supportedLanguages:
+                Questionnaire.getStringList(doc['supportedLanguages']),
             descreptionEn: doc['descreptionEn'],
             descreptionFr: doc['descreptionFr'],
             descreptionAr: doc['descreptionAr'],
@@ -107,7 +110,7 @@ class _HybridsState extends State<Hybrids> {
                               style: Theme.of(context).textTheme.headline6,
                             ),
                             subtitle: Text(
-                              '${questionnaire.getQuestionsCount() + 1} questions',
+                              '${questionnaire.getQuestionsCount()} questions',
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle1
@@ -135,7 +138,6 @@ class _HybridsState extends State<Hybrids> {
                                         context,
                                         QuizHybrid(
                                           questionnaire: questionnaire,
-                                          languge: userData.language,
                                         ),
                                       );
                                     } else {
