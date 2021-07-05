@@ -134,7 +134,7 @@ class _TroublesState extends State<Troubles> {
                             QuerySnapshot data = snapshot.data;
                             getHybridsList(data, userData.language);
 
-                            return Responsive.isdesktop(context)
+                            return !Responsive.isMobile(context)
                                 ? desktopWidget(
                                     Container(), Container(), troublesList())
                                 : troublesList();

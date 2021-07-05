@@ -38,6 +38,7 @@ dependencies:
   shared_preferences: ^2.0.6
   syncfusion_flutter_xlsio: ^19.1.69-beta
   universal_html: ^2.0.8
+  url_launcher: ^6.0.9
 
 dev_dependencies:
   flutter_test:

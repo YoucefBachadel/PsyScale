@@ -46,20 +46,20 @@ class ThemeProvider extends ChangeNotifier {
 
 class MyTheme {
   static final darkTheme = ThemeData(
-    scaffoldBackgroundColor: Color(0xFF121212),
-    backgroundColor: Color(0xFF121212),
-    primaryColor: Colors.black,
-    accentColor: Color(0xFFF29217),
+    primaryColor: Color(0xFF000a12),
+    backgroundColor: Color(0xFF263238),
+    scaffoldBackgroundColor: Color(0xFF4f5b62),
+    accentColor: Color(0xFFab47bc),
     visualDensity: VisualDensity.adaptivePlatformDensity,
     colorScheme: ColorScheme.dark(),
     fontFamily: 'Slabo',
   );
 
   static final lightTheme = ThemeData(
+    primaryColor: Color(0xFFffffff),
+    backgroundColor: Color(0xFFffffff),
     scaffoldBackgroundColor: Color(0xFFF0F2F5),
-    backgroundColor: Colors.white,
-    primaryColor: Colors.white,
-    accentColor: Color(0xFF00CCCC),
+    accentColor: Color(0xFF447ffe),
     visualDensity: VisualDensity.adaptivePlatformDensity,
     colorScheme: ColorScheme.light(),
     fontFamily: 'Slabo',

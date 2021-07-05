@@ -96,72 +96,76 @@ class _TroublesState extends State<Troubles> {
     return Container(
         child: troubles.isEmpty
             ? emptyList()
-            : GridView.count(
-                crossAxisCount: Responsive.isMobile(context) ? 1 : 2,
-                childAspectRatio: 1.8,
-                children: troubles
-                    .map(
-                      (trouble) => Card(
-                        clipBehavior: Clip.antiAlias,
-                        shape: RoundedRectangleBorder(
-                            side:
-                                BorderSide(color: Constants.border, width: 3.0),
-                            borderRadius: BorderRadius.circular(15.0)),
-                        elevation: 2.0,
-                        child: Stack(
-                          children: [
-                            Positioned.fill(
-                              bottom: 0.0,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  loadingImage(context, trouble.imageUrl),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.transparent,
-                                          Constants.border,
-                                        ],
-                                        stops: [0.6, 1],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        tileMode: TileMode.repeated,
+            : Material(
+                color: Theme.of(context).backgroundColor,
+                child: GridView.count(
+                  crossAxisCount: Responsive.isMobile(context) ? 1 : 2,
+                  childAspectRatio: 1.8,
+                  children: troubles
+                      .map(
+                        (trouble) => Card(
+                          clipBehavior: Clip.antiAlias,
+                          shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: Constants.border, width: 3.0),
+                              borderRadius: BorderRadius.circular(15.0)),
+                          elevation: 2.0,
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                bottom: 0.0,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    loadingImage(context, trouble.imageUrl),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.transparent,
+                                            Constants.border,
+                                          ],
+                                          stops: [0.6, 1],
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          tileMode: TileMode.repeated,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Positioned(
-                                      bottom: 10.0,
-                                      child: Text(
-                                        trouble.getName(userData.language),
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 24.0),
-                                      )),
-                                ],
+                                    Positioned(
+                                        bottom: 10.0,
+                                        child: Text(
+                                          trouble.getName(userData.language),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 24.0),
+                                        )),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Positioned.fill(
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                    splashColor: Theme.of(context).accentColor,
-                                    onTap: () {
-                                      createDialog(
-                                          context,
-                                          Container(
-                                              width: 700.0,
-                                              child: AddTroubles(
-                                                  trouble: trouble)),
-                                          false);
-                                    }),
+                              Positioned.fill(
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                      splashColor:
+                                          Theme.of(context).accentColor,
+                                      onTap: () {
+                                        createDialog(
+                                            context,
+                                            Container(
+                                                width: 700.0,
+                                                child: AddTroubles(
+                                                    trouble: trouble)),
+                                            false);
+                                      }),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    )
-                    .toList(),
+                      )
+                      .toList(),
+                ),
               ));
   }
 }

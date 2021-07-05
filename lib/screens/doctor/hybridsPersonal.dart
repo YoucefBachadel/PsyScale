@@ -46,10 +46,10 @@ class _HybridsPersonalState extends State<HybridsPersonal> {
   Widget build(BuildContext context) {
     getQuestionnairesList();
     return Scaffold(
-        body: Responsive.isdesktop(context)
+        body: !Responsive.isMobile(context)
             ? desktopWidget(Container(), Container(), buildPanel())
             : buildPanel(),
-        floatingActionButton: Responsive.isdesktop(context)
+        floatingActionButton: !Responsive.isMobile(context)
             ? FloatingActionButton(
                 heroTag: null,
                 backgroundColor: Theme.of(context).accentColor,

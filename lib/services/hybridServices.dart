@@ -55,8 +55,6 @@ class HybridServices {
       'nameEn': questionnaire.nameEn,
       'nameFr': questionnaire.nameFr,
       'nameAr': questionnaire.nameAr,
-      'defaultLanguage': questionnaire.defaultLanguage,
-      'supportedLanguages': questionnaire.supportedLanguages,
       'descreptionEn': questionnaire.descreptionEn,
       'descreptionFr': questionnaire.descreptionFr,
       'descreptionAr': questionnaire.descreptionAr,

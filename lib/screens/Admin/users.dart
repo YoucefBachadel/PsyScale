@@ -179,6 +179,7 @@ class _UsersState extends State<Users> {
     final _formKey = GlobalKey<FormState>();
     String _newUserName = '';
     String _newEmail = '';
+    String _newPassword = '';
     String _newtype = '';
 
     return Container(
@@ -247,6 +248,15 @@ class _UsersState extends State<Users> {
                       onChanged: (value) => _newEmail = value,
                     ),
                     SizedBox(height: 6.0),
+                    TextFormField(
+                      obscureText: true,
+                      initialValue: _newPassword,
+                      validator: (value) =>
+                          value.isEmpty ? 'Enter Password' : null,
+                      decoration: textInputDecoration(context, 'Password'),
+                      onChanged: (value) => _newPassword = value,
+                    ),
+                    SizedBox(height: 6.0),
                     DropdownButtonFormField(
                       decoration: textInputDecoration(context, 'Admin Type'),
                       validator: (value) =>
@@ -263,37 +273,27 @@ class _UsersState extends State<Users> {
                       },
                     ),
                     Spacer(),
-                    InkWell(
-                      onTap: () async {
-                        if (_formKey.currentState.validate()) {
-                          UserData userData = UserData(
-                            name: _newUserName,
-                            email: _newEmail,
-                            language: 'English',
-                          );
+                    customButton(
+                        context: context,
+                        text: 'Add Admin',
+                        icon: Icons.add,
+                        width: MediaQuery.of(context).size.width * 0.2,
+                        onTap: () async {
+                          if (_formKey.currentState.validate()) {
+                            UserData userData = UserData(
+                              name: _newUserName,
+                              email: _newEmail,
+                              language: 'English',
+                            );
 
-                          await UsersServices(useruid: userData.uid)
-                              .addUserData(userData, _newtype);
+                            await UsersServices(useruid: userData.uid)
+                                .addUserData(userData, _newtype);
 
-                          Navigator.pop(context);
-                          snackBar(
-                              context, 'New admin account added successfully');
-                        }
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 18.0),
-                        width: 300,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).accentColor,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Add',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ),
-                    ),
+                            Navigator.pop(context);
+                            snackBar(context,
+                                'New admin account added successfully');
+                          }
+                        }),
                     Spacer(),
                   ],
                 ),

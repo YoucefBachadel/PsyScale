@@ -72,7 +72,7 @@ class _HybridsState extends State<Hybrids> {
               QuerySnapshot data = snapshot.data;
               getQuestionnairesList(data, userData.language);
 
-              return Responsive.isdesktop(context)
+              return !Responsive.isMobile(context)
                   ? desktopWidget(Container(), Container(), buildPanel())
                   : buildPanel();
             } else {

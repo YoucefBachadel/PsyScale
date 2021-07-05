@@ -174,11 +174,14 @@ class _AddHybridState extends State<AddHybrid> {
         actions: [
           widget.questionnaire != null
               ? Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(4.0),
                   child: deleteButton(context, () {
                     createDialog(
                         context, delteHybrid(widget.questionnaire.uid), true);
-                  }, text: 'Delete', color: Colors.red, icon: Icons.delete),
+                  },
+                      text: 'Delete Hybrid',
+                      color: Colors.red,
+                      icon: Icons.delete),
                 )
               : const SizedBox(),
         ],
@@ -255,17 +258,27 @@ class _AddHybridState extends State<AddHybrid> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            button('Edit', () {
-                              setState(() {
-                                _currentStep--;
-                              });
-                            }),
-                            const SizedBox(width: 6.0),
-                            button('Save', () {
-                              widget.questionnaire == null
-                                  ? addQuestionnaire()
-                                  : updateQuestionnaire();
-                            }),
+                            stepsButton(
+                                context: context,
+                                text: 'Edit',
+                                icon: Icons.edit,
+                                type: 1,
+                                onTap: () {
+                                  setState(() {
+                                    _currentStep--;
+                                  });
+                                }),
+                            SizedBox(width: 6.0),
+                            stepsButton(
+                                context: context,
+                                text: 'Save',
+                                icon: Icons.save,
+                                type: 2,
+                                onTap: () {
+                                  widget.questionnaire == null
+                                      ? addQuestionnaire()
+                                      : updateQuestionnaire();
+                                }),
                           ],
                         ),
                       )
@@ -397,17 +410,25 @@ class _AddHybridState extends State<AddHybrid> {
               ]),
             ),
           ),
-          Row(
-            children: [
-              Spacer(),
-              button('Next', () {
-                if (_infoFormKey.currentState.validate()) {
-                  setState(() {
-                    _currentStep++;
-                  });
-                }
-              }),
-            ],
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Spacer(),
+                stepsButton(
+                    context: context,
+                    text: 'Next',
+                    icon: Icons.navigate_next,
+                    type: 2,
+                    onTap: () {
+                      if (_infoFormKey.currentState.validate()) {
+                        setState(() {
+                          _currentStep++;
+                        });
+                      }
+                    }),
+              ],
+            ),
           ),
         ],
       ),
@@ -481,7 +502,7 @@ class _AddHybridState extends State<AddHybrid> {
               ),
             ),
           ),
-          button('Add Class', () {
+          insidStepButton(context, 'Add Class', () {
             if (_classesformkey.currentState.validate()) {
               setState(() {
                 _classes.add({
@@ -499,33 +520,43 @@ class _AddHybridState extends State<AddHybrid> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
+                stepsButton(
+                    context: context,
+                    text: 'Previos',
+                    icon: Icons.navigate_before,
+                    type: 1,
+                    onTap: () {
+                      setState(() {
+                        _currentStep--;
+                      });
+                    }),
                 Spacer(),
-                button('Previos', () {
-                  setState(() {
-                    _currentStep--;
-                  });
-                }),
-                const SizedBox(width: 6.0),
-                button('Next', () {
-                  if (_classes.isEmpty) {
-                    final snackBar = SnackBar(
-                      elevation: 1.0,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                            color: Theme.of(context).accentColor, width: 2.0),
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      content: Text('At least one classe'),
-                      duration: Duration(seconds: 2),
-                    );
+                stepsButton(
+                    context: context,
+                    text: 'Next',
+                    icon: Icons.navigate_next,
+                    type: 2,
+                    onTap: () {
+                      if (_classes.isEmpty) {
+                        final snackBar = SnackBar(
+                          elevation: 1.0,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Theme.of(context).accentColor,
+                                width: 2.0),
+                            borderRadius: BorderRadius.circular(6.0),
+                          ),
+                          content: Text('At least one classe'),
+                          duration: Duration(seconds: 2),
+                        );
 
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  } else {
-                    setState(() {
-                      _currentStep++;
-                    });
-                  }
-                }),
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } else {
+                        setState(() {
+                          _currentStep++;
+                        });
+                      }
+                    }),
               ],
             ),
           ),
@@ -556,8 +587,11 @@ class _AddHybridState extends State<AddHybrid> {
                   children: [
                     ListTile(
                       shape: RoundedRectangleBorder(
-                          side:
-                              BorderSide(color: Constants.myGrey, width: 1.0)),
+                          side: BorderSide(color: Constants.myGrey, width: 1.0),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20.0),
+                            topRight: Radius.circular(20.0),
+                          )),
                       title: Text(questionAnswer.questionEn),
                       trailing: IconButton(
                         onPressed: () {
@@ -719,7 +753,7 @@ class _AddHybridState extends State<AddHybrid> {
               ),
             ),
           ),
-          button('Add Answer', () {
+          insidStepButton(context, 'Add Answer', () {
             if (_answersformKey.currentState.validate()) {
               setState(() {
                 _localAnswers.add({
@@ -734,7 +768,7 @@ class _AddHybridState extends State<AddHybrid> {
             }
           }),
           const SizedBox(height: 8.0),
-          button('Add Question', () {
+          insidStepButton(context, 'Add Question', () {
             if (_questionsformKey.currentState.validate()) {
               if (_localAnswers.isNotEmpty) {
                 QuestionAnswer questionAnswer = QuestionAnswer(
@@ -771,56 +805,47 @@ class _AddHybridState extends State<AddHybrid> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
+                stepsButton(
+                    context: context,
+                    text: 'Previos',
+                    icon: Icons.navigate_before,
+                    type: 1,
+                    onTap: () {
+                      setState(() {
+                        _currentStep--;
+                      });
+                    }),
                 Spacer(),
-                button('Previos', () {
-                  setState(() {
-                    _currentStep--;
-                  });
-                }),
-                const SizedBox(width: 6.0),
-                button('Next', () {
-                  if (_questionsAnswers.isEmpty) {
-                    final snackBar = SnackBar(
-                      elevation: 1.0,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                            color: Theme.of(context).accentColor, width: 2.0),
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      content: Text('At least one question'),
-                      duration: Duration(seconds: 2),
-                    );
+                stepsButton(
+                    context: context,
+                    text: 'Next',
+                    icon: Icons.navigate_next,
+                    type: 2,
+                    onTap: () {
+                      if (_questionsAnswers.isEmpty) {
+                        final snackBar = SnackBar(
+                          elevation: 1.0,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Theme.of(context).accentColor,
+                                width: 2.0),
+                            borderRadius: BorderRadius.circular(6.0),
+                          ),
+                          content: Text('At least one question'),
+                          duration: Duration(seconds: 2),
+                        );
 
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  } else {
-                    setState(() {
-                      _currentStep++;
-                    });
-                  }
-                }),
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } else {
+                        setState(() {
+                          _currentStep++;
+                        });
+                      }
+                    }),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget button(String text, Function onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).accentColor,
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        width: 160,
-        alignment: Alignment.center,
-        child: Text(
-          text,
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
       ),
     );
   }

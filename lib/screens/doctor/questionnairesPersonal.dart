@@ -29,7 +29,7 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
     if (userData.personalQuestionnaires != null) {
       userData.personalQuestionnaires.forEach((element) {
         if (element
-            .getName(userData.language)
+            .getName(element.defaultLanguage)
             .toLowerCase()
             .contains(widget.search.value)) {
           if (element.getName(element.defaultLanguage) ==
@@ -43,7 +43,7 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
       });
 
       questionnaires.sort((a, b) =>
-          a.getName(userData.language).compareTo(b.getName(userData.language)));
+          a.getName(a.defaultLanguage).compareTo(b.getName(b.defaultLanguage)));
     }
   }
 
@@ -51,10 +51,10 @@ class _QuestionnairesPersonalState extends State<QuestionnairesPersonal> {
   Widget build(BuildContext context) {
     getQuestionnairesList();
     return Scaffold(
-        body: Responsive.isdesktop(context)
+        body: !Responsive.isMobile(context)
             ? desktopWidget(Container(), Container(), questionnaireList())
             : questionnaireList(),
-        floatingActionButton: Responsive.isdesktop(context)
+        floatingActionButton: !Responsive.isMobile(context)
             ? FloatingActionButton(
                 heroTag: null,
                 backgroundColor: Theme.of(context).accentColor,

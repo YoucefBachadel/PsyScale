@@ -8,7 +8,6 @@ import 'package:psyscale/classes/User.dart';
 import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
 import 'package:psyscale/shared/constants.dart';
-import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
 class AddQuestionnaire extends StatefulWidget {
@@ -187,22 +186,23 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
         actions: [
           widget.questionnaire != null
               ? Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(4.0),
                   child: deleteButton(context, () {
                     createDialog(context,
                         delteQuestionnaire(widget.questionnaire.uid), true);
-                  }, text: 'Delete', color: Colors.red, icon: Icons.delete),
+                  },
+                      text: 'Delete Questionnaire',
+                      color: Colors.red,
+                      icon: Icons.delete),
                 )
               : SizedBox(),
         ],
       ),
-      body: Responsive.isMobile(context)
-          ? _addQuestionnaireForm()
-          : desktopWidget(
-              Container(),
-              Container(),
-              _addQuestionnaireForm(),
-            ),
+      body: desktopWidget(
+        Container(),
+        Container(),
+        _addQuestionnaireForm(),
+      ),
     );
   }
 
@@ -274,24 +274,34 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            button('Edit', () {
-                              setState(() {
-                                _currentStep--;
-                              });
-                            }),
+                            stepsButton(
+                                context: context,
+                                text: 'Edit',
+                                icon: Icons.edit,
+                                type: 1,
+                                onTap: () {
+                                  setState(() {
+                                    _currentStep--;
+                                  });
+                                }),
                             SizedBox(width: 6.0),
-                            button('Save', () {
-                              int _testScore = 0;
-                              _evaluations.forEach((evaluation) {
-                                if (evaluation['to'] as int > _testScore) {
-                                  _testScore = evaluation['to'];
-                                }
-                              });
+                            stepsButton(
+                                context: context,
+                                text: 'Save',
+                                icon: Icons.save,
+                                type: 2,
+                                onTap: () {
+                                  int _testScore = 0;
+                                  _evaluations.forEach((evaluation) {
+                                    if (evaluation['to'] as int > _testScore) {
+                                      _testScore = evaluation['to'];
+                                    }
+                                  });
 
-                              widget.questionnaire == null
-                                  ? addQuestionnaire()
-                                  : updateQuestionnaire();
-                            }),
+                                  widget.questionnaire == null
+                                      ? addQuestionnaire()
+                                      : updateQuestionnaire();
+                                }),
                           ],
                         ),
                       )
@@ -435,17 +445,25 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
               ]),
             ),
           ),
-          Row(
-            children: [
-              Spacer(),
-              button('Next', () {
-                if (_infoFormKey.currentState.validate()) {
-                  setState(() {
-                    _currentStep++;
-                  });
-                }
-              }),
-            ],
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                const Spacer(),
+                stepsButton(
+                    context: context,
+                    text: 'Next',
+                    icon: Icons.navigate_next,
+                    type: 2,
+                    onTap: () {
+                      if (_infoFormKey.currentState.validate()) {
+                        setState(() {
+                          _currentStep++;
+                        });
+                      }
+                    }),
+              ],
+            ),
           ),
         ],
       ),
@@ -525,7 +543,7 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
               ),
             ),
           ),
-          button('Add Question', () {
+          insidStepButton(context, 'Add Question', () {
             if (_questionsformKey.currentState.validate()) {
               setState(() {
                 _questions.add({
@@ -543,33 +561,43 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
             padding: EdgeInsets.all(8.0),
             child: Row(
               children: [
+                stepsButton(
+                    context: context,
+                    text: 'Previos',
+                    icon: Icons.navigate_before,
+                    type: 1,
+                    onTap: () {
+                      setState(() {
+                        _currentStep--;
+                      });
+                    }),
                 Spacer(),
-                button('Previos', () {
-                  setState(() {
-                    _currentStep--;
-                  });
-                }),
-                SizedBox(width: 6.0),
-                button('Next', () {
-                  if (_questions.isEmpty) {
-                    final snackBar = SnackBar(
-                      elevation: 1.0,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                            color: Theme.of(context).accentColor, width: 2.0),
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      content: Text('At least one question'),
-                      duration: Duration(seconds: 2),
-                    );
+                stepsButton(
+                    context: context,
+                    text: 'Next',
+                    icon: Icons.navigate_next,
+                    type: 2,
+                    onTap: () {
+                      if (_questions.isEmpty) {
+                        final snackBar = SnackBar(
+                          elevation: 1.0,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Theme.of(context).accentColor,
+                                width: 2.0),
+                            borderRadius: BorderRadius.circular(6.0),
+                          ),
+                          content: Text('At least one question'),
+                          duration: Duration(seconds: 2),
+                        );
 
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  } else {
-                    setState(() {
-                      _currentStep++;
-                    });
-                  }
-                }),
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } else {
+                        setState(() {
+                          _currentStep++;
+                        });
+                      }
+                    }),
               ],
             ),
           ),
@@ -667,7 +695,7 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
               ),
             ),
           ),
-          button('Add Answer', () {
+          insidStepButton(context, 'Add Answer', () {
             if (_answersformKey.currentState.validate()) {
               setState(() {
                 _answers.add({
@@ -687,33 +715,43 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
             padding: EdgeInsets.all(8.0),
             child: Row(
               children: [
+                stepsButton(
+                    context: context,
+                    text: 'Previos',
+                    icon: Icons.navigate_before,
+                    type: 1,
+                    onTap: () {
+                      setState(() {
+                        _currentStep--;
+                      });
+                    }),
                 Spacer(),
-                button('Previos', () {
-                  setState(() {
-                    _currentStep--;
-                  });
-                }),
-                SizedBox(width: 6.0),
-                button('Next', () {
-                  if (_answers.isEmpty) {
-                    final snackBar = SnackBar(
-                      elevation: 1.0,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                            color: Theme.of(context).accentColor, width: 2.0),
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      content: Text('At least one answer'),
-                      duration: Duration(seconds: 2),
-                    );
+                stepsButton(
+                    context: context,
+                    text: 'Next',
+                    icon: Icons.navigate_next,
+                    type: 2,
+                    onTap: () {
+                      if (_answers.isEmpty) {
+                        final snackBar = SnackBar(
+                          elevation: 1.0,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Theme.of(context).accentColor,
+                                width: 2.0),
+                            borderRadius: BorderRadius.circular(6.0),
+                          ),
+                          content: Text('At least one answer'),
+                          duration: Duration(seconds: 2),
+                        );
 
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  } else {
-                    setState(() {
-                      _currentStep++;
-                    });
-                  }
-                }),
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } else {
+                        setState(() {
+                          _currentStep++;
+                        });
+                      }
+                    }),
               ],
             ),
           ),
@@ -745,8 +783,11 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
                   children: [
                     ListTile(
                       shape: RoundedRectangleBorder(
-                          side:
-                              BorderSide(color: Constants.myGrey, width: 1.0)),
+                          side: BorderSide(color: Constants.myGrey, width: 1.0),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20.0),
+                            topRight: Radius.circular(20.0),
+                          )),
                       title: Text(questionAnswer.questionEn),
                       trailing: IconButton(
                         onPressed: () {
@@ -923,7 +964,7 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
               ),
             ),
           ),
-          button('Add Answer', () {
+          insidStepButton(context, 'Add Answer', () {
             if (_answersformKey.currentState.validate()) {
               setState(() {
                 _localAnswers.add({
@@ -940,7 +981,7 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
             }
           }),
           SizedBox(height: 8.0),
-          button('Add Question', () {
+          insidStepButton(context, 'Add Question', () {
             if (_questionsformKey.currentState.validate()) {
               if (_localAnswers.isNotEmpty) {
                 QuestionAnswer questionAnswer = QuestionAnswer(
@@ -977,33 +1018,43 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
             padding: EdgeInsets.all(8.0),
             child: Row(
               children: [
+                stepsButton(
+                    context: context,
+                    text: 'Previos',
+                    icon: Icons.navigate_before,
+                    type: 1,
+                    onTap: () {
+                      setState(() {
+                        _currentStep--;
+                      });
+                    }),
                 Spacer(),
-                button('Previos', () {
-                  setState(() {
-                    _currentStep--;
-                  });
-                }),
-                SizedBox(width: 6.0),
-                button('Next', () {
-                  if (_questionsAnswers.isEmpty) {
-                    final snackBar = SnackBar(
-                      elevation: 1.0,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                            color: Theme.of(context).accentColor, width: 2.0),
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      content: Text('At least one question'),
-                      duration: Duration(seconds: 2),
-                    );
+                stepsButton(
+                    context: context,
+                    text: 'Next',
+                    icon: Icons.navigate_next,
+                    type: 2,
+                    onTap: () {
+                      if (_questionsAnswers.isEmpty) {
+                        final snackBar = SnackBar(
+                          elevation: 1.0,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Theme.of(context).accentColor,
+                                width: 2.0),
+                            borderRadius: BorderRadius.circular(6.0),
+                          ),
+                          content: Text('At least one question'),
+                          duration: Duration(seconds: 2),
+                        );
 
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  } else {
-                    setState(() {
-                      _currentStep++;
-                    });
-                  }
-                }),
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } else {
+                        setState(() {
+                          _currentStep++;
+                        });
+                      }
+                    }),
               ],
             ),
           ),
@@ -1118,7 +1169,7 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
               ),
             ),
           ),
-          button('Add Evaluation', () {
+          insidStepButton(context, 'Add Evaluation', () {
             if (_evaluationsformKey.currentState.validate()) {
               setState(() {
                 _evaluations.add({
@@ -1141,56 +1192,47 @@ class _AddQuestionnaireState extends State<AddQuestionnaire> {
             padding: EdgeInsets.all(8.0),
             child: Row(
               children: [
+                stepsButton(
+                    context: context,
+                    text: 'Previos',
+                    icon: Icons.navigate_before,
+                    type: 1,
+                    onTap: () {
+                      setState(() {
+                        _currentStep--;
+                      });
+                    }),
                 Spacer(),
-                button('Previos', () {
-                  setState(() {
-                    _currentStep--;
-                  });
-                }),
-                SizedBox(width: 6.0),
-                button('Done', () {
-                  if (_evaluations.isEmpty) {
-                    final snackBar = SnackBar(
-                      elevation: 1.0,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                            color: Theme.of(context).accentColor, width: 2.0),
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      content: Text('At least one evaluation'),
-                      duration: Duration(seconds: 2),
-                    );
+                stepsButton(
+                    context: context,
+                    text: 'Next',
+                    icon: Icons.navigate_next,
+                    type: 2,
+                    onTap: () {
+                      if (_evaluations.isEmpty) {
+                        final snackBar = SnackBar(
+                          elevation: 1.0,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Theme.of(context).accentColor,
+                                width: 2.0),
+                            borderRadius: BorderRadius.circular(6.0),
+                          ),
+                          content: Text('At least one evaluation'),
+                          duration: Duration(seconds: 2),
+                        );
 
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  } else {
-                    setState(() {
-                      _currentStep++;
-                    });
-                  }
-                }),
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } else {
+                        setState(() {
+                          _currentStep++;
+                        });
+                      }
+                    }),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget button(String text, Function onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).accentColor,
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        width: 160,
-        alignment: Alignment.center,
-        child: Text(
-          text,
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
       ),
     );
   }

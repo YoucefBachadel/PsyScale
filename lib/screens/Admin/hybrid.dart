@@ -10,6 +10,7 @@ import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Hybrid extends StatefulWidget {
   final ValueListenable<String> search;
@@ -98,23 +99,45 @@ class _HybridState extends State<Hybrid> {
                       if (snapshot.hasData) {
                         QuerySnapshot data = snapshot.data;
                         getQuestionnairesList(data, userData.language);
-                        return desktopWidget(
-                          Container(),
-                          Container(),
-                          Container(
-                            alignment: questionnaires.isEmpty
-                                ? Alignment.center
-                                : Alignment.topCenter,
-                            color: Theme.of(context).backgroundColor,
-                            height: double.infinity,
-                            child: CustomScrollView(
-                              slivers: [
-                                SliverToBoxAdapter(
-                                  child: _buildPanel(),
-                                )
-                              ],
+                        return Stack(
+                          children: [
+                            Positioned(
+                              bottom: 8.0,
+                              left: 8.0,
+                              child: customButton(
+                                context: context,
+                                icon: Icons.add,
+                                text: 'Google Forms',
+                                width: 160,
+                                onTap: () async {
+                                  const url = "https://docs.google.com/forms";
+                                  if (await canLaunch(url))
+                                    await launch(url);
+                                  else
+                                    // can't launch url, there is some error
+                                    throw "Could not launch $url";
+                                },
+                              ),
                             ),
-                          ),
+                            desktopWidget(
+                              Container(),
+                              Container(),
+                              Container(
+                                alignment: questionnaires.isEmpty
+                                    ? Alignment.center
+                                    : Alignment.topCenter,
+                                color: Theme.of(context).backgroundColor,
+                                height: double.infinity,
+                                child: CustomScrollView(
+                                  slivers: [
+                                    SliverToBoxAdapter(
+                                      child: _buildPanel(),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       } else {
                         return loading(context);
@@ -230,10 +253,8 @@ class _HybridState extends State<Hybrid> {
                                 elevation: 2.0,
                                 child: InkWell(
                                   onTap: () {
-                                    Constants.navigationFunc(
-                                      context,
-                                      HybridData(questionnaire: questionnaire),
-                                    );
+                                    widget.changeTab(
+                                        index: 1, questionnaire: questionnaire);
                                   },
                                   child: ListTile(
                                     title: Padding(
@@ -248,13 +269,17 @@ class _HybridState extends State<Hybrid> {
                                       maxLines: 3,
                                     ),
                                     trailing: IconButton(
-                                      onPressed: () {
-                                        widget.changeTab(
-                                            index: 1,
-                                            questionnaire: questionnaire);
-                                      },
-                                      icon: Icon(Icons.edit),
-                                    ),
+                                        onPressed: () {
+                                          Constants.navigationFunc(
+                                            context,
+                                            HybridData(
+                                                questionnaire: questionnaire),
+                                          );
+                                        },
+                                        icon: Icon(
+                                          Icons.cloud_download_outlined,
+                                          color: Colors.green,
+                                        )),
                                   ),
                                 ),
                               );

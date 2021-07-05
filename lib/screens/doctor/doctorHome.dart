@@ -17,6 +17,7 @@ import 'package:psyscale/screens/doctor/troubles.dart';
 import 'package:psyscale/screens/doctor/questionnaires.dart';
 import 'package:psyscale/screens/doctor/hybrids.dart';
 import 'package:psyscale/services/userServices.dart';
+import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
@@ -344,19 +345,23 @@ class _DoctorHomeState extends State<DoctorHome> {
                   if (!Responsive.isdesktop(context)) {
                     Navigator.pop(context);
                   }
-                  createDialog(
-                    context,
-                    SingleChildScrollView(
-                      child: Container(
-                        height: 700,
-                        width: Responsive.isMobile(context)
-                            ? double.infinity
-                            : 700,
+                  if (Responsive.isMobile(context)) {
+                    Constants.navigationFunc(
+                        context,
+                        Scaffold(
+                            body: SafeArea(
+                          child: ProfileDoctor(userData: userData),
+                        )));
+                  } else {
+                    createDialog(
+                      context,
+                      Container(
+                        width: 700,
                         child: ProfileDoctor(userData: userData),
                       ),
-                    ),
-                    false,
-                  );
+                      false,
+                    );
+                  }
                 },
               ),
             ],

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/User.dart';
-import 'package:psyscale/classes/Language.dart';
 import 'package:psyscale/main.dart';
 import 'package:psyscale/services/authenticationServices%20.dart';
 import 'package:psyscale/services/userServices.dart';
@@ -123,9 +122,9 @@ class _ProfileDoctorState extends State<ProfileDoctor> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 10),
                         Text(
                           'Name:',
                           style: Theme.of(context).textTheme.subtitle1,
@@ -202,7 +201,6 @@ class _ProfileDoctorState extends State<ProfileDoctor> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10.0),
                 customButton(
                     context: context,
                     text: 'Save',

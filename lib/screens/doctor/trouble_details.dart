@@ -35,7 +35,7 @@ class _TroubleDetailsState extends State<TroubleDetails>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Responsive.isdesktop(context)
+        body: !Responsive.isMobile(context)
             ? desktopWidget(Container(), Container(), bodyView())
             : bodyView());
   }

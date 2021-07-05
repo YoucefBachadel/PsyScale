@@ -97,11 +97,11 @@ InputDecoration searchTextInputDecoration(
     filled: true,
     hintText: 'Search By Name',
     labelText: 'Search',
-    labelStyle: TextStyle(color: Constants.border),
+    labelStyle: TextStyle(color: Constants.myGrey),
     prefixIcon: Icon(
       Icons.search,
       size: 30.0,
-      color: Constants.border,
+      color: Constants.myGrey,
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10.0),
@@ -122,7 +122,7 @@ InputDecoration searchTextInputDecoration(
       icon: Icon(
         Icons.close,
         size: 30.0,
-        color: Constants.border,
+        color: Constants.myGrey,
       ),
       focusColor: Theme.of(context).accentColor,
       onPressed: onPressed,
@@ -188,7 +188,7 @@ Widget deleteButton(BuildContext context, Function onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 6.0),
         decoration: BoxDecoration(
-          border: Border.all(color: color, width: 2.0),
+          color: color,
           borderRadius: BorderRadius.circular(5.0),
         ),
         alignment: Alignment.center,
@@ -196,12 +196,12 @@ Widget deleteButton(BuildContext context, Function onTap,
           children: [
             Icon(
               icon,
-              color: color,
+              color: Colors.white,
             ),
             SizedBox(width: 8.0),
             Text(
               text,
-              style: TextStyle(color: color, fontSize: 16),
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
         ),
@@ -410,6 +410,68 @@ Widget customButton(
             style: TextStyle(color: Colors.white, fontSize: 16),
           ),
         ],
+      ),
+    ),
+  );
+}
+
+Widget stepsButton(
+    {BuildContext context,
+    int type,
+    Function onTap,
+    IconData icon,
+    String text}) {
+  return InkWell(
+    onTap: onTap,
+    child: Container(
+      padding: EdgeInsets.symmetric(vertical: 12.0),
+      decoration: BoxDecoration(
+        color: type == 1 ? Colors.red : Colors.green,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      alignment: Alignment.center,
+      width: 120,
+      child: type == 1
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Colors.white),
+                SizedBox(width: 6.0),
+                Text(
+                  text,
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  text,
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                SizedBox(width: 6.0),
+                Icon(icon, color: Colors.white),
+              ],
+            ),
+    ),
+  );
+}
+
+Widget insidStepButton(BuildContext context, String text, Function onTap) {
+  return InkWell(
+    onTap: onTap,
+    child: Container(
+      padding: EdgeInsets.symmetric(vertical: 12.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).accentColor,
+        borderRadius: BorderRadius.circular(5.0),
+      ),
+      width: 160,
+      alignment: Alignment.center,
+      child: Text(
+        text,
+        style: TextStyle(color: Colors.white, fontSize: 16),
       ),
     ),
   );

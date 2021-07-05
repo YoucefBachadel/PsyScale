@@ -4,7 +4,7 @@ class Constants {
   static const Color border = Color(0xff263238);
   static const Color myGrey = Colors.grey;
 
-  static const int animationDuration = 1200;
+  static const int animationDuration = 1000;
   static const int snackBarDuration = 5;
 
   static navigationFunc(BuildContext context, Widget widget) {

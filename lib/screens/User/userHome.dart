@@ -32,21 +32,21 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
   List<Questionnaire> questionnaires = [];
   List<Questionnaire> allQuestionnaires = [];
   List<Map<String, Object>> historys = [];
-  var _scrollController, _tabController, _textFieldController;
+  var _textFieldController;
   String search = '';
+  String appBarTitle = 'Troubles';
 
-  List<String> tabs = ['Categories', 'All Tests'];
+  List<String> tabs = ['Troubles', 'Questionnaires'];
 
   String clickedQuestionnaire = '';
   bool updatedLastSignIn = false;
+  bool _isSearching = false;
 
   @override
   void initState() {
     if (widget.userData.uid != 'gest' && tabs.length != 3) {
       tabs.add('History');
     }
-    _scrollController = ScrollController();
-    _tabController = TabController(vsync: this, length: tabs.length);
     _textFieldController = TextEditingController();
     super.initState();
   }
@@ -150,56 +150,51 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
       UsersServices(useruid: widget.userData.uid).updatelastSignIn();
       updatedLastSignIn = true;
     }
-    return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
-        body: Responsive.isMobile(context)
-            ? mobileView()
-            : kIsWeb
-                ? unsupportedScreenSize(
-                    context, 'The user interface is not supported on web', true)
-                : unsupportedScreenSize(
-                    context,
-                    'The user interface is not supported in this screen size',
-                    false,
-                  ));
-  }
-
-  Widget mobileView() {
     List<Widget> widgets = [];
-
     widgets.add(getTroubles());
     widgets.add(getAllQuestionnaires());
 
     if (widget.userData.uid != 'gest') {
       widgets.add(getHestory());
     }
-
-    return Column(
-      children: [
-        Expanded(
-          child: NestedScrollView(
-            controller: _scrollController,
-            headerSliverBuilder:
-                (BuildContext context, bool innerBoxIsScrolled) {
-              return [
-                SliverAppBar(
-                  pinned: true,
-                  floating: true,
-                  backgroundColor: Theme.of(context).primaryColor,
-                  elevation: 2.0,
-                  title: appBar(
-                      context,
-                      widget.userData.uid == 'gest'
-                          ? 'Welcome'
-                          : 'Hello ${widget.userData.name}',
-                      ''),
-                  bottom: PreferredSize(
-                      preferredSize: Size.fromHeight(71.0),
-                      child: Column(
-                        children: [
-                          SizedBox(height: 4.0),
-                          Material(
-                            color: Colors.transparent,
+    return DefaultTabController(
+        length: tabs.length,
+        // The Builder widget is used to have a different BuildContext to access
+        // closest DefaultTabController.
+        child: Builder(builder: (BuildContext context) {
+          final TabController tabController = DefaultTabController.of(context);
+          tabController.addListener(() {
+            if (!tabController.indexIsChanging) {
+              switch (tabController.index) {
+                case 0:
+                  setState(() {
+                    appBarTitle = 'Troubles';
+                  });
+                  break;
+                case 1:
+                  setState(() {
+                    appBarTitle = 'Questionnaires';
+                  });
+                  break;
+                case 2:
+                  setState(() {
+                    appBarTitle = 'History';
+                  });
+                  break;
+              }
+            }
+          });
+          return Scaffold(
+              backgroundColor: Theme.of(context).backgroundColor,
+              appBar: AppBar(
+                elevation: 2.0,
+                centerTitle: true,
+                title: appBar(context, appBarTitle, ''),
+                bottom: PreferredSize(
+                    preferredSize: Size.fromHeight(_isSearching ? 60.0 : 0.0),
+                    child: !_isSearching
+                        ? SizedBox()
+                        : Material(
                             elevation: 5.0,
                             child: TextFormField(
                               controller: _textFieldController,
@@ -210,6 +205,7 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                                     .requestFocus(new FocusNode());
                                 setState(() {
                                   search = '';
+                                  _isSearching = false;
                                 });
                               }),
                               onChanged: (value) {
@@ -219,56 +215,74 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                                 });
                               },
                             ),
-                          ),
-                          SizedBox(height: 5.0),
-                        ],
+                          )),
+                leading: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                      onTap: () {
+                        widget.userData.uid == 'gest'
+                            ? Constants.navigationFunc(context, SignIn())
+                            : createDialog(
+                                context,
+                                SingleChildScrollView(
+                                  child: Container(
+                                      height: 510,
+                                      child: ProfileUser(
+                                          userData: widget.userData)),
+                                ),
+                                false,
+                              );
+                      },
+                      child: CircleAvatar(
+                        backgroundImage: AssetImage('assets/avatar.jpg'),
                       )),
-                  actions: [
-                    SizedBox(width: 4.0),
-                    InkWell(
-                        onTap: () {
-                          widget.userData.uid == 'gest'
-                              ? Constants.navigationFunc(context, SignIn())
-                              : createDialog(
-                                  context,
-                                  SingleChildScrollView(
-                                    child: Container(
-                                        height: 510,
-                                        child: ProfileUser(
-                                            userData: widget.userData)),
-                                  ),
-                                  false,
-                                );
-                        },
-                        child: CircleAvatar(
-                          backgroundImage: AssetImage('assets/avatar.jpg'),
-                        )),
-                    SizedBox(width: 16.0),
-                  ],
                 ),
-              ];
-            },
-            body: TabBarView(
-              controller: _tabController,
-              children: widgets,
-            ),
-          ),
-        ),
-        Hero(
-          tag: 'tabbar',
-          child: Material(
-            color: Constants.border,
-            child: TabBar(
-              indicatorColor: Theme.of(context).accentColor,
-              labelColor: Theme.of(context).accentColor,
-              unselectedLabelColor: Colors.white,
-              tabs: tabs.map((e) => Tab(text: e)).toList(),
-              controller: _tabController,
-            ),
-          ),
-        ),
-      ],
-    );
+                actions: [
+                  !_isSearching
+                      ? IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isSearching = true;
+                            });
+                          },
+                          icon: Icon(Icons.search),
+                        )
+                      : SizedBox(),
+                ],
+              ),
+              body: !Responsive.isMobile(context)
+                  ? kIsWeb
+                      ? unsupportedScreenSize(context,
+                          'The user interface is not supported on web', true)
+                      : unsupportedScreenSize(
+                          context,
+                          'The user interface is not supported in this screen size',
+                          false,
+                        )
+                  : Column(
+                      children: [
+                        Expanded(
+                          child: TabBarView(
+                            controller: tabController,
+                            children: widgets,
+                          ),
+                        ),
+                        Hero(
+                          tag: 'tabbar',
+                          child: Material(
+                            color: Constants.border,
+                            child: TabBar(
+                              indicatorColor: Theme.of(context).accentColor,
+                              labelColor: Theme.of(context).accentColor,
+                              unselectedLabelColor: Colors.white,
+                              tabs: tabs.map((e) => Tab(text: e)).toList(),
+                              controller: tabController,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ));
+        }));
   }
 
   Widget getTroubles() {
@@ -504,50 +518,51 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
         ? emptyList()
         : ListView(
             children: historys
-                .map((e) => Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            e['name'],
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline6
-                                .copyWith(fontWeight: FontWeight.w700),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Score: ${e['score']}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline6
-                                    .copyWith(fontWeight: FontWeight.w300),
-                              ),
-                              Text(
-                                DateFormat('yyyy-MM-dd').format(e['date']),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline6
-                                    .copyWith(fontWeight: FontWeight.w300),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8.0),
-                          Text(
-                            e['message'],
-                            style: Theme.of(context)
-                                .textTheme
-                                .subtitle1
-                                .copyWith(fontWeight: FontWeight.w300),
-                          ),
-                          SizedBox(height: 8.0),
-                          divider(),
-                          SizedBox(height: 8.0),
-                        ],
+                .map((e) => Card(
+                      elevation: 2.0,
+                      margin: const EdgeInsets.all(8.0),
+                      child: Container(
+                        padding: EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              e['name'],
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline6
+                                  .copyWith(fontWeight: FontWeight.w700),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Score: ${e['score']}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline6
+                                      .copyWith(fontWeight: FontWeight.w300),
+                                ),
+                                Text(
+                                  DateFormat('yyyy-MM-dd').format(e['date']),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline6
+                                      .copyWith(fontWeight: FontWeight.w300),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8.0),
+                            Text(
+                              e['message'],
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle1
+                                  .copyWith(fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                        ),
                       ),
                     ))
                 .toList(),

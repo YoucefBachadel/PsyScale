@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/services/troubleServices.dart';
 import 'package:psyscale/shared/constants.dart';
-import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
 class AddTroubles extends StatefulWidget {
@@ -131,12 +130,12 @@ class _AddTroublesState extends State<AddTroubles> {
                         ),
                         widget.trouble != null
                             ? Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
+                                padding: const EdgeInsets.all(4.0),
                                 child: deleteButton(context, () {
                                   createDialog(context,
                                       delteTrouble(widget.trouble.uid), true);
                                 },
-                                    text: 'Delete',
+                                    text: 'Delete Trouble',
                                     color: Colors.red,
                                     icon: Icons.delete),
                               )
@@ -151,38 +150,73 @@ class _AddTroublesState extends State<AddTroubles> {
                         child: Container(
                           margin: EdgeInsets.symmetric(horizontal: 24.0),
                           child: Column(children: [
-                            SizedBox(height: 10.0),
-                            TextFormField(
-                              initialValue: widget.trouble == null
-                                  ? ''
-                                  : widget.trouble.nameEn,
-                              validator: (value) =>
-                                  value.isEmpty ? 'Enter the Name' : null,
-                              decoration:
-                                  textInputDecoration(context, 'English Name'),
-                              onChanged: (value) => _nameEn = value,
-                            ),
-                            SizedBox(height: 10.0),
-                            TextFormField(
-                              initialValue: widget.trouble == null
-                                  ? ''
-                                  : widget.trouble.nameFr,
-                              validator: (value) =>
-                                  value.isEmpty ? 'Enter the Name' : null,
-                              decoration:
-                                  textInputDecoration(context, 'Frensh Name'),
-                              onChanged: (value) => _nameFr = value,
-                            ),
-                            SizedBox(height: 10.0),
-                            TextFormField(
-                              initialValue: widget.trouble == null
-                                  ? ''
-                                  : widget.trouble.nameAr,
-                              validator: (value) =>
-                                  value.isEmpty ? 'Enter the Name' : null,
-                              decoration:
-                                  textInputDecoration(context, 'Arabic Name'),
-                              onChanged: (value) => _nameAr = value,
+                            Row(
+                              children: [
+                                Expanded(
+                                    child: Column(
+                                  children: [
+                                    SizedBox(height: 10.0),
+                                    TextFormField(
+                                      initialValue: widget.trouble == null
+                                          ? ''
+                                          : widget.trouble.nameEn,
+                                      validator: (value) => value.isEmpty
+                                          ? 'Enter the Name'
+                                          : null,
+                                      decoration: textInputDecoration(
+                                          context, 'English Name'),
+                                      onChanged: (value) => _nameEn = value,
+                                    ),
+                                    SizedBox(height: 10.0),
+                                    TextFormField(
+                                      initialValue: widget.trouble == null
+                                          ? ''
+                                          : widget.trouble.nameFr,
+                                      validator: (value) => value.isEmpty
+                                          ? 'Enter the Name'
+                                          : null,
+                                      decoration: textInputDecoration(
+                                          context, 'Frensh Name'),
+                                      onChanged: (value) => _nameFr = value,
+                                    ),
+                                    SizedBox(height: 10.0),
+                                    TextFormField(
+                                      initialValue: widget.trouble == null
+                                          ? ''
+                                          : widget.trouble.nameAr,
+                                      validator: (value) => value.isEmpty
+                                          ? 'Enter the Name'
+                                          : null,
+                                      decoration: textInputDecoration(
+                                          context, 'Arabic Name'),
+                                      onChanged: (value) => _nameAr = value,
+                                    ),
+                                  ],
+                                )),
+                                Expanded(
+                                    child: Card(
+                                  clipBehavior: Clip.antiAlias,
+                                  shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                          color: Constants.border, width: 2.0),
+                                      borderRadius:
+                                          BorderRadius.circular(15.0)),
+                                  elevation: 2.0,
+                                  margin: const EdgeInsets.only(left: 8.0),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 180,
+                                    child: _imageUrl == null || _imageUrl == ''
+                                        ? Text(
+                                            'No Url Image',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline6,
+                                          )
+                                        : loadingImage(context, _imageUrl),
+                                  ),
+                                )),
+                              ],
                             ),
                             SizedBox(height: 10.0),
                             TextFormField(
@@ -195,7 +229,11 @@ class _AddTroublesState extends State<AddTroubles> {
                                   value.isEmpty ? 'Enter the image Url' : null,
                               decoration:
                                   textInputDecoration(context, 'Image Url'),
-                              onChanged: (value) => _imageUrl = value,
+                              onChanged: (value) {
+                                setState(() {
+                                  _imageUrl = value;
+                                });
+                              },
                             ),
                             SizedBox(height: 10.0),
                             TextFormField(
@@ -247,30 +285,18 @@ class _AddTroublesState extends State<AddTroubles> {
                   ),
                   Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: InkWell(
-                      onTap: () {
-                        widget.trouble == null
-                            ? addTroubles()
-                            : updateTroubles();
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 18.0),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).accentColor,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        alignment: Alignment.center,
-                        width: Responsive.isMobile(context)
-                            ? MediaQuery.of(context).size.width
-                            : screenWidth * 0.2,
-                        child: Text(
+                    child: customButton(
+                        context: context,
+                        text: widget.trouble == null
+                            ? 'Add Trouble'
+                            : 'Update Trouble',
+                        icon: widget.trouble == null ? Icons.add : Icons.update,
+                        width: screenWidth * 0.2,
+                        onTap: () {
                           widget.trouble == null
-                              ? 'Add Trouble'
-                              : 'Update Trouble',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ),
-                    ),
+                              ? addTroubles()
+                              : updateTroubles();
+                        }),
                   )
                 ],
               ),

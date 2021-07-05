@@ -159,8 +159,9 @@ class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
                       : SizedBox(),
                   Spacer(flex: 1),
                   _currentQuestionIndex > 0 ? divider() : SizedBox(),
-                  Spacer(flex: 2),
+                  _currentQuestionIndex > 0 ? Spacer(flex: 2) : SizedBox(),
                   Container(
+                    width: double.infinity,
                     padding: EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
                       color: Colors.white,

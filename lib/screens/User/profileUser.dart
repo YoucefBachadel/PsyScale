@@ -110,7 +110,7 @@ class _ProfileUserState extends State<ProfileUser> {
                   ),
                 ),
                 Expanded(
-                  child: Padding(
+                  child: Container(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

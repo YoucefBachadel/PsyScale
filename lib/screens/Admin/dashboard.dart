@@ -9,7 +9,6 @@ import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/services/questionnaireServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
 import 'package:psyscale/services/userServices.dart';
-import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
 
@@ -30,6 +29,7 @@ class _DashboardState extends State<Dashboard> {
   int _psychiatristsCount;
   int _adminsCount;
   int _superAdminsCount;
+  int _invalidatedPsychiatrists;
   List<Trouble> troubles = [];
   List<Questionnaire> questionnaires = [];
   List<Questionnaire> hybrides = [];
@@ -217,6 +217,7 @@ class _DashboardState extends State<Dashboard> {
             _psychiatristsCount = 0;
             _adminsCount = 0;
             _superAdminsCount = 0;
+            _invalidatedPsychiatrists = 0;
             data.docs.forEach((element) {
               switch (element['type']) {
                 case 'user':
@@ -224,43 +225,54 @@ class _DashboardState extends State<Dashboard> {
                   break;
                 case 'doctor':
                   _psychiatristsCount++;
+                  if (!element['validated']) _invalidatedPsychiatrists++;
                   break;
                 case 'admin':
                   _adminsCount++;
+
                   break;
                 case 'superAdmin':
                   _superAdminsCount++;
                   break;
               }
             });
-            return Container(
+            return Card(
+              elevation: 10.0,
               margin: const EdgeInsets.all(16.0),
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Users Details",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).backgroundColor,
+                  borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Users Details",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 16.0),
-                  chart(context),
-                  userCardInfo(Icons.supervised_user_circle_rounded, 'Users',
-                      _usersCount, Constants.border, 6),
-                  userCardInfo(MdiIcons.doctor, 'Doctors', _psychiatristsCount,
-                      Color(0xFF26E5FF), 7),
-                  userCardInfo(Icons.admin_panel_settings, 'Admins',
-                      _adminsCount, Color(0xFFFFCF26), 8),
-                  userCardInfo(Icons.add_moderator_outlined, 'Super Admins',
-                      _superAdminsCount, Color(0xFFEE2727), 8),
-                ],
+                    SizedBox(height: 16.0),
+                    chart(context),
+                    const Spacer(flex: 2),
+                    userCardInfo(Icons.supervised_user_circle_rounded, 'Users',
+                        _usersCount, Color(0xFF19114a), 6),
+                    const Spacer(),
+                    userCardInfo(MdiIcons.doctor, 'Doctors',
+                        _psychiatristsCount, Color(0xFF4485fb), 7,
+                        invalited: _invalidatedPsychiatrists),
+                    const Spacer(),
+                    userCardInfo(Icons.admin_panel_settings, 'Admins',
+                        _adminsCount, Color(0xFFf3c04a), 8),
+                    const Spacer(),
+                    userCardInfo(Icons.add_moderator_outlined, 'Super Admins',
+                        _superAdminsCount, Color(0xFFa32c80), 8),
+                    const Spacer(flex: 2),
+                  ],
+                ),
               ),
             );
           } else {
@@ -296,42 +308,45 @@ class _DashboardState extends State<Dashboard> {
         childAspectRatio: 1.5,
         crossAxisSpacing: 16.0,
         children: items
-            .map((e) => InkWell(
-                  onTap: () {
-                    widget.changeTab(
-                      index: e['index'],
-                      backAppbarTitle: e['title'],
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 1, color: Constants.border),
-                      color: Theme.of(context).primaryColor,
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(10.0)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ListTile(
-                          leading: Icon(
-                            e['icon'],
-                            size: 30.0,
+            .map((e) => Card(
+                  elevation: 10.0,
+                  child: InkWell(
+                    onTap: () {
+                      widget.changeTab(
+                        index: e['index'],
+                        backAppbarTitle: e['title'],
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // border: Border.all(width: 1, color: Constants.border),
+                        color: Theme.of(context).backgroundColor,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(5.0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ListTile(
+                            leading: Icon(
+                              e['icon'],
+                              size: 30.0,
+                            ),
+                            title: Text(e['title'],
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    .copyWith(fontWeight: FontWeight.w600)),
                           ),
-                          title: Text(e['title'],
-                              overflow: TextOverflow.ellipsis,
+                          Text(e['count'],
                               style: Theme.of(context)
                                   .textTheme
-                                  .headline5
-                                  .copyWith(fontWeight: FontWeight.w600)),
-                        ),
-                        Text(e['count'],
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline2
-                                .copyWith(fontWeight: FontWeight.w900)),
-                      ],
+                                  .headline2
+                                  .copyWith(fontWeight: FontWeight.w900)),
+                        ],
+                      ),
                     ),
                   ),
                 ))
@@ -342,144 +357,148 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget troublesDetailes() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
+    return Card(
+      elevation: 10.0,
       margin: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('List Of Troubles', style: Theme.of(context).textTheme.headline6),
-        SizedBox(height: 16.0),
-        SizedBox(
-          width: double.infinity,
-          child: DataTable(
-            sortAscending: _isAscending,
-            sortColumnIndex: _sortColumnIndex,
-            dataRowHeight: 60.0,
-            horizontalMargin: 0,
-            columnSpacing: 8.0,
-            columns: [
-              DataColumn(
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).backgroundColor,
+          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('List Of Troubles',
+              style: Theme.of(context).textTheme.headline6),
+          SizedBox(height: 16.0),
+          SizedBox(
+            width: double.infinity,
+            child: DataTable(
+              sortAscending: _isAscending,
+              sortColumnIndex: _sortColumnIndex,
+              dataRowHeight: 60.0,
+              horizontalMargin: 0,
+              columnSpacing: 8.0,
+              columns: [
+                DataColumn(
+                    onSort: (int columnIndex, bool ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _isAscending = ascending;
+                        _sortBy = 'Trouble Name';
+                      });
+                    },
+                    label: Text(
+                      'Trouble Name',
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle1
+                          .copyWith(fontWeight: FontWeight.w900),
+                    )),
+                DataColumn(
+                    onSort: (int columnIndex, bool ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _isAscending = ascending;
+                        _sortBy = 'Questionnaires';
+                      });
+                    },
+                    label: Text(
+                      'Questionnaires',
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle1
+                          .copyWith(fontWeight: FontWeight.w900),
+                    )),
+                DataColumn(
                   onSort: (int columnIndex, bool ascending) {
                     setState(() {
                       _sortColumnIndex = columnIndex;
                       _isAscending = ascending;
-                      _sortBy = 'Trouble Name';
+                      _sortBy = 'Hybrid';
                     });
                   },
                   label: Text(
-                    'Trouble Name',
+                    'Hybrid',
                     style: Theme.of(context)
                         .textTheme
                         .subtitle1
                         .copyWith(fontWeight: FontWeight.w900),
-                  )),
-              DataColumn(
-                  onSort: (int columnIndex, bool ascending) {
-                    setState(() {
-                      _sortColumnIndex = columnIndex;
-                      _isAscending = ascending;
-                      _sortBy = 'Questionnaires';
-                    });
-                  },
-                  label: Text(
-                    'Questionnaires',
-                    style: Theme.of(context)
-                        .textTheme
-                        .subtitle1
-                        .copyWith(fontWeight: FontWeight.w900),
-                  )),
-              DataColumn(
-                onSort: (int columnIndex, bool ascending) {
-                  setState(() {
-                    _sortColumnIndex = columnIndex;
-                    _isAscending = ascending;
-                    _sortBy = 'Hybrid';
-                  });
-                },
-                label: Text(
-                  'Hybrid',
-                  style: Theme.of(context)
-                      .textTheme
-                      .subtitle1
-                      .copyWith(fontWeight: FontWeight.w900),
+                  ),
                 ),
-              ),
-            ],
-            rows: troubles.map((trouble) {
-              int _troubleQuestionnaires = 0;
-              int _troubleHybrides = 0;
-              questionnaires.forEach((element) {
-                if (element.troubleUid == trouble.uid) {
-                  _troubleQuestionnaires++;
-                }
-              });
-              hybrides.forEach((element) {
-                if (element.troubleUid == trouble.uid) {
-                  _troubleHybrides++;
-                }
-              });
-              return DataRow(
-                  color:
-                      MaterialStateProperty.all(Theme.of(context).primaryColor),
-                  cells: [
-                    DataCell(
-                      Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CircleAvatar(
-                                backgroundImage:
-                                    NetworkImage(trouble.imageUrl)),
-                          ),
-                          SizedBox(width: 8.0),
-                          Text(
-                            trouble.getName(widget.userData.language),
-                            style: Theme.of(context).textTheme.subtitle2,
-                          )
-                        ],
+              ],
+              rows: troubles.map((trouble) {
+                int _troubleQuestionnaires = 0;
+                int _troubleHybrides = 0;
+                questionnaires.forEach((element) {
+                  if (element.troubleUid == trouble.uid) {
+                    _troubleQuestionnaires++;
+                  }
+                });
+                hybrides.forEach((element) {
+                  if (element.troubleUid == trouble.uid) {
+                    _troubleHybrides++;
+                  }
+                });
+                return DataRow(
+                    color: MaterialStateProperty.all(
+                        Theme.of(context).backgroundColor),
+                    cells: [
+                      DataCell(
+                        Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                  backgroundImage:
+                                      NetworkImage(trouble.imageUrl)),
+                            ),
+                            SizedBox(width: 8.0),
+                            Text(
+                              trouble.getName(widget.userData.language),
+                              style: Theme.of(context).textTheme.subtitle2,
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    DataCell(Text(
-                      _troubleQuestionnaires.toString(),
-                      style: Theme.of(context).textTheme.headline6,
-                    )),
-                    DataCell(Text(
-                      _troubleHybrides.toString(),
-                      style: Theme.of(context).textTheme.headline6,
-                    )),
-                  ]);
-            }).toList(),
-          ),
-        )
-      ]),
+                      DataCell(Text(
+                        _troubleQuestionnaires.toString(),
+                        style: Theme.of(context).textTheme.headline6,
+                      )),
+                      DataCell(Text(
+                        _troubleHybrides.toString(),
+                        style: Theme.of(context).textTheme.headline6,
+                      )),
+                    ]);
+              }).toList(),
+            ),
+          )
+        ]),
+      ),
     );
   }
 
   Widget chart(BuildContext context) {
     List<PieChartSectionData> paiChartSelectionDatas = [
       PieChartSectionData(
-        color: Constants.border,
+        color: Color(0xFF19114a),
         value: _usersCount.toDouble(),
         showTitle: true,
         radius: 33,
       ),
       PieChartSectionData(
-        color: Color(0xFF26E5FF),
+        color: Color(0xFF4485fb),
         value: _psychiatristsCount.toDouble(),
         showTitle: true,
         radius: 30,
       ),
       PieChartSectionData(
-        color: Color(0xFFFFCF26),
+        color: Color(0xFFf3c04a),
         value: _adminsCount.toDouble(),
         showTitle: true,
         radius: 27,
       ),
       PieChartSectionData(
-        color: Color(0xFFEE2727),
+        color: Color(0xFFa32c80),
         value: _superAdminsCount.toDouble(),
         showTitle: true,
         radius: 24,
@@ -519,7 +538,8 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget userCardInfo(
-      IconData icon, String title, int numOfUsers, Color color, int tabIndex) {
+      IconData icon, String title, int numOfUsers, Color color, int tabIndex,
+      {int invalited}) {
     return InkWell(
       onTap: () {
         widget.changeTab(
@@ -543,6 +563,22 @@ class _DashboardState extends State<Dashboard> {
           ),
           title: Text(title),
           subtitle: Text(numOfUsers.toString()),
+          trailing: title == 'Doctors' && invalited != 0
+              ? Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.red[500],
+                  ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    invalited.toString(),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        .copyWith(color: Colors.white),
+                  ),
+                )
+              : SizedBox(),
         ),
       ),
     );
