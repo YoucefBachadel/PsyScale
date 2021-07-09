@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:psyscale/main.dart';
 import 'package:psyscale/screens/Auth/signin.dart';
 import 'package:psyscale/services/authenticationServices%20.dart';
@@ -14,6 +13,12 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final _formKey = GlobalKey<FormState>();
+  // List<String> _validEmails = [
+  //   'gmail.com',
+  //   'yahoo.com',
+  //   'hotmail.com',
+  //   'univ-constantine2.dz'
+  // ];
   String name = '', clinicName = '', phone, email = '', password;
   AuthService authService = AuthService();
   bool _isLoading = false;
@@ -90,12 +95,12 @@ class _SignUpState extends State<SignUp> {
       body: Container(
         child: Card(
           elevation: 10,
-          margin: const EdgeInsets.symmetric(vertical: 30, horizontal: 200),
+          margin: const EdgeInsets.symmetric(vertical: 50, horizontal: 200),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(17.0)),
           child: Container(
             width: double.infinity,
-            height: 650,
+            height: double.infinity,
             padding: const EdgeInsets.all(35.0),
             child: Row(
               children: [
@@ -125,6 +130,7 @@ class _SignUpState extends State<SignUp> {
     return _isLoading
         ? loading(context)
         : Container(
+            height: Responsive.isMobile(context) ? double.infinity : 650,
             color: Theme.of(context).backgroundColor,
             child: Form(
               key: _formKey,
@@ -180,10 +186,10 @@ class _SignUpState extends State<SignUp> {
                       initialValue: email,
                       validator: (value) => value.isEmpty
                           ? 'Enter the Email'
-                          : !['gmail.com', 'yahoo.com', 'hotmail.com']
-                                  .contains(value.split('@')[1].toLowerCase())
-                              ? 'Enter a valid email format'
-                              : null,
+                          // : !_validEmails
+                          //         .contains(value.split('@')[1].toLowerCase())
+                          //     ? 'Enter a valid email format'
+                          : null,
                       decoration: textInputDecoration(context, 'Email'),
                       onChanged: (value) => email = value,
                     ),
@@ -199,7 +205,7 @@ class _SignUpState extends State<SignUp> {
                     customButton(
                         context: context,
                         text: 'Sign Up',
-                        icon: MdiIcons.account,
+                        icon: Icons.account_circle,
                         width: Responsive.isMobile(context)
                             ? MediaQuery.of(context).size.width
                             : screenWidth * 0.2,

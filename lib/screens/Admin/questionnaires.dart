@@ -201,7 +201,12 @@ class _QuestionnairesState extends State<Questionnaires> {
               return ExpansionPanel(
                 headerBuilder: (BuildContext context, bool isExpanded) {
                   return ListTile(
-                    title: Text(trouble.getName(userData.language)),
+                    title: Text(
+                      trouble.getName(userData.language),
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                    subtitle:
+                        Text('${_localQuestionnaires.length} questionnaires'),
                     leading: CircleAvatar(
                         backgroundImage: NetworkImage(trouble.imageUrl)),
                   );

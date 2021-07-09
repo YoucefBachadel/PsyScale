@@ -381,6 +381,7 @@ class _QuizQuestionnaireState extends State<QuizQuestionnaire> {
                 .copyWith(color: Colors.black)),
         SizedBox(height: 15.0),
         Text(_message,
+            textAlign: TextAlign.center,
             style: Theme.of(context)
                 .textTheme
                 .headline5

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
 import 'package:psyscale/classes/User.dart';
@@ -258,17 +257,17 @@ class _DashboardState extends State<Dashboard> {
                     SizedBox(height: 16.0),
                     chart(context),
                     const Spacer(flex: 2),
-                    userCardInfo(Icons.supervised_user_circle_rounded, 'Users',
-                        _usersCount, Color(0xFF19114a), 6),
+                    userCardInfo('assets/user.png', 'Users', _usersCount,
+                        Color(0xFF19114a), 6),
                     const Spacer(),
-                    userCardInfo(MdiIcons.doctor, 'Doctors',
+                    userCardInfo('assets/doctor.png', 'Doctors',
                         _psychiatristsCount, Color(0xFF4485fb), 7,
                         invalited: _invalidatedPsychiatrists),
                     const Spacer(),
-                    userCardInfo(Icons.admin_panel_settings, 'Admins',
-                        _adminsCount, Color(0xFFf3c04a), 8),
+                    userCardInfo('assets/admin.png', 'Admins', _adminsCount,
+                        Color(0xFFf3c04a), 8),
                     const Spacer(),
-                    userCardInfo(Icons.add_moderator_outlined, 'Super Admins',
+                    userCardInfo('assets/super_admin.png', 'Super Admins',
                         _superAdminsCount, Color(0xFFa32c80), 8),
                     const Spacer(flex: 2),
                   ],
@@ -285,19 +284,19 @@ class _DashboardState extends State<Dashboard> {
     List<Map<String, Object>> items = [
       {
         'title': 'Troubles',
-        'icon': MdiIcons.brain,
+        'icon': 'assets/trouble.png',
         'count': _troublesCount.toString(),
         'index': 3,
       },
       {
         'title': 'Questionnaires',
-        'icon': Icons.format_list_bulleted,
+        'icon': 'assets/questionnaire.png',
         'count': _questionnairesCount.toString(),
         'index': 4,
       },
       {
         'title': 'Hybrid',
-        'icon': Icons.home,
+        'icon': 'assets/hybrid.png',
         'count': _hybridsCount.toString(),
         'index': 5,
       }
@@ -329,9 +328,14 @@ class _DashboardState extends State<Dashboard> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ListTile(
-                            leading: Icon(
-                              e['icon'],
-                              size: 30.0,
+                            // leading: Icon(
+                            //   e['icon'],
+                            //   size: 30.0,
+                            // ),
+                            leading: Image(
+                              image: AssetImage(e['icon']),
+                              height: 40.0,
+                              width: 40.0,
                             ),
                             title: Text(e['title'],
                                 overflow: TextOverflow.ellipsis,
@@ -538,7 +542,7 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget userCardInfo(
-      IconData icon, String title, int numOfUsers, Color color, int tabIndex,
+      String icon, String title, int numOfUsers, Color color, int tabIndex,
       {int invalited}) {
     return InkWell(
       onTap: () {
@@ -556,10 +560,10 @@ class _DashboardState extends State<Dashboard> {
           ),
         ),
         child: ListTile(
-          leading: Icon(
-            icon,
-            size: 30.0,
-            color: color,
+          leading: Image(
+            image: AssetImage(icon),
+            height: 40.0,
+            width: 40.0,
           ),
           title: Text(title),
           subtitle: Text(numOfUsers.toString()),

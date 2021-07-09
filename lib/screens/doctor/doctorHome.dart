@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/Trouble.dart';
@@ -28,13 +28,17 @@ class DoctorHome extends StatefulWidget {
 
 class _DoctorHomeState extends State<DoctorHome> {
   List<Map<String, Object>> _tabs = [
-    {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 5},
-    {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 6},
-    {'icon': Icons.home, 'title': 'Hybrid', 'index': 7},
+    {'icon': 'assets/trouble.svg', 'title': 'Troubles', 'index': 5},
+    {'icon': 'assets/questionnaire.svg', 'title': 'Questionnaires', 'index': 6},
+    {'icon': 'assets/hybrid.svg', 'title': 'Hybrid', 'index': 7},
   ];
   List<Map<String, Object>> _tabsPerosnal = [
-    {'icon': Icons.format_list_numbered, 'title': 'Questionnaires', 'index': 8},
-    {'icon': Icons.home, 'title': 'Hybrid', 'index': 9},
+    {
+      'icon': 'assets/questionnaire_p.svg',
+      'title': 'Questionnaires',
+      'index': 8
+    },
+    {'icon': 'assets/hybrid_p.svg', 'title': 'Hybrid', 'index': 9},
   ];
 
   List<Widget> _screens = [];
@@ -266,11 +270,13 @@ class _DoctorHomeState extends State<DoctorHome> {
               DrawerHeader(child: appBar(context, 'Psy', 'Scale')),
               ...tabs
                   .map((e) => ListTile(
-                        leading: Icon(
+                        leading: SvgPicture.asset(
                           e['icon'],
                           color: e['index'] == selectedIndex
                               ? Theme.of(context).accentColor
                               : Colors.grey,
+                          height: 23.0,
+                          width: 23.0,
                         ),
                         title: Text(
                           e['title'],
@@ -306,11 +312,13 @@ class _DoctorHomeState extends State<DoctorHome> {
               SizedBox(height: 8.0),
               ..._tabsPerosnal
                   .map((e) => ListTile(
-                        leading: Icon(
+                        leading: SvgPicture.asset(
                           e['icon'],
                           color: e['index'] == selectedIndex
                               ? Theme.of(context).accentColor
                               : Colors.grey,
+                          height: 23.0,
+                          width: 23.0,
                         ),
                         title: Text(
                           e['title'],

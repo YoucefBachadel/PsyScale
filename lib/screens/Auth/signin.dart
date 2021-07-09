@@ -17,6 +17,7 @@ class _SignInState extends State<SignIn> {
   AuthService authService = AuthService();
   bool isLoading = false;
   bool emailSended = false;
+  Color doctorColor = Color(0xFF00c8ac);
 
   signIn() async {
     if (_formKey.currentState.validate()) {
@@ -64,12 +65,12 @@ class _SignInState extends State<SignIn> {
       body: Container(
         child: Card(
           elevation: 10,
-          margin: const EdgeInsets.symmetric(vertical: 30, horizontal: 200),
+          margin: const EdgeInsets.symmetric(vertical: 50, horizontal: 200),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(17.0)),
           child: Container(
             width: double.infinity,
-            height: 650,
+            height: double.infinity,
             padding: const EdgeInsets.all(35.0),
             child: Row(
               children: [
@@ -100,14 +101,59 @@ class _SignInState extends State<SignIn> {
         ? loading(context)
         : Container(
             color: Theme.of(context).backgroundColor,
+            height: Responsive.isMobile(context) ? double.infinity : 650,
             child: Form(
               key: _formKey,
               child: Container(
                 margin: EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
                   children: [
-                    Spacer(flex: 1),
-                    appBar(context, 'Sign', 'In'),
+                    Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Psy',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 50,
+                          ),
+                        ),
+                        Text(
+                          'Scale',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Responsive.isMobile(context)
+                                ? Theme.of(context).accentColor
+                                : doctorColor,
+                            fontSize: 50,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Sign',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 30,
+                          ),
+                        ),
+                        Text(
+                          'In',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Responsive.isMobile(context)
+                                ? Theme.of(context).accentColor
+                                : doctorColor,
+                            fontSize: 30,
+                          ),
+                        ),
+                      ],
+                    ),
                     Spacer(flex: 5),
                     TextFormField(
                       initialValue: email,
@@ -159,16 +205,36 @@ class _SignInState extends State<SignIn> {
                       ],
                     ),
                     SizedBox(height: 14.0),
-                    customButton(
-                        context: context,
-                        text: 'Sign In',
-                        icon: Icons.login,
+                    InkWell(
+                      onTap: () {
+                        signIn();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 18.0),
+                        decoration: BoxDecoration(
+                          color: Responsive.isMobile(context)
+                              ? Theme.of(context).accentColor
+                              : doctorColor,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        alignment: Alignment.center,
                         width: Responsive.isMobile(context)
                             ? MediaQuery.of(context).size.width
                             : screenWidth * 0.2,
-                        onTap: () {
-                          signIn();
-                        }),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.login, color: Colors.white),
+                            SizedBox(width: 6.0),
+                            Text(
+                              'Sign In',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     SizedBox(
                       height: 18.0,
                     ),

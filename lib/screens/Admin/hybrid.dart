@@ -10,7 +10,8 @@ import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/services/troubleServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/widgets.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:webviewx/webviewx.dart';
+// import 'package:url_launcher/url_launcher.dart';
 
 class Hybrid extends StatefulWidget {
   final ValueListenable<String> search;
@@ -110,12 +111,15 @@ class _HybridState extends State<Hybrid> {
                                 text: 'Google Forms',
                                 width: 160,
                                 onTap: () async {
-                                  const url = "https://docs.google.com/forms";
-                                  if (await canLaunch(url))
-                                    await launch(url);
-                                  else
-                                    // can't launch url, there is some error
-                                    throw "Could not launch $url";
+                                  Constants.navigationFunc(
+                                      context, GoogleForms());
+
+                                  // const url = "https://docs.google.com/forms";
+                                  // if (await canLaunch(url))
+                                  //   await launch(url);
+                                  // else
+                                  //   // can't launch url, there is some error
+                                  //   throw "Could not launch $url";
                                 },
                               ),
                             ),
@@ -226,7 +230,11 @@ class _HybridState extends State<Hybrid> {
               return ExpansionPanel(
                 headerBuilder: (BuildContext context, bool isExpanded) {
                   return ListTile(
-                    title: Text(trouble.getName(userData.language)),
+                    title: Text(
+                      trouble.getName(userData.language),
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                    subtitle: Text('${_localQuestionnaires.length} hybrides'),
                     leading: CircleAvatar(
                         backgroundImage: NetworkImage(trouble.imageUrl)),
                   );
@@ -290,5 +298,21 @@ class _HybridState extends State<Hybrid> {
               );
             }).toList(),
           );
+  }
+}
+
+class GoogleForms extends StatelessWidget {
+  const GoogleForms({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        child: WebViewX(
+          initialContent: 'https://docs.google.com/forms',
+          initialSourceType: SourceType.URL,
+        ),
+      ),
+    );
   }
 }

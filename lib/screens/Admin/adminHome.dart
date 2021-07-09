@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:psyscale/classes/Questionnaire.dart';
 import 'package:psyscale/classes/User.dart';
@@ -24,16 +24,12 @@ class AdminHome extends StatefulWidget {
 class _AdminHomeState extends State<AdminHome> {
   List<Widget> _screens = [];
   List<Map<String, Object>> _tabs = [
-    {'icon': Icons.home, 'title': 'Dashboard', 'index': 2},
-    {'icon': MdiIcons.brain, 'title': 'Troubles', 'index': 3},
-    {'icon': Icons.format_list_bulleted, 'title': 'Questionnaires', 'index': 4},
-    {'icon': Icons.home, 'title': 'Hybrid', 'index': 5},
-    {
-      'icon': Icons.supervised_user_circle_rounded,
-      'title': 'Users',
-      'index': 6
-    },
-    {'icon': MdiIcons.doctor, 'title': 'Doctors', 'index': 7},
+    {'icon': 'assets/dashboard.svg', 'title': 'Dashboard', 'index': 2},
+    {'icon': 'assets/trouble.svg', 'title': 'Troubles', 'index': 3},
+    {'icon': 'assets/questionnaire.svg', 'title': 'Questionnaires', 'index': 4},
+    {'icon': 'assets/hybrid.svg', 'title': 'Hybrid', 'index': 5},
+    {'icon': 'assets/user.svg', 'title': 'Users', 'index': 6},
+    {'icon': 'assets/doctor.svg', 'title': 'Doctors', 'index': 7},
   ];
   int _selectedIndex = 2;
   TextEditingController _textFieldController = TextEditingController();
@@ -118,8 +114,7 @@ class _AdminHomeState extends State<AdminHome> {
       _screens.add(
         Users(search: search, type: 'admins'),
       );
-      _tabs.add(
-          {'icon': Icons.admin_panel_settings, 'title': 'Admins', 'index': 8});
+      _tabs.add({'icon': 'assets/admin.svg', 'title': 'Admins', 'index': 8});
     }
 
     return Responsive.isdesktop(context)
@@ -269,11 +264,13 @@ class _AdminHomeState extends State<AdminHome> {
               DrawerHeader(child: appBar(context, 'Psy', 'Scale')),
               ...tabs
                   .map((e) => ListTile(
-                        leading: Icon(
+                        leading: SvgPicture.asset(
                           e['icon'],
                           color: e['index'] == selectedIndex
                               ? Theme.of(context).accentColor
                               : Colors.grey,
+                          height: 23.0,
+                          width: 23.0,
                         ),
                         title: Text(
                           e['title'],
