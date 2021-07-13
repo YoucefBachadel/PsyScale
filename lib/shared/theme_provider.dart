@@ -6,7 +6,7 @@ class ThemeProvider extends ChangeNotifier {
   SharedPreferences prefs;
 
   ThemeProvider() {
-    themeMode = ThemeMode.system;
+    themeMode = ThemeMode.light;
     loadFromPrefs();
   }
 

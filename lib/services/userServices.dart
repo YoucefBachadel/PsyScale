@@ -113,7 +113,7 @@ class UsersServices {
     });
   }
 
-  // update user hestory
+  // update doctor questionnaires
   Future updatePersonnalQuestionnaires(
       List<Questionnaire> personalQuestionnaires) async {
     List<dynamic> result = [];
@@ -152,6 +152,7 @@ class UsersServices {
     });
   }
 
+  // update doctor hybrid questionnaires
   Future updatePersonnalHybrids(List<Questionnaire> personalHybrids) async {
     List<dynamic> result = [];
     personalHybrids.forEach((element) {

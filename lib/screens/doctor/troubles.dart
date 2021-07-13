@@ -69,6 +69,9 @@ class _TroublesState extends State<Troubles> {
           nameEn: doc['nameEn'],
           nameFr: doc['nameFr'],
           nameAr: doc['nameAr'],
+          defaultLanguage: doc['defaultLanguage'],
+          supportedLanguages:
+              Questionnaire.getStringList(doc['supportedLanguages']),
           descreptionEn: doc['descreptionEn'],
           descreptionFr: doc['descreptionFr'],
           descreptionAr: doc['descreptionAr'],
@@ -101,6 +104,9 @@ class _TroublesState extends State<Troubles> {
             nameEn: doc['nameEn'],
             nameFr: doc['nameFr'],
             nameAr: doc['nameAr'],
+            defaultLanguage: doc['defaultLanguage'],
+            supportedLanguages:
+                Questionnaire.getStringList(doc['supportedLanguages']),
             descreptionEn: doc['descreptionEn'],
             descreptionFr: doc['descreptionFr'],
             descreptionAr: doc['descreptionAr'],

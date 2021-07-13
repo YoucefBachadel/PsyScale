@@ -41,12 +41,14 @@ class UserData {
       this.personalQuestionnaires,
       this.personalHybrids});
 
+  // tronsform List<dynamic> to List<Map<String, Object>>
   static List<Map<String, Object>> getList(List<dynamic> list) {
     return list == null
         ? null
         : list.map((item) => Map<String, Object>.from(item)).toList();
   }
 
+  // get list of personal questionnaires for doctor account
   static List<Questionnaire> getPersonalQuestionnaires(List<dynamic> list) {
     List<Questionnaire> result = [];
     if (list != null) {
@@ -79,6 +81,7 @@ class UserData {
     return result;
   }
 
+  // get list of personal hybrid questionnaires for doctor account
   static List<Questionnaire> getPersonalHybrids(List<dynamic> list) {
     List<Questionnaire> result = [];
     if (list != null) {

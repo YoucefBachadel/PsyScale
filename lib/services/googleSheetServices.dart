@@ -20,6 +20,7 @@ class GoogleSheetApi {
 
   Worksheet userSheet;
 
+  // initializat google sheet and connect to the right worksheet
   Future init(String spreadsheetId, String workSheetTitle, List<String> items,
       String insertType) async {
     final spreadsheet = await gsheet.spreadsheet(spreadsheetId);
@@ -28,6 +29,7 @@ class GoogleSheetApi {
     insertType == 'first' ? addQuestionsRow(items) : insertNewAnswers(items);
   }
 
+  // return worksheet if exist or create new one
   Future<Worksheet> _getWorkSheet(
       {Spreadsheet spreadsheet, String title}) async {
     try {
@@ -37,6 +39,7 @@ class GoogleSheetApi {
     }
   }
 
+  // add row of questions when create new questionnaire hybrid
   addQuestionsRow(List<String> items) {
     try {
       userSheet
@@ -47,6 +50,7 @@ class GoogleSheetApi {
     }
   }
 
+  // add row of answers when doctor answer for questionnaire hybrid
   insertNewAnswers(List<String> items) {
     try {
       userSheet.values.appendRow(items);
@@ -55,6 +59,7 @@ class GoogleSheetApi {
     }
   }
 
+  //get list of answers for questionnaire hybrid
   Future<List<Map<String, String>>> getHybridData(
       String spreadsheetId, String workSheetTitle) async {
     final spreadsheet = await gsheet.spreadsheet(spreadsheetId);

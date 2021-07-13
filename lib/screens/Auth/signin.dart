@@ -186,6 +186,8 @@ class _SignInState extends State<SignIn> {
                               if (email.isNotEmpty) {
                                 authService.forgotPassword(context, email);
                                 emailSended = true;
+                                snackBar(context,
+                                    'We\'ve sent you an email, check your box!!');
                               } else {
                                 snackBar(context, 'First, Enter your email!!');
                               }

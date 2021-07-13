@@ -23,14 +23,17 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     systemNavigationBarColor: Constants.border,
   ));
+
+  // disable lanscape
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
+// initialization of firebase
   await Firebase.initializeApp();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
     return StreamProvider<CurrentUser>.value(
@@ -81,7 +84,7 @@ class _WrapperState extends State<Wrapper> {
       final user = Provider.of<CurrentUser>(context);
       // GoogleSheetApi().fillStudentsSheets();
 
-      // return either HomePages or Authenticate widget
+      // return the HomePages or Authenticate widget
       if (user == null) {
         return Responsive.isMobile(context)
             ? !kIsWeb
@@ -118,7 +121,7 @@ class _WrapperState extends State<Wrapper> {
                                   : unsupportedScreenSize(
                                       context,
                                       'It looks like your account hasn\'t been validated yet, please be patient!!',
-                                      false,
+                                      true,
                                     )
                               : userData.user.emailVerified
                                   ? UserHome(
@@ -127,7 +130,7 @@ class _WrapperState extends State<Wrapper> {
                                   : unsupportedScreenSize(
                                       context,
                                       'It looks like you haven\'t activated your account yet, please check your email box and activate it!!',
-                                      false,
+                                      true,
                                     )
                       : unsupportedScreenSize(
                           context,

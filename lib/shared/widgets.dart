@@ -243,7 +243,7 @@ Widget unsupportedScreenSize(
       child: Container(
         padding: const EdgeInsets.all(8.0),
         width: 300,
-        height: 450,
+        height: 460,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
@@ -284,27 +284,18 @@ Widget unsupportedScreenSize(
             ),
             SizedBox(height: 12.0),
             logout
-                ? InkWell(
+                ? customButton(
+                    context: context,
+                    text: 'Logout',
+                    icon: Icons.logout,
+                    width: 160,
                     onTap: () async {
                       await AuthService().signOut();
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => Wrapper()),
                       );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).accentColor,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Logout',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    ),
-                  )
+                    })
                 : SizedBox()
           ],
         ),

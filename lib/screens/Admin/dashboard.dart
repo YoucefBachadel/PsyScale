@@ -364,119 +364,122 @@ class _DashboardState extends State<Dashboard> {
     return Card(
       elevation: 10.0,
       margin: const EdgeInsets.all(16.0),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).backgroundColor,
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-        ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('List Of Troubles',
-              style: Theme.of(context).textTheme.headline6),
-          SizedBox(height: 16.0),
-          SizedBox(
-            width: double.infinity,
-            child: DataTable(
-              sortAscending: _isAscending,
-              sortColumnIndex: _sortColumnIndex,
-              dataRowHeight: 60.0,
-              horizontalMargin: 0,
-              columnSpacing: 8.0,
-              columns: [
-                DataColumn(
+      child: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).backgroundColor,
+            borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+          ),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('List Of Troubles',
+                style: Theme.of(context).textTheme.headline6),
+            SizedBox(height: 16.0),
+            SizedBox(
+              width: double.infinity,
+              child: DataTable(
+                sortAscending: _isAscending,
+                sortColumnIndex: _sortColumnIndex,
+                dataRowHeight: 60.0,
+                horizontalMargin: 0,
+                columnSpacing: 8.0,
+                columns: [
+                  DataColumn(
+                      onSort: (int columnIndex, bool ascending) {
+                        setState(() {
+                          _sortColumnIndex = columnIndex;
+                          _isAscending = ascending;
+                          _sortBy = 'Trouble Name';
+                        });
+                      },
+                      label: Text(
+                        'Trouble Name',
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle1
+                            .copyWith(fontWeight: FontWeight.w900),
+                      )),
+                  DataColumn(
+                      onSort: (int columnIndex, bool ascending) {
+                        setState(() {
+                          _sortColumnIndex = columnIndex;
+                          _isAscending = ascending;
+                          _sortBy = 'Questionnaires';
+                        });
+                      },
+                      label: Text(
+                        'Questionnaires',
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle1
+                            .copyWith(fontWeight: FontWeight.w900),
+                      )),
+                  DataColumn(
                     onSort: (int columnIndex, bool ascending) {
                       setState(() {
                         _sortColumnIndex = columnIndex;
                         _isAscending = ascending;
-                        _sortBy = 'Trouble Name';
+                        _sortBy = 'Hybrid';
                       });
                     },
                     label: Text(
-                      'Trouble Name',
+                      'Hybrid',
                       style: Theme.of(context)
                           .textTheme
                           .subtitle1
                           .copyWith(fontWeight: FontWeight.w900),
-                    )),
-                DataColumn(
-                    onSort: (int columnIndex, bool ascending) {
-                      setState(() {
-                        _sortColumnIndex = columnIndex;
-                        _isAscending = ascending;
-                        _sortBy = 'Questionnaires';
-                      });
-                    },
-                    label: Text(
-                      'Questionnaires',
-                      style: Theme.of(context)
-                          .textTheme
-                          .subtitle1
-                          .copyWith(fontWeight: FontWeight.w900),
-                    )),
-                DataColumn(
-                  onSort: (int columnIndex, bool ascending) {
-                    setState(() {
-                      _sortColumnIndex = columnIndex;
-                      _isAscending = ascending;
-                      _sortBy = 'Hybrid';
-                    });
-                  },
-                  label: Text(
-                    'Hybrid',
-                    style: Theme.of(context)
-                        .textTheme
-                        .subtitle1
-                        .copyWith(fontWeight: FontWeight.w900),
+                    ),
                   ),
-                ),
-              ],
-              rows: troubles.map((trouble) {
-                int _troubleQuestionnaires = 0;
-                int _troubleHybrides = 0;
-                questionnaires.forEach((element) {
-                  if (element.troubleUid == trouble.uid) {
-                    _troubleQuestionnaires++;
-                  }
-                });
-                hybrides.forEach((element) {
-                  if (element.troubleUid == trouble.uid) {
-                    _troubleHybrides++;
-                  }
-                });
-                return DataRow(
-                    color: MaterialStateProperty.all(
-                        Theme.of(context).backgroundColor),
-                    cells: [
-                      DataCell(
-                        Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: CircleAvatar(
-                                  backgroundImage:
-                                      NetworkImage(trouble.imageUrl)),
-                            ),
-                            SizedBox(width: 8.0),
-                            Text(
-                              trouble.getName(widget.userData.language),
-                              style: Theme.of(context).textTheme.subtitle2,
-                            )
-                          ],
+                ],
+                rows: troubles.map((trouble) {
+                  int _troubleQuestionnaires = 0;
+                  int _troubleHybrides = 0;
+                  questionnaires.forEach((element) {
+                    if (element.troubleUid == trouble.uid) {
+                      _troubleQuestionnaires++;
+                    }
+                  });
+                  hybrides.forEach((element) {
+                    if (element.troubleUid == trouble.uid) {
+                      _troubleHybrides++;
+                    }
+                  });
+                  return DataRow(
+                      color: MaterialStateProperty.all(
+                          Theme.of(context).backgroundColor),
+                      cells: [
+                        DataCell(
+                          Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: CircleAvatar(
+                                    backgroundImage:
+                                        NetworkImage(trouble.imageUrl)),
+                              ),
+                              SizedBox(width: 8.0),
+                              Text(
+                                trouble.getName(widget.userData.language),
+                                style: Theme.of(context).textTheme.subtitle2,
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                      DataCell(Text(
-                        _troubleQuestionnaires.toString(),
-                        style: Theme.of(context).textTheme.headline6,
-                      )),
-                      DataCell(Text(
-                        _troubleHybrides.toString(),
-                        style: Theme.of(context).textTheme.headline6,
-                      )),
-                    ]);
-              }).toList(),
-            ),
-          )
-        ]),
+                        DataCell(Text(
+                          _troubleQuestionnaires.toString(),
+                          style: Theme.of(context).textTheme.headline6,
+                        )),
+                        DataCell(Text(
+                          _troubleHybrides.toString(),
+                          style: Theme.of(context).textTheme.headline6,
+                        )),
+                      ]);
+                }).toList(),
+              ),
+            )
+          ]),
+        ),
       ),
     );
   }

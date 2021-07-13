@@ -41,14 +41,17 @@ class Questionnaire {
     this.isExpanded = false,
   });
 
+  // tronsform List<dynamic> to List<Map<String, Object>>
   static List<Map<String, Object>> getList(List<dynamic> list) {
     return list.map((item) => Map<String, Object>.from(item)).toList();
   }
 
+  // tronsform List<dynamic> to List<String>
   static List<String> getStringList(List<dynamic> list) {
     return list.map((item) => item.toString()).toList();
   }
 
+  // tronsform List<dynamic> to List<QuestionnAnswer>
   static List<QuestionAnswer> getQuestionAnswerList(List<dynamic> list) {
     List<QuestionAnswer> result = [];
     List<Map<String, Object>> dynamicList =
@@ -66,6 +69,7 @@ class Questionnaire {
     return result;
   }
 
+  // get questionnaire name by user language
   String getName(String languge) {
     switch (languge) {
       case 'English':
@@ -81,6 +85,7 @@ class Questionnaire {
     return this.nameEn;
   }
 
+  // get questionnaire descreptuin by user language
   String getDescreption(String languge) {
     switch (languge) {
       case 'English':
@@ -109,6 +114,7 @@ class Questionnaire {
     }
   }
 
+// get list of questions from questionnaire
   List<String> getQuesionsList(String language) {
     List<String> questions = [];
     String questionLanguage = 'questionEn';
@@ -130,6 +136,7 @@ class Questionnaire {
     return questions;
   }
 
+  // get the question in index position
   String getQuesAnsQuestion(String language, int index) {
     switch (language) {
       case 'English':
@@ -142,6 +149,7 @@ class Questionnaire {
     return this.questionsAnswers[index].questionEn;
   }
 
+  // get list of answers from questionnaire
   List<Map<String, Object>> getAnswersList(String language, int index) {
     List<Map<String, Object>> _list;
     if (this.type == '1') {
@@ -174,6 +182,7 @@ class Questionnaire {
     return answers;
   }
 
+  // get list of classes for hybrid questionnaire
   List<Map<String, Object>> getHybridsClasses(String language) {
     List<Map<String, Object>> _list;
     List<Map<String, Object>> answers = [];
@@ -199,6 +208,7 @@ class Questionnaire {
     return answers;
   }
 
+  // // get list of answers for hybrid questionnaire
   List<Map<String, Object>> getHybridsAnswersList(String language, int index) {
     List<Map<String, Object>> _list;
     List<Map<String, Object>> answers = [];
@@ -226,6 +236,7 @@ class Questionnaire {
     return answers;
   }
 
+  // get list of evaluations for  questionnaire
   List<Map<String, Object>> getEvaluationList(String language) {
     List<Map<String, Object>> evaluations = [];
     String evaluationLanguage = 'messageEn';

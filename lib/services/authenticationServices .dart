@@ -31,17 +31,23 @@ class AuthService {
   }
 
   // register with email/password
-  Future registerWithEmailAndPassword(String type, String email,
-      String password, String name, String clinicName, String phone) async {
+  Future registerWithEmailAndPassword(
+      BuildContext context,
+      String type,
+      String email,
+      String password,
+      String name,
+      String clinicName,
+      String phone) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       User user = result.user;
-      user.sendEmailVerification();
 
       // create a new document for the user with the uid
       UserData userData;
       if (type == 'user') {
+        user.sendEmailVerification();
         userData = UserData(
           name: name,
           email: email,
@@ -58,6 +64,7 @@ class AuthService {
       }
 
       await UsersServices(useruid: user.uid).addUserData(userData, type);
+
       return _userFromFirebaseUser(user);
     } catch (e) {
       print(e.toString());
@@ -65,9 +72,10 @@ class AuthService {
     }
   }
 
+  // send password changing email
   Future forgotPassword(BuildContext context, String email) async {
     await _auth.sendPasswordResetEmail(email: email);
-    snackBar(context, 'We have sent you an email, check your box');
+    snackBar(context, 'We have sent you an email, check your box!');
   }
 
   // sign out

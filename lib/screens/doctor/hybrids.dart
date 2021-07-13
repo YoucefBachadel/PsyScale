@@ -9,7 +9,6 @@ import 'package:psyscale/services/hybridServices.dart';
 import 'package:psyscale/shared/constants.dart';
 import 'package:psyscale/shared/responsive.dart';
 import 'package:psyscale/shared/widgets.dart';
-import 'package:webviewx/webviewx.dart';
 
 class Hybrids extends StatefulWidget {
   final ValueListenable<String> search;
@@ -74,41 +73,17 @@ class _HybridsState extends State<Hybrids> {
               getQuestionnairesList(data, userData.language);
 
               return !Responsive.isMobile(context)
-                  ? Stack(
-                      children: [
-                        Positioned(
-                          bottom: 8.0,
-                          left: 8.0,
-                          child: customButton(
-                            context: context,
-                            icon: Icons.add,
-                            text: 'Google Forms',
-                            width: 160,
-                            onTap: () async {
-                              Constants.navigationFunc(context, GoogleForms());
-
-                              // const url = "https://docs.google.com/forms";
-                              // if (await canLaunch(url))
-                              //   await launch(url);
-                              // else
-                              //   // can't launch url, there is some error
-                              //   throw "Could not launch $url";
-                            },
-                          ),
-                        ),
-                        desktopWidget(
-                          Container(),
-                          Container(),
-                          Container(
-                            alignment: questionnaires.isEmpty
-                                ? Alignment.center
-                                : Alignment.topCenter,
-                            color: Theme.of(context).backgroundColor,
-                            height: double.infinity,
-                            child: buildPanel(),
-                          ),
-                        ),
-                      ],
+                  ? desktopWidget(
+                      Container(),
+                      Container(),
+                      Container(
+                        alignment: questionnaires.isEmpty
+                            ? Alignment.center
+                            : Alignment.topCenter,
+                        color: Theme.of(context).backgroundColor,
+                        height: double.infinity,
+                        child: buildPanel(),
+                      ),
                     )
                   : buildPanel();
             } else {
@@ -212,21 +187,5 @@ class _HybridsState extends State<Hybrids> {
               ],
             ),
           );
-  }
-}
-
-class GoogleForms extends StatelessWidget {
-  const GoogleForms({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        child: WebViewX(
-          initialContent: 'https://docs.google.com/forms',
-          initialSourceType: SourceType.URL,
-        ),
-      ),
-    );
   }
 }

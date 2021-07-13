@@ -119,85 +119,87 @@ class _ProfileDoctorState extends State<ProfileDoctor> {
                   ),
                 ),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Name:',
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                        const SizedBox(height: 4),
-                        TextFormField(
-                          decoration: textInputDecoration(
-                              context, widget.userData.name),
-                          onChanged: (value) => value.isEmpty
-                              ? _userName = widget.userData.name
-                              : _userName = value,
-                        ),
-                        Text(
-                          'Clinic Name:',
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                        const SizedBox(height: 4),
-                        TextFormField(
-                          decoration: textInputDecoration(
-                              context, widget.userData.clinicName),
-                          onChanged: (value) => value.isEmpty
-                              ? _clinicName = widget.userData.clinicName
-                              : _clinicName = value,
-                        ),
-                        Text(
-                          'Phone:',
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                        const SizedBox(height: 4),
-                        TextFormField(
-                          decoration: textInputDecoration(
-                              context, widget.userData.phone),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          onChanged: (value) => value.isEmpty
-                              ? _phone = widget.userData.phone
-                              : _phone = value,
-                        ),
-                        const SizedBox(height: 10.0),
-                        Text(
-                          'Theme:',
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          height: 60.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            border: Border.all(
-                              width: 2,
-                              color: Constants.myGrey,
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Name:',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            decoration: textInputDecoration(
+                                context, widget.userData.name),
+                            onChanged: (value) => value.isEmpty
+                                ? _userName = widget.userData.name
+                                : _userName = value,
+                          ),
+                          Text(
+                            'Clinic Name:',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            decoration: textInputDecoration(
+                                context, widget.userData.clinicName),
+                            onChanged: (value) => value.isEmpty
+                                ? _clinicName = widget.userData.clinicName
+                                : _clinicName = value,
+                          ),
+                          Text(
+                            'Phone:',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            decoration: textInputDecoration(
+                                context, widget.userData.phone),
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            onChanged: (value) => value.isEmpty
+                                ? _phone = widget.userData.phone
+                                : _phone = value,
+                          ),
+                          const SizedBox(height: 10.0),
+                          Text(
+                            'Theme:',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            height: 60.0,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              border: Border.all(
+                                width: 2,
+                                color: Constants.myGrey,
+                              ),
                             ),
+                            child: themes(),
                           ),
-                          child: themes(),
-                        ),
-                        const SizedBox(height: 10.0),
-                        Text(
-                          'Language:',
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          height: 60.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            border:
-                                Border.all(width: 2, color: Constants.myGrey),
+                          const SizedBox(height: 10.0),
+                          Text(
+                            'Language:',
+                            style: Theme.of(context).textTheme.subtitle1,
                           ),
-                          child: languages(),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Container(
+                            height: 60.0,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              border:
+                                  Border.all(width: 2, color: Constants.myGrey),
+                            ),
+                            child: languages(),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -32,13 +32,15 @@ class _SignUpState extends State<SignUp> {
       if (_isDoctor) {
         await authService
             .registerWithEmailAndPassword(
-                'doctor', email, password, name, clinicName, phone)
+                context, 'doctor', email, password, name, clinicName, phone)
             .then((value) {
           if (value.toString().split(':')[0] != 'error') {
             setState(() {
               _isLoading = false;
             });
-            Navigator.pop(context);
+            if (Responsive.isMobile(context)) {
+              Navigator.pop(context);
+            }
             Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (context) => Wrapper()));
           } else {
@@ -51,7 +53,7 @@ class _SignUpState extends State<SignUp> {
       } else {
         await authService
             .registerWithEmailAndPassword(
-                'user', email, password, name, null, null)
+                context, 'user', email, password, name, null, null)
             .then((value) {
           if (value.toString().split(':')[0] != 'error') {
             setState(() {
