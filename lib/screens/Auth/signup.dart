@@ -13,12 +13,6 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final _formKey = GlobalKey<FormState>();
-  // List<String> _validEmails = [
-  //   'gmail.com',
-  //   'yahoo.com',
-  //   'hotmail.com',
-  //   'univ-constantine2.dz'
-  // ];
   String name = '', clinicName = '', phone, email = '', password;
   AuthService authService = AuthService();
   bool _isLoading = false;
@@ -186,12 +180,8 @@ class _SignUpState extends State<SignUp> {
                         : const SizedBox(height: 0.0),
                     TextFormField(
                       initialValue: email,
-                      validator: (value) => value.isEmpty
-                          ? 'Enter the Email'
-                          // : !_validEmails
-                          //         .contains(value.split('@')[1].toLowerCase())
-                          //     ? 'Enter a valid email format'
-                          : null,
+                      validator: (value) =>
+                          value.isEmpty ? 'Enter the Email' : null,
                       decoration: textInputDecoration(context, 'Email'),
                       onChanged: (value) => email = value,
                     ),

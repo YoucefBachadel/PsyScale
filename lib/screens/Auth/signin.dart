@@ -161,7 +161,6 @@ class _SignInState extends State<SignIn> {
                           value.isEmpty ? 'Enter the Email' : null,
                       decoration: textInputDecoration(context, 'Email'),
                       keyboardType: TextInputType.emailAddress,
-                      // autofillHints: [AutofillHints.email],
                       onChanged: (value) => email = value,
                     ),
                     SizedBox(height: 6.0),
